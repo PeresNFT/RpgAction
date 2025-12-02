@@ -1,4 +1,4 @@
-git a[build]
+[build]
   command = "npm run build"
 
 [[plugins]]
