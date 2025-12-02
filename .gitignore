@@ -43,7 +43,10 @@ next-env.d.ts
 # OS
 Thumbs.db
 
-# Data files (não commitar dados sensíveis)
-# data/users.json - mantenha apenas se necessário para desenvolvimento
+# Data files (do not commit sensitive data)
+# data/users.json - keep only if necessary for development
 # data/pvp-stats.json
+
+# Local guides (Portuguese - not for GitHub)
+GUIA_GIT_NETLIFY.md
 

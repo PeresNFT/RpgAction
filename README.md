@@ -1,127 +1,157 @@
 # RPG Browser Game
 
-Um jogo RPG em browser com tema medieval, desenvolvido com Next.js, TypeScript e Tailwind CSS.
+A medieval-themed browser RPG game built with Next.js, TypeScript, and Tailwind CSS.
 
-## 🎮 Características
+## 🎮 Features
 
-- **Sistema de Autenticação**: Login e registro com armazenamento em JSON
-- **Interface Moderna**: Design responsivo com paleta de cores personalizada
-- **Sistema de Personagem**: Níveis, experiência, atributos e recursos
-- **Módulos do Jogo**: 
-  - Personagem (stats, health, mana)
-  - Inventário
-  - Batalhas (PvE e PvP)
-  - Sistema de Guilds
-  - Mercado de Trading
-  - Mapa do Mundo
+- **Authentication System**: Login and registration with Supabase database
+- **Modern Interface**: Responsive design with custom color palette
+- **Character System**: Levels, experience, attributes, and resources
+- **Game Modules**: 
+  - Character (stats, health, mana)
+  - Inventory
+  - Battles (PvE and PvP)
+  - Guild System
+  - Trading Market
+  - World Map
 
-## 🚀 Tecnologias
+## 🚀 Technologies
 
-- **Next.js 15** - Framework React
-- **TypeScript** - Tipagem estática
-- **Tailwind CSS** - Estilização
-- **Lucide React** - Ícones
-- **Context API** - Gerenciamento de estado
+- **Next.js 15** - React Framework
+- **TypeScript** - Static typing
+- **Tailwind CSS** - Styling
+- **Supabase** - PostgreSQL database
+- **Lucide React** - Icons
+- **Context API** - State management
 
-## 📦 Instalação
+## 📦 Installation
 
-1. Clone o repositório:
+1. Clone the repository:
 ```bash
 git clone <repository-url>
 cd SiteRPG
 ```
 
-2. Instale as dependências:
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Execute o servidor de desenvolvimento:
+3. Set up environment variables:
+Create a `.env.local` file with your Supabase credentials:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+4. Set up the database:
+- Go to your Supabase project SQL Editor
+- Run the SQL from `supabase/schema.sql`
+
+5. Run the development server:
 ```bash
 npm run dev
 ```
 
-4. Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 🎨 Paleta de Cores
+## 🎨 Color Palette
 
-O projeto utiliza uma paleta de cores personalizada:
+The project uses a custom color palette:
 
-- **Verde**: #4CAF50
-- **Azul**: #2196F3
-- **Laranja**: #FF9800
-- **Roxo**: #9C27B0
-- **Rosa**: #E91E63
-- **Amarelo**: #FFEB3B
-- **Ciano**: #00BCD4
-- **Marrom**: #795548
-- **Azul Cinza**: #607D8B
-- **Laranja Escuro**: #FF5722
+- **Green**: #4CAF50
+- **Blue**: #2196F3
+- **Orange**: #FF9800
+- **Purple**: #9C27B0
+- **Pink**: #E91E63
+- **Yellow**: #FFEB3B
+- **Cyan**: #00BCD4
+- **Brown**: #795548
+- **Blue Gray**: #607D8B
+- **Dark Orange**: #FF5722
 
-## 📁 Estrutura do Projeto
+## 📁 Project Structure
 
 ```
 src/
 ├── app/
 │   ├── game/
-│   │   └── page.tsx          # Página principal do jogo
-│   ├── globals.css           # Estilos globais
-│   ├── layout.tsx            # Layout principal
-│   └── page.tsx              # Página inicial
+│   │   └── page.tsx          # Main game page
+│   ├── api/
+│   │   └── auth/             # API routes
+│   ├── globals.css           # Global styles
+│   ├── layout.tsx            # Main layout
+│   └── page.tsx              # Home page
 ├── components/
-│   └── AuthModal.tsx         # Modal de autenticação
+│   ├── AuthModal.tsx         # Authentication modal
+│   ├── PvPSystem.tsx         # PvP system component
+│   └── ...                   # Other components
 ├── contexts/
-│   └── AuthContext.tsx       # Contexto de autenticação
+│   └── AuthContext.tsx       # Authentication context
 ├── lib/
-│   └── auth.ts              # Funções de autenticação
+│   ├── auth.ts              # Authentication functions
+│   ├── supabase.ts          # Supabase client
+│   └── db-helpers.ts        # Database helpers
 └── types/
-    └── user.ts              # Tipos TypeScript
+    ├── user.ts              # User types
+    └── game.ts              # Game types
 ```
 
-## 🔐 Sistema de Autenticação
+## 🔐 Authentication System
 
-O sistema de autenticação utiliza:
+The authentication system uses:
 
-- **Armazenamento**: Arquivo JSON (`data/users.json`)
-- **Hash de Senha**: SHA-256
-- **Sessão**: LocalStorage
-- **Validação**: Email único, nickname único
+- **Storage**: Supabase PostgreSQL database
+- **Password Hash**: SHA-256
+- **Session**: LocalStorage
+- **Validation**: Unique email, unique nickname
 
-### Funcionalidades:
-- Registro de usuário
+### Features:
+- User registration
 - Login
 - Logout
-- Persistência de sessão
-- Validação de dados
+- Session persistence
+- Data validation
 
-## 🎯 Próximas Funcionalidades
+## 🎯 Upcoming Features
 
-- [ ] Sistema de batalhas PvE
-- [ ] Sistema de batalhas PvP
-- [ ] Sistema de guilds completo
-- [ ] Mercado de trading
-- [ ] Sistema de inventário
-- [ ] Mapa do mundo interativo
-- [ ] Sistema de crafting
-- [ ] Chat global
-- [ ] Sistema de conquistas
-- [ ] Rankings e leaderboards
+- [x] PvE battle system
+- [x] PvP battle system
+- [ ] Complete guild system
+- [ ] Trading market
+- [ ] Inventory system
+- [ ] Interactive world map
+- [ ] Crafting system
+- [ ] Global chat
+- [ ] Achievement system
+- [ ] Rankings and leaderboards
 
-## 🛠️ Scripts Disponíveis
+## 🛠️ Available Scripts
 
-- `npm run dev` - Executa o servidor de desenvolvimento
-- `npm run build` - Constrói o projeto para produção
-- `npm run start` - Executa o servidor de produção
-- `npm run lint` - Executa o linter
+- `npm run dev` - Run development server
+- `npm run build` - Build for production
+- `npm run start` - Run production server
+- `npm run lint` - Run linter
+- `npm run migrate:json-to-supabase` - Migrate data from JSON to Supabase
 
-## 📝 Licença
+## 🚀 Deployment
 
-Este projeto está sob a licença MIT.
+This project is configured for deployment on Netlify. See `netlify.toml` for configuration.
 
-## 🤝 Contribuição
+Make sure to set environment variables in your deployment platform:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-Contribuições são bem-vindas! Por favor, abra uma issue ou pull request.
+## 📝 License
+
+This project is licensed under the MIT License.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please open an issue or pull request.
 
 ---
 
-**Desenvolvido com ❤️ para a comunidade RPG**
+**Developed with ❤️ for the RPG community**

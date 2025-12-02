@@ -1,6 +1,6 @@
 /**
- * Script para migrar dados do JSON para Supabase
- * Execute: npx tsx scripts/migrate-to-supabase.ts
+ * Script to migrate data from JSON to Supabase
+ * Run: npx tsx scripts/migrate-to-supabase.ts
  */
 
 import fs from 'fs';
@@ -9,15 +9,15 @@ import { createClient } from '@supabase/supabase-js';
 import { User } from '../src/types/user';
 import { userToDbRow } from '../src/lib/supabase';
 
-// Carregar variáveis de ambiente
+// Load environment variables
 require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('❌ Erro: Variáveis de ambiente do Supabase não configuradas!');
-  console.error('Crie um arquivo .env.local com:');
+  console.error('❌ Error: Supabase environment variables not configured!');
+  console.error('Create a .env.local file with:');
   console.error('NEXT_PUBLIC_SUPABASE_URL=...');
   console.error('SUPABASE_SERVICE_ROLE_KEY=...');
   process.exit(1);
@@ -33,51 +33,51 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 const USERS_FILE = path.join(process.cwd(), 'data', 'users.json');
 
 async function migrateUsers() {
-  console.log('🚀 Iniciando migração de dados...\n');
+  console.log('🚀 Starting data migration...\n');
 
-  // Verificar se o arquivo existe
+  // Check if file exists
   if (!fs.existsSync(USERS_FILE)) {
-    console.error('❌ Arquivo users.json não encontrado!');
+    console.error('❌ users.json file not found!');
     process.exit(1);
   }
 
-  // Carregar usuários do JSON
+  // Load users from JSON
   const usersData = fs.readFileSync(USERS_FILE, 'utf-8');
   const users: User[] = JSON.parse(usersData);
 
-  console.log(`📦 Encontrados ${users.length} usuários no JSON\n`);
+  console.log(`📦 Found ${users.length} users in JSON\n`);
 
   if (users.length === 0) {
-    console.log('✅ Nenhum usuário para migrar.');
+    console.log('✅ No users to migrate.');
     return;
   }
 
-  // Verificar usuários existentes no Supabase
+  // Check existing users in Supabase
   const { data: existingUsers } = await supabase
     .from('users')
     .select('email');
 
   const existingEmails = new Set(existingUsers?.map(u => u.email) || []);
   
-  // Filtrar usuários que já existem
+  // Filter users that already exist
   const usersToMigrate = users.filter(u => !existingEmails.has(u.email));
   const usersToSkip = users.length - usersToMigrate.length;
 
   if (usersToSkip > 0) {
-    console.log(`⚠️  ${usersToSkip} usuário(s) já existem no banco e serão pulados\n`);
+    console.log(`⚠️  ${usersToSkip} user(s) already exist in database and will be skipped\n`);
   }
 
   if (usersToMigrate.length === 0) {
-    console.log('✅ Todos os usuários já foram migrados!');
+    console.log('✅ All users have already been migrated!');
     return;
   }
 
-  console.log(`📤 Migrando ${usersToMigrate.length} usuário(s)...\n`);
+  console.log(`📤 Migrating ${usersToMigrate.length} user(s)...\n`);
 
   let successCount = 0;
   let errorCount = 0;
 
-  // Migrar em lotes de 10
+  // Migrate in batches of 10
   const batchSize = 10;
   for (let i = 0; i < usersToMigrate.length; i += batchSize) {
     const batch = usersToMigrate.slice(i, i + batchSize);
@@ -90,32 +90,32 @@ async function migrateUsers() {
       .select();
 
     if (error) {
-      console.error(`❌ Erro ao migrar lote ${Math.floor(i / batchSize) + 1}:`, error.message);
+      console.error(`❌ Error migrating batch ${Math.floor(i / batchSize) + 1}:`, error.message);
       errorCount += batch.length;
     } else {
       successCount += data?.length || 0;
-      console.log(`✅ Migrados ${successCount}/${usersToMigrate.length} usuários...`);
+      console.log(`✅ Migrated ${successCount}/${usersToMigrate.length} users...`);
     }
   }
 
-  console.log('\n📊 Resumo da migração:');
-  console.log(`   ✅ Sucesso: ${successCount}`);
-  console.log(`   ❌ Erros: ${errorCount}`);
-  console.log(`   ⏭️  Pulados: ${usersToSkip}`);
+  console.log('\n📊 Migration summary:');
+  console.log(`   ✅ Success: ${successCount}`);
+  console.log(`   ❌ Errors: ${errorCount}`);
+  console.log(`   ⏭️  Skipped: ${usersToSkip}`);
   console.log(`   📦 Total: ${users.length}\n`);
 
   if (errorCount === 0) {
-    console.log('🎉 Migração concluída com sucesso!');
+    console.log('🎉 Migration completed successfully!');
   } else {
-    console.log('⚠️  Migração concluída com alguns erros.');
+    console.log('⚠️  Migration completed with some errors.');
   }
 }
 
-// Executar migração
+// Run migration
 migrateUsers()
   .then(() => process.exit(0))
   .catch((error) => {
-    console.error('❌ Erro fatal:', error);
+    console.error('❌ Fatal error:', error);
     process.exit(1);
   });
 
