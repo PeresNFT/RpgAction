@@ -435,6 +435,289 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Guild Functions
+  const createGuild = async (name: string, description?: string, icon?: string): Promise<{ success: boolean; guild?: any }> => {
+    try {
+      if (!user) {
+        return { success: false };
+      }
+
+      const response = await fetch('/api/auth/create-guild', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          name,
+          description,
+          icon,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create guild');
+      }
+
+      // Update user with guild info
+      if (result.guild) {
+        const updatedUser = {
+          ...user,
+          guildId: result.guild.id,
+          guildRole: 'leader' as const
+        };
+        setUser(updatedUser);
+        localStorage.setItem('rpg_user', JSON.stringify(updatedUser));
+      }
+
+      return { success: true, guild: result.guild };
+    } catch (error: any) {
+      console.error('Create guild error:', error);
+      return { success: false };
+    }
+  };
+
+  const joinGuild = async (guildId: string): Promise<{ success: boolean; guild?: any }> => {
+    try {
+      if (!user) {
+        return { success: false };
+      }
+
+      const response = await fetch('/api/auth/join-guild', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          guildId,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to join guild');
+      }
+
+      // Update user with guild info
+      if (result.guild) {
+        const updatedUser = {
+          ...user,
+          guildId: result.guild.id,
+          guildRole: 'member' as const
+        };
+        setUser(updatedUser);
+        localStorage.setItem('rpg_user', JSON.stringify(updatedUser));
+      }
+
+      return { success: true, guild: result.guild };
+    } catch (error: any) {
+      console.error('Join guild error:', error);
+      return { success: false };
+    }
+  };
+
+  const leaveGuild = async (): Promise<{ success: boolean }> => {
+    try {
+      if (!user) {
+        return { success: false };
+      }
+
+      const response = await fetch('/api/auth/leave-guild', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to leave guild');
+      }
+
+      // Update user to remove guild info
+      const updatedUser = {
+        ...user,
+        guildId: undefined,
+        guildRole: undefined
+      };
+      setUser(updatedUser);
+      localStorage.setItem('rpg_user', JSON.stringify(updatedUser));
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Leave guild error:', error);
+      return { success: false };
+    }
+  };
+
+  const getGuild = async (guildId: string): Promise<{ success: boolean; guild?: any; members?: any[] }> => {
+    try {
+      const response = await fetch('/api/auth/get-guild', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          guildId,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to get guild');
+      }
+
+      return { success: true, guild: result.guild, members: result.members };
+    } catch (error: any) {
+      console.error('Get guild error:', error);
+      return { success: false };
+    }
+  };
+
+  const updateGuild = async (guildId: string, updates: any): Promise<{ success: boolean; guild?: any }> => {
+    try {
+      if (!user) {
+        return { success: false };
+      }
+
+      const response = await fetch('/api/auth/update-guild', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          guildId,
+          updates,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update guild');
+      }
+
+      return { success: true, guild: result.guild };
+    } catch (error: any) {
+      console.error('Update guild error:', error);
+      return { success: false };
+    }
+  };
+
+  const getGuildRanking = async (limit: number = 50, offset: number = 0): Promise<{ success: boolean; rankings?: any[]; total?: number }> => {
+    try {
+      const response = await fetch(`/api/auth/guild-ranking?limit=${limit}&offset=${offset}`);
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to get guild ranking');
+      }
+
+      return { 
+        success: true, 
+        rankings: result.rankings,
+        total: result.total
+      };
+    } catch (error) {
+      console.error('Get guild ranking error:', error);
+      return { success: false };
+    }
+  };
+
+  const guildBank = async (action: 'deposit' | 'withdraw', amount: number): Promise<{ success: boolean; message?: string; userGold?: number; guildGold?: number }> => {
+    try {
+      if (!user || !user.guildId) {
+        return { success: false };
+      }
+
+      const response = await fetch('/api/auth/guild-bank', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          guildId: user.guildId,
+          action,
+          amount,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to perform bank action');
+      }
+
+      // Update user gold if deposit
+      if (result.userGold !== undefined) {
+        const updatedUser = {
+          ...user,
+          gold: result.userGold
+        };
+        setUser(updatedUser);
+        localStorage.setItem('rpg_user', JSON.stringify(updatedUser));
+      }
+
+      return { 
+        success: true, 
+        message: result.message,
+        userGold: result.userGold,
+        guildGold: result.guildGold
+      };
+    } catch (error: any) {
+      console.error('Guild bank error:', error);
+      return { success: false };
+    }
+  };
+
+  const contributeExperience = async (experience: number): Promise<{ success: boolean; message?: string; guild?: any; leveledUp?: boolean }> => {
+    try {
+      if (!user || !user.guildId) {
+        return { success: false };
+      }
+
+      const response = await fetch('/api/auth/guild-contribute', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          guildId: user.guildId,
+          experience,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to contribute experience');
+      }
+
+      return { 
+        success: true, 
+        message: result.message,
+        guild: result.guild,
+        leveledUp: result.leveledUp
+      };
+    } catch (error: any) {
+      console.error('Contribute experience error:', error);
+      return { success: false };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('rpg_user');
@@ -455,6 +738,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     searchPvPOpponents,
     startPvPBattle,
     getPvPRanking,
+    createGuild,
+    joinGuild,
+    leaveGuild,
+    getGuild,
+    updateGuild,
+    getGuildRanking,
+    guildBank,
+    contributeExperience,
     logout,
     isLoading,
   };

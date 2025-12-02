@@ -173,3 +173,61 @@ export interface PvPSearchResult {
   honorPoints: number;
   estimatedWaitTime: number; // em segundos
 }
+
+// Guild System Types
+export type GuildRole = 'member' | 'officer' | 'leader';
+export type GuildJoinType = 'open' | 'invite' | 'closed';
+
+export interface GuildSettings {
+  buffs: {
+    attackBoost?: number;
+    defenseBoost?: number;
+    experienceBoost?: number;
+    goldBoost?: number;
+  };
+  upgrades: {
+    maxMembers?: number;
+    bankCapacity?: number;
+    buffLevel?: number;
+  };
+  joinType: GuildJoinType;
+}
+
+export interface Guild {
+  id: string;
+  name: string;
+  description?: string;
+  icon: string;
+  level: number;
+  experience: number;
+  experienceToNext: number;
+  gold: number; // Guild Bank
+  maxMembers: number;
+  leaderId: string;
+  leaderNickname?: string;
+  settings: GuildSettings;
+  memberCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GuildMember {
+  id: string;
+  nickname: string;
+  characterClass: CharacterClass;
+  level: number;
+  role: GuildRole;
+  joinedAt: string;
+  contribution?: number; // Total XP/Gold contributed
+}
+
+export interface GuildRanking {
+  rank: number;
+  guildId: string;
+  name: string;
+  icon: string;
+  level: number;
+  experience: number;
+  memberCount: number;
+  leaderNickname: string;
+}

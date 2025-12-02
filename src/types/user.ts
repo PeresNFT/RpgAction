@@ -69,6 +69,14 @@ export interface AuthContextType {
   searchPvPOpponents: () => Promise<{ success: boolean; opponents?: any[]; currentUserStats?: any }>;
   startPvPBattle: (opponentId: string) => Promise<{ success: boolean; battle?: any; winner?: any; loser?: any }>;
   getPvPRanking: (limit?: number, offset?: number) => Promise<{ success: boolean; rankings?: any[]; total?: number }>;
+  createGuild: (name: string, description?: string, icon?: string) => Promise<{ success: boolean; guild?: any }>;
+  joinGuild: (guildId: string) => Promise<{ success: boolean; guild?: any }>;
+  leaveGuild: () => Promise<{ success: boolean }>;
+  getGuild: (guildId: string) => Promise<{ success: boolean; guild?: any; members?: any[] }>;
+  updateGuild: (guildId: string, updates: any) => Promise<{ success: boolean; guild?: any }>;
+  getGuildRanking: (limit?: number, offset?: number) => Promise<{ success: boolean; rankings?: any[]; total?: number }>;
+  guildBank: (action: 'deposit' | 'withdraw', amount: number) => Promise<{ success: boolean; message?: string; userGold?: number; guildGold?: number }>;
+  contributeExperience: (experience: number) => Promise<{ success: boolean; message?: string; guild?: any; leveledUp?: boolean }>;
   logout: () => void;
   isLoading: boolean;
 }

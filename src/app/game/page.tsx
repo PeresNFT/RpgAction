@@ -7,6 +7,7 @@ import { ClassSelection } from '@/components/ClassSelection';
 import { AttributeDistribution } from '@/components/AttributeDistribution';
 import { LevelUpAttributeDistribution } from '@/components/LevelUpAttributeDistribution';
 import { PvPSystem } from '@/components/PvPSystem';
+import { GuildSystem } from '@/components/GuildSystem';
 import { 
   Sword, 
   Shield, 
@@ -34,7 +35,7 @@ import { CharacterClass, Attributes, Monster, Item } from '@/types/game';
 import { CHARACTER_CLASSES, MONSTERS, ITEMS, GAME_FORMULAS, COLLECTION_SKILLS, COLLECTION_RESOURCES, generateNewMonsterOfSameLevel, applyLevelPenalty } from '@/data/gameData';
 
 export default function GamePage() {
-  const { user, logout, updateCharacter, updateExperience, updateAttributes, updateHealth, useItem, rest, sellItems, updateCollection, searchPvPOpponents, startPvPBattle, getPvPRanking, isLoading } = useAuth();
+  const { user, logout, updateCharacter, updateExperience, updateAttributes, updateHealth, useItem, rest, sellItems, updateCollection, searchPvPOpponents, startPvPBattle, getPvPRanking, createGuild, joinGuild, leaveGuild, getGuild, updateGuild, getGuildRanking, guildBank, contributeExperience, isLoading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('character');
   const [showClassSelection, setShowClassSelection] = useState(false);
@@ -1038,6 +1039,23 @@ export default function GamePage() {
            onGetRanking={getPvPRanking}
            userPvPStats={user.pvpStats}
            userId={user.id}
+          />
+        );
+      case 'guild':
+        return (
+          <GuildSystem
+            onCreateGuild={createGuild}
+            onJoinGuild={joinGuild}
+            onLeaveGuild={leaveGuild}
+            onGetGuild={getGuild}
+            onUpdateGuild={updateGuild}
+            onGetRanking={getGuildRanking}
+            onGuildBank={guildBank}
+            onContribute={contributeExperience}
+            userGuildId={user.guildId}
+            userGuildRole={user.guildRole}
+            userId={user.id}
+            userGold={user.gold}
           />
         );
 
