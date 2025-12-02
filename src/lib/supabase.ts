@@ -70,6 +70,7 @@ export function dbRowToUser(row: any): User {
       isActive: false,
       lastCollection: 0,
       collectionInterval: 30,
+      skills: [],
       resources: [],
     },
     equippedItems: row.equipped_items || {},

@@ -52,3 +52,47 @@ export function userWithoutPassword(user: User): Omit<User, 'password'> {
   return userWithoutPassword;
 }
 
+/**
+ * Get all users with character class (for PvP matching)
+ */
+export async function getAllUsersWithClass(): Promise<User[]> {
+  if (!supabaseAdmin) {
+    throw new Error('Database not configured');
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('users')
+    .select('*')
+    .not('character_class', 'is', null);
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data.map(row => dbRowToUser(row));
+}
+
+/**
+ * Get users by IDs
+ */
+export async function getUsersByIds(userIds: string[]): Promise<User[]> {
+  if (!supabaseAdmin) {
+    throw new Error('Database not configured');
+  }
+
+  if (userIds.length === 0) {
+    return [];
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('users')
+    .select('*')
+    .in('id', userIds);
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data.map(row => dbRowToUser(row));
+}
+

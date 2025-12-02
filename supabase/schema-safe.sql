@@ -1,4 +1,5 @@
--- Schema para o jogo RPG
+-- Schema para o jogo RPG (Versão Idempotente)
+-- Esta versão pode ser executada múltiplas vezes sem erros
 -- Execute este SQL no SQL Editor do Supabase
 
 -- Tabela de usuários
@@ -78,10 +79,27 @@ CREATE TRIGGER update_pvp_stats_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
--- RLS (Row Level Security) - Desabilitado por padrão para facilitar desenvolvimento
--- Você pode habilitar depois se precisar de segurança adicional
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE pvp_stats ENABLE ROW LEVEL SECURITY;
+-- RLS (Row Level Security) - Habilitar se ainda não estiver
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_tables 
+    WHERE schemaname = 'public' 
+    AND tablename = 'users' 
+    AND rowsecurity = true
+  ) THEN
+    ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_tables 
+    WHERE schemaname = 'public' 
+    AND tablename = 'pvp_stats' 
+    AND rowsecurity = true
+  ) THEN
+    ALTER TABLE pvp_stats ENABLE ROW LEVEL SECURITY;
+  END IF;
+END $$;
 
 -- Políticas básicas (permitir tudo por enquanto - ajuste conforme necessário)
 DROP POLICY IF EXISTS "Allow all operations on users" ON users;
@@ -91,4 +109,10 @@ CREATE POLICY "Allow all operations on users" ON users
 DROP POLICY IF EXISTS "Allow all operations on pvp_stats" ON pvp_stats;
 CREATE POLICY "Allow all operations on pvp_stats" ON pvp_stats
   FOR ALL USING (true) WITH CHECK (true);
+
+-- Mensagem de sucesso
+DO $$
+BEGIN
+  RAISE NOTICE 'Schema aplicado com sucesso! ✅';
+END $$;
 

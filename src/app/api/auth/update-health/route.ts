@@ -1,21 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { User } from '@/types/user';
-
-const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
-
-function loadUsers(): User[] {
-  if (!fs.existsSync(usersFilePath)) {
-    return [];
-  }
-  const data = fs.readFileSync(usersFilePath, 'utf-8');
-  return JSON.parse(data);
-}
-
-function saveUsers(users: User[]): void {
-  fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2), 'utf-8');
-}
+import { getUserById, updateUser, userWithoutPassword } from '@/lib/db-helpers';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,17 +14,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const users = loadUsers();
-    const userIndex = users.findIndex(u => u.id === userId);
+    const user = await getUserById(userId);
 
-    if (userIndex === -1) {
+    if (!user) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       );
     }
-
-    const user = users[userIndex];
     
     // Atualizar vida do jogador
     const updatedUser: User = {
@@ -50,15 +32,11 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    users[userIndex] = updatedUser;
-    saveUsers(users);
-
-    // Remover password da resposta
-    const { password, ...userWithoutPassword } = updatedUser;
+    const savedUser = await updateUser(updatedUser);
 
     return NextResponse.json({
       success: true,
-      user: userWithoutPassword
+      user: userWithoutPassword(savedUser)
     });
 
   } catch (error) {

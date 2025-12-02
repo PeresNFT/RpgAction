@@ -64,20 +64,56 @@ export default function GamePage() {
     }
   }, [user, router, isLoading, showAttributeDistribution]);
 
-  // Collection timer
+  // Calculate collection timer based on lastCollection timestamp
+  // This ensures the timer continues even when the page is closed/reloaded
   useEffect(() => {
-    if (user?.collection?.isActive) {
-      const interval = setInterval(() => {
-        setCollectionTimer(prev => {
-          if (prev <= 0) {
-            return user.collection?.collectionInterval || 30;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(interval);
+    if (!user?.collection) {
+      setCollectionTimer(0);
+      return;
     }
-  }, [user?.collection?.isActive, user?.collection?.collectionInterval]);
+
+    // Store current collection data in variables to use in interval
+    const lastCollection = typeof user.collection.lastCollection === 'number' 
+      ? user.collection.lastCollection 
+      : (user.collection.lastCollection ? parseInt(String(user.collection.lastCollection)) : 0);
+    const collectionInterval = user.collection.collectionInterval || 30;
+
+    // Function to calculate remaining time based on timestamp
+    // This function recalculates from scratch each time, ensuring accuracy
+    const calculateRemainingTime = (): number => {
+      const now = Date.now();
+      
+      // Only calculate if lastCollection is a valid timestamp
+      if (lastCollection > 0) {
+        const timeSinceLastCollection = Math.floor((now - lastCollection) / 1000); // seconds
+        
+        if (timeSinceLastCollection >= collectionInterval) {
+          // Timer already expired
+          return 0;
+        } else if (timeSinceLastCollection < 0) {
+          // Invalid timestamp (future date), reset timer
+          return 0;
+        } else {
+          // Timer still counting down
+          return Math.max(0, collectionInterval - timeSinceLastCollection);
+        }
+      } else {
+        // No previous collection (lastCollection is 0 or null), timer is ready
+        return 0;
+      }
+    };
+
+    // Calculate initial timer value
+    setCollectionTimer(calculateRemainingTime());
+
+    // Update timer every second based on current timestamp
+    // This way the timer continues even if the user leaves and comes back
+    const interval = setInterval(() => {
+      setCollectionTimer(calculateRemainingTime());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [user?.collection?.lastCollection, user?.collection?.collectionInterval]);
 
 
 
@@ -129,39 +165,62 @@ export default function GamePage() {
   };
 
   const handleCollectResources = async (collectionType: string) => {
-    if (collectionTimer <= 0) {
-      // Simulate resource collection based on type
-      const resources = COLLECTION_RESOURCES[collectionType as keyof typeof COLLECTION_RESOURCES] || [];
-      const availableResources = resources.filter((resource: any) => {
-        const skill = user.collection?.skills?.find(s => s.type === collectionType);
-        return skill && skill.level >= resource.level;
-      });
-      
-      if (availableResources.length > 0) {
-        const randomResource = availableResources[Math.floor(Math.random() * availableResources.length)];
-        const amount = Math.floor(Math.random() * (randomResource.maxAmount - randomResource.baseAmount + 1)) + randomResource.baseAmount;
-        
-        const collectedResources = [{
-          id: randomResource.id,
-          name: randomResource.name,
-          amount,
-          icon: randomResource.icon
-        }];
-        
-        // Atualizar experiência de coleta
-        const result = await updateCollection(collectionType, randomResource.experience, collectedResources);
-        
-        if (result.success) {
-          setBattleLog(prev => [
-            ...prev, 
-            `Coletou: ${amount}x ${randomResource.name}`,
-            ...(result.levelUp ? [`🎉 ${collectionType.toUpperCase()} subiu de nível! 🎉`] : [])
-          ]);
-        }
-      }
-      
-      setCollectionTimer(user.collection?.collectionInterval || 30);
+    if (collectionTimer > 0) {
+      return; // Timer ainda não acabou
     }
+
+    // Simulate resource collection based on type
+    const resources = COLLECTION_RESOURCES[collectionType as keyof typeof COLLECTION_RESOURCES] || [];
+    
+    if (!resources || resources.length === 0) {
+      console.error('No resources found for collection type:', collectionType);
+      return;
+    }
+
+    // Get current skill level (default to level 1 if skill doesn't exist yet)
+    const skill = user.collection?.skills?.find(s => s.type === collectionType);
+    const currentSkillLevel = skill?.level || 1;
+    
+    // Filter resources based on skill level
+    const availableResources = resources.filter((resource: any) => {
+      return currentSkillLevel >= (resource.level || 1);
+    });
+    
+    if (availableResources.length === 0) {
+      setBattleLog(prev => [
+        ...prev, 
+        `Você precisa de um nível maior em ${collectionType} para coletar recursos aqui.`
+      ]);
+      return;
+    }
+    
+    const randomResource = availableResources[Math.floor(Math.random() * availableResources.length)];
+    const amount = Math.floor(Math.random() * (randomResource.maxAmount - randomResource.baseAmount + 1)) + randomResource.baseAmount;
+    
+    const collectedResources = [{
+      id: randomResource.id,
+      name: randomResource.name,
+      amount,
+      icon: randomResource.icon
+    }];
+    
+    // Atualizar experiência de coleta
+    const result = await updateCollection(collectionType, randomResource.experience, collectedResources);
+    
+    if (result.success) {
+      setBattleLog(prev => [
+        ...prev, 
+        `Coletou: ${amount}x ${randomResource.name}`,
+        ...(result.levelUp ? [`🎉 ${collectionType.toUpperCase()} subiu de nível! 🎉`] : [])
+      ]);
+    } else {
+      setBattleLog(prev => [
+        ...prev, 
+        `Erro ao coletar recursos. Tente novamente.`
+      ]);
+    }
+    
+    // Timer will be reset automatically by the useEffect that reads lastCollection
   };
 
   const handleUseItem = async (itemId: string) => {
@@ -972,14 +1031,15 @@ export default function GamePage() {
         );
 
              case 'pvp':
-         return (
-           <PvPSystem
-            onSearchOpponents={searchPvPOpponents}
-            onStartBattle={startPvPBattle}
-            onGetRanking={getPvPRanking}
-            userPvPStats={user.pvpStats}
+        return (
+          <PvPSystem
+           onSearchOpponents={searchPvPOpponents}
+           onStartBattle={startPvPBattle}
+           onGetRanking={getPvPRanking}
+           userPvPStats={user.pvpStats}
+           userId={user.id}
           />
-         );
+        );
 
        case 'collection':
          return (

@@ -1,29 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { 
   calculatePvPBattle, 
   calculateHonorPoints, 
   getRankFromPoints,
   getRankIcon 
 } from '@/data/gameData';
-
-const USERS_FILE = path.join(process.cwd(), 'data', 'users.json');
+import { getUserById, getUsersByIds, updateUser } from '@/lib/db-helpers';
 
 export async function POST(request: NextRequest) {
   try {
     const { player1Id, player2Id } = await request.json();
 
-    // Read users data
-    const usersData = JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
-    const player1 = usersData.find((u: any) => u.id === player1Id);
-    const player2 = usersData.find((u: any) => u.id === player2Id);
-
-    if (!player1 || !player2) {
-      return NextResponse.json({ error: 'Player not found' }, { status: 404 });
+    if (!player1Id || !player2Id) {
+      return NextResponse.json({ error: 'Missing player IDs' }, { status: 400 });
     }
 
+    // Prevent self-battle
+    if (player1Id === player2Id) {
+      return NextResponse.json({ error: 'Cannot battle yourself' }, { status: 400 });
+    }
+
+    // PvP Cooldown: 10 minutes (600 seconds)
+    const PVP_COOLDOWN_SECONDS = 600;
+
+    // Get both players
+    const players = await getUsersByIds([player1Id, player2Id]);
+    
+    if (players.length !== 2) {
+      return NextResponse.json({ error: 'One or both players not found' }, { status: 404 });
+    }
+
+    const player1 = players.find(p => p.id === player1Id)!;
+    const player2 = players.find(p => p.id === player2Id)!;
+
     // Initialize PvP stats if they don't exist
+    // Check cooldown for player1 (attacker)
+    if (player1.pvpStats?.lastBattleTime) {
+      const lastBattleTime = typeof player1.pvpStats.lastBattleTime === 'number' 
+        ? player1.pvpStats.lastBattleTime 
+        : parseInt(String(player1.pvpStats.lastBattleTime));
+      
+      const timeSinceLastBattle = Math.floor((Date.now() - lastBattleTime) / 1000);
+      
+      if (timeSinceLastBattle < PVP_COOLDOWN_SECONDS) {
+        const remainingSeconds = PVP_COOLDOWN_SECONDS - timeSinceLastBattle;
+        return NextResponse.json({ 
+          error: `Cooldown ativo. Aguarde ${Math.floor(remainingSeconds / 60)}:${(remainingSeconds % 60).toString().padStart(2, '0')} minutos.` 
+        }, { status: 400 });
+      }
+    }
     if (!player1.pvpStats) {
       player1.pvpStats = {
         honorPoints: 0,
@@ -52,7 +77,7 @@ export async function POST(request: NextRequest) {
     const p1Data = {
       id: player1.id,
       nickname: player1.nickname,
-      characterClass: player1.characterClass,
+      characterClass: player1.characterClass!,
       level: player1.stats?.level || player1.level || 1,
       health: player1.stats?.health || player1.health || 100,
       maxHealth: player1.stats?.maxHealth || player1.maxHealth || 100,
@@ -70,7 +95,7 @@ export async function POST(request: NextRequest) {
     const p2Data = {
       id: player2.id,
       nickname: player2.nickname,
-      characterClass: player2.characterClass,
+      characterClass: player2.characterClass!,
       level: player2.stats?.level || player2.level || 1,
       health: player2.stats?.health || player2.health || 100,
       maxHealth: player2.stats?.maxHealth || player2.maxHealth || 100,
@@ -96,33 +121,34 @@ export async function POST(request: NextRequest) {
     const { winnerPoints, loserPoints } = calculateHonorPoints(
       winnerPlayer, 
       loserPlayer, 
-      winnerPlayer.pvpStats, 
-      loserPlayer.pvpStats
+      winnerPlayer.pvpStats!, 
+      loserPlayer.pvpStats!
     );
 
     // Update winner stats
-    winnerPlayer.pvpStats.honorPoints += winnerPoints;
-    winnerPlayer.pvpStats.wins += 1;
-    winnerPlayer.pvpStats.winStreak += 1;
-    winnerPlayer.pvpStats.totalBattles += 1;
-    winnerPlayer.pvpStats.lastBattleTime = Date.now();
+    winnerPlayer.pvpStats!.honorPoints += winnerPoints;
+    winnerPlayer.pvpStats!.wins += 1;
+    winnerPlayer.pvpStats!.winStreak += 1;
+    winnerPlayer.pvpStats!.totalBattles += 1;
+    winnerPlayer.pvpStats!.lastBattleTime = Date.now();
     
-    if (winnerPlayer.pvpStats.winStreak > winnerPlayer.pvpStats.bestWinStreak) {
-      winnerPlayer.pvpStats.bestWinStreak = winnerPlayer.pvpStats.winStreak;
+    if (winnerPlayer.pvpStats!.winStreak > winnerPlayer.pvpStats!.bestWinStreak) {
+      winnerPlayer.pvpStats!.bestWinStreak = winnerPlayer.pvpStats!.winStreak;
     }
     
-    winnerPlayer.pvpStats.rank = getRankFromPoints(winnerPlayer.pvpStats.honorPoints);
+    winnerPlayer.pvpStats!.rank = getRankFromPoints(winnerPlayer.pvpStats!.honorPoints);
 
     // Update loser stats
-    loserPlayer.pvpStats.honorPoints = Math.max(0, loserPlayer.pvpStats.honorPoints + loserPoints);
-    loserPlayer.pvpStats.losses += 1;
-    loserPlayer.pvpStats.winStreak = 0;
-    loserPlayer.pvpStats.totalBattles += 1;
-    loserPlayer.pvpStats.lastBattleTime = Date.now();
-    loserPlayer.pvpStats.rank = getRankFromPoints(loserPlayer.pvpStats.honorPoints);
+    loserPlayer.pvpStats!.honorPoints = Math.max(0, loserPlayer.pvpStats!.honorPoints + loserPoints);
+    loserPlayer.pvpStats!.losses += 1;
+    loserPlayer.pvpStats!.winStreak = 0;
+    loserPlayer.pvpStats!.totalBattles += 1;
+    loserPlayer.pvpStats!.lastBattleTime = Date.now();
+    loserPlayer.pvpStats!.rank = getRankFromPoints(loserPlayer.pvpStats!.honorPoints);
 
     // Save updated data
-    fs.writeFileSync(USERS_FILE, JSON.stringify(usersData, null, 2));
+    await updateUser(winnerPlayer);
+    await updateUser(loserPlayer);
 
     // Create battle result
     const battleResult = {
@@ -145,17 +171,17 @@ export async function POST(request: NextRequest) {
         id: winnerPlayer.id,
         nickname: winnerPlayer.nickname,
         honorPointsGained: winnerPoints,
-        newHonorPoints: winnerPlayer.pvpStats.honorPoints,
-        newRank: winnerPlayer.pvpStats.rank,
-        rankIcon: getRankIcon(winnerPlayer.pvpStats.rank)
+        newHonorPoints: winnerPlayer.pvpStats!.honorPoints,
+        newRank: winnerPlayer.pvpStats!.rank,
+        rankIcon: getRankIcon(winnerPlayer.pvpStats!.rank)
       },
       loser: {
         id: loserPlayer.id,
         nickname: loserPlayer.nickname,
         honorPointsLost: Math.abs(loserPoints),
-        newHonorPoints: loserPlayer.pvpStats.honorPoints,
-        newRank: loserPlayer.pvpStats.rank,
-        rankIcon: getRankIcon(loserPlayer.pvpStats.rank)
+        newHonorPoints: loserPlayer.pvpStats!.honorPoints,
+        newRank: loserPlayer.pvpStats!.rank,
+        rankIcon: getRankIcon(loserPlayer.pvpStats!.rank)
       }
     });
 
@@ -164,3 +190,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+

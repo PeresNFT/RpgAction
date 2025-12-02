@@ -11,7 +11,8 @@ import {
   Crown,
   TrendingUp,
   TrendingDown,
-  Star
+  Star,
+  Clock
 } from 'lucide-react';
 import { CHARACTER_CLASSES, getRankIcon } from '@/data/gameData';
 import { PvPSearchResult, PvPRanking } from '@/types/game';
@@ -21,9 +22,10 @@ interface PvPSystemProps {
   onStartBattle: (opponentId: string) => Promise<{ success: boolean; battle?: any; winner?: any; loser?: any }>;
   onGetRanking: (limit?: number, offset?: number) => Promise<{ success: boolean; rankings?: PvPRanking[]; total?: number }>;
   userPvPStats?: any;
+  userId?: string;
 }
 
-export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, userPvPStats }: PvPSystemProps) {
+export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, userPvPStats, userId }: PvPSystemProps) {
   const [activeTab, setActiveTab] = useState<'search' | 'ranking'>('search');
   const [opponents, setOpponents] = useState<PvPSearchResult[]>([]);
   const [rankings, setRankings] = useState<PvPRanking[]>([]);
@@ -32,6 +34,53 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
   const [currentBattle, setCurrentBattle] = useState<any>(null);
   const [battleResult, setBattleResult] = useState<any>(null);
   const [currentUserStats, setCurrentUserStats] = useState<any>(null);
+  const [pvpCooldown, setPvpCooldown] = useState(0); // Cooldown timer in seconds
+  const PVP_COOLDOWN_SECONDS = 600; // 10 minutes
+
+  // Calculate PvP cooldown based on lastBattleTime
+  useEffect(() => {
+    if (!userPvPStats) {
+      setPvpCooldown(0);
+      return;
+    }
+
+    // Function to calculate remaining cooldown based on timestamp
+    const calculateRemainingCooldown = (): number => {
+      const lastBattleTime = typeof userPvPStats.lastBattleTime === 'number' 
+        ? userPvPStats.lastBattleTime 
+        : (userPvPStats.lastBattleTime ? parseInt(String(userPvPStats.lastBattleTime)) : 0);
+      
+      if (lastBattleTime === 0) {
+        return 0; // No cooldown if never battled
+      }
+
+      const now = Date.now();
+      const timeSinceLastBattle = Math.floor((now - lastBattleTime) / 1000);
+      
+      if (timeSinceLastBattle >= PVP_COOLDOWN_SECONDS) {
+        return 0; // Cooldown expired
+      } else {
+        return Math.max(0, PVP_COOLDOWN_SECONDS - timeSinceLastBattle);
+      }
+    };
+
+    // Calculate initial cooldown value
+    setPvpCooldown(calculateRemainingCooldown());
+
+    // Update cooldown every second
+    const interval = setInterval(() => {
+      setPvpCooldown(calculateRemainingCooldown());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [userPvPStats?.lastBattleTime]);
+
+  // Auto-search opponents when entering PvP tab
+  useEffect(() => {
+    if (activeTab === 'search' && opponents.length === 0 && !isSearching) {
+      handleSearchOpponents();
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     if (activeTab === 'ranking') {
@@ -69,6 +118,10 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
   };
 
   const handleStartBattle = async (opponentId: string) => {
+    if (pvpCooldown > 0) {
+      return; // Cooldown still active
+    }
+
     try {
       const result = await onStartBattle(opponentId);
       if (result.success) {
@@ -80,6 +133,8 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
           handleSearchOpponents();
           loadRanking();
         }, 2000);
+      } else {
+        console.error('Battle failed:', result);
       }
     } catch (error) {
       console.error('Error starting battle:', error);
@@ -96,11 +151,41 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
     return '🥉';
   };
 
+  const formatCooldown = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="space-y-6">
       {/* PvP Stats Header */}
       <div className="bg-gradient-to-br from-primary-purple to-primary-pink p-6 rounded-2xl border-2 border-custom">
         <h3 className="text-2xl font-bold text-white mb-4">⚔️ Arena PvP</h3>
+        
+        {/* PvP Cooldown Timer */}
+        {pvpCooldown > 0 && (
+          <div className="mb-6 bg-gray-800 p-4 rounded-lg border border-custom">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
+                <Clock className="w-5 h-5 text-primary-yellow" />
+                <span className="text-white font-semibold">Cooldown PvP:</span>
+              </div>
+              <span className="text-primary-yellow font-bold text-xl">
+                {formatCooldown(pvpCooldown)}
+              </span>
+            </div>
+            <div className="w-full bg-gray-700 rounded-full h-2">
+              <div 
+                className="bg-primary-yellow h-2 rounded-full transition-all duration-1000"
+                style={{ width: `${((PVP_COOLDOWN_SECONDS - pvpCooldown) / PVP_COOLDOWN_SECONDS) * 100}%` }}
+              ></div>
+            </div>
+            <p className="text-gray-400 text-sm mt-2">
+              Aguarde o cooldown para iniciar uma nova batalha PvP
+            </p>
+          </div>
+        )}
         
         {userPvPStats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -167,10 +252,10 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
           <div className="bg-gray-900 p-6 rounded-2xl border-2 border-custom max-w-2xl w-full max-h-[80vh] overflow-y-auto">
             <div className="text-center mb-6">
               <div className="text-4xl mb-4">
-                {battleResult.winner?.id === userPvPStats?.playerId ? '🏆' : '💀'}
+                {battleResult.winner?.id === userId ? '🏆' : '💀'}
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">
-                {battleResult.winner?.id === userPvPStats?.playerId ? 'Vitória!' : 'Derrota!'}
+                {battleResult.winner?.id === userId ? 'Vitória!' : 'Derrota!'}
               </h2>
               <p className="text-gray-300">
                 {battleResult.winner?.nickname} vs {battleResult.loser?.nickname}
@@ -267,16 +352,16 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
                 }`}
               >
                 <Search className="w-4 h-4" />
-                <span>{isSearching ? 'Buscando...' : 'Buscar'}</span>
+                <span>{isSearching ? 'Buscando...' : 'Atualizar'}</span>
               </button>
             </div>
 
             {opponents.length === 0 ? (
               <p className="text-gray-300 text-center py-8">
-                Clique em "Buscar" para encontrar oponentes para batalha!
+                {isSearching ? 'Buscando oponentes...' : 'Carregando oponentes...'}
               </p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {opponents.map((opponent) => (
                   <div key={opponent.playerId} className="bg-gray-800 p-4 rounded-lg border border-custom">
                     <div className="flex items-center space-x-3 mb-3">
@@ -294,18 +379,19 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
                           {getRankIconForPoints(opponent.honorPoints)} {opponent.honorPoints}
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-300">Tempo de Espera:</span>
-                        <span className="text-blue-400">{opponent.estimatedWaitTime}s</span>
-                      </div>
                     </div>
                     
                     <button
                       onClick={() => handleStartBattle(opponent.playerId)}
-                      className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg font-bold transition-all duration-300 flex items-center justify-center space-x-2"
+                      disabled={pvpCooldown > 0}
+                      className={`w-full px-4 py-2 rounded-lg font-bold transition-all duration-300 flex items-center justify-center space-x-2 ${
+                        pvpCooldown <= 0
+                          ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white'
+                          : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      }`}
                     >
                       <Sword className="w-4 h-4" />
-                      <span>Batalhar</span>
+                      <span>{pvpCooldown <= 0 ? 'Batalhar' : 'Cooldown Ativo'}</span>
                     </button>
                   </div>
                 ))}

@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { PvPRanking } from '@/types/game';
-
-const USERS_FILE = path.join(process.cwd(), 'data', 'users.json');
+import { getAllUsersWithClass } from '@/lib/db-helpers';
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,25 +8,26 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Read users data
-    const usersData = JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
+    // Get all users with character class
+    const allUsers = await getAllUsersWithClass();
 
-    // Filter users with PvP stats and character class
-    const pvpUsers = usersData
-      .filter((user: any) => user.characterClass && user.pvpStats)
-      .map((user: any) => ({
+    // Filter users with PvP stats
+    const pvpUsersData = allUsers
+      .filter((user) => user.pvpStats)
+      .map((user) => ({
         playerId: user.id,
         nickname: user.nickname,
-        characterClass: user.characterClass,
+        characterClass: user.characterClass!,
         level: user.stats?.level || user.level || 1,
-        honorPoints: user.pvpStats.honorPoints,
-        wins: user.pvpStats.wins,
-        losses: user.pvpStats.losses,
-        winRate: user.pvpStats.totalBattles > 0 
-          ? Math.round((user.pvpStats.wins / user.pvpStats.totalBattles) * 100) 
+        honorPoints: user.pvpStats!.honorPoints,
+        wins: user.pvpStats!.wins,
+        losses: user.pvpStats!.losses,
+        winRate: user.pvpStats!.totalBattles > 0 
+          ? Math.round((user.pvpStats!.wins / user.pvpStats!.totalBattles) * 100) 
           : 0
-      }))
-      .sort((a: PvPRanking, b: PvPRanking) => {
+      }));
+    
+    const pvpUsers = pvpUsersData.sort((a, b) => {
         // Sort by honor points (descending), then by win rate, then by wins
         if (a.honorPoints !== b.honorPoints) {
           return b.honorPoints - a.honorPoints;
@@ -41,7 +39,7 @@ export async function GET(request: NextRequest) {
       });
 
     // Add rank numbers
-    const rankedUsers = pvpUsers.map((user: PvPRanking, index: number) => ({
+    const rankedUsers = pvpUsers.map((user, index: number): PvPRanking => ({
       ...user,
       rank: offset + index + 1
     }));
@@ -62,3 +60,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
