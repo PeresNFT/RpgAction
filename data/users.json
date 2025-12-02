@@ -1,0 +1,5971 @@
+[
+  {
+    "id": "example-user-1",
+    "email": "player1@example.com",
+    "nickname": "DragonSlayer",
+    "password": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "lastLogin": "2024-01-01T00:00:00.000Z",
+    "level": 5,
+    "experience": 1250,
+    "gold": 500,
+    "health": 100,
+    "maxHealth": 100,
+    "mana": 50,
+    "maxMana": 50,
+    "strength": 15,
+    "agility": 12,
+    "intelligence": 10,
+    "characterClass": null,
+    "attributes": {
+      "strength": 15,
+      "magic": 10,
+      "dexterity": 10,
+      "agility": 12,
+      "vitality": 10
+    },
+    "availablePoints": 0,
+    "stats": {
+      "level": 5,
+      "experience": 1250,
+      "experienceToNext": 500,
+      "health": 100,
+      "maxHealth": 100,
+      "mana": 50,
+      "maxMana": 50,
+      "attack": 20,
+      "defense": 15,
+      "criticalChance": 5,
+      "dodgeChance": 4
+    },
+    "inventory": [],
+    "battle": {
+      "isActive": false,
+      "player": {
+        "health": 100,
+        "maxHealth": 100,
+        "mana": 50,
+        "maxMana": 50
+      },
+      "monster": null,
+      "turn": "player",
+      "battleLog": []
+    },
+    "collection": {
+      "isActive": false,
+      "lastCollection": 0,
+      "collectionInterval": 30,
+      "skills": [],
+      "resources": []
+    },
+    "equippedItems": {}
+  },
+  {
+    "id": "example-user-2",
+    "email": "player2@example.com",
+    "nickname": "MageMaster",
+    "password": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "lastLogin": "2024-01-01T00:00:00.000Z",
+    "level": 3,
+    "experience": 450,
+    "gold": 250,
+    "health": 80,
+    "maxHealth": 80,
+    "mana": 80,
+    "maxMana": 80,
+    "strength": 8,
+    "agility": 10,
+    "intelligence": 18,
+    "characterClass": null,
+    "attributes": {
+      "strength": 8,
+      "magic": 18,
+      "dexterity": 10,
+      "agility": 10,
+      "vitality": 10
+    },
+    "availablePoints": 0,
+    "stats": {
+      "level": 3,
+      "experience": 450,
+      "experienceToNext": 300,
+      "health": 80,
+      "maxHealth": 80,
+      "mana": 80,
+      "maxMana": 80,
+      "attack": 20,
+      "defense": 15,
+      "criticalChance": 5,
+      "dodgeChance": 4
+    },
+    "inventory": [],
+    "battle": {
+      "isActive": false,
+      "player": {
+        "health": 80,
+        "maxHealth": 80,
+        "mana": 80,
+        "maxMana": 80
+      },
+      "monster": null,
+      "turn": "player",
+      "battleLog": []
+    },
+    "collection": {
+      "isActive": false,
+      "lastCollection": 0,
+      "collectionInterval": 30,
+      "skills": [],
+      "resources": []
+    },
+    "equippedItems": {}
+  },
+  {
+    "id": "7233c5c7-3550-4efd-9a42-6ad906f85a38",
+    "email": "peres.eb@hotmail.com",
+    "nickname": "Delita",
+    "password": "d0e14b26dea1ddc9a2e4ab5eabab4ca4f6a166409aee7c8ae2d25f0822fc3dbb",
+    "createdAt": "2025-08-22T03:51:50.636Z",
+    "lastLogin": "2025-09-04T22:24:46.187Z",
+    "level": 1,
+    "experience": 0,
+    "gold": 1152212,
+    "health": 100,
+    "maxHealth": 100,
+    "mana": 50,
+    "maxMana": 50,
+    "strength": 10,
+    "agility": 10,
+    "intelligence": 10,
+    "characterClass": "warrior",
+    "attributes": {
+      "strength": 430,
+      "magic": 6,
+      "dexterity": 100,
+      "agility": 60,
+      "vitality": 250
+    },
+    "availablePoints": 5,
+    "stats": {
+      "level": 164,
+      "experience": 9134,
+      "experienceToNext": 82000,
+      "health": 5400,
+      "maxHealth": 5400,
+      "mana": 868,
+      "maxMana": 868,
+      "attack": 1361,
+      "defense": 703,
+      "criticalChance": 25,
+      "dodgeChance": 20
+    },
+    "inventory": [
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "bow_basic",
+        "name": "Arco Básico",
+        "description": "Um arco simples para caça.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "dexterity": 3
+        },
+        "value": 50,
+        "icon": "🏹"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "bow_basic",
+        "name": "Arco Básico",
+        "description": "Um arco simples para caça.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "dexterity": 3
+        },
+        "value": 50,
+        "icon": "🏹"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "staff_basic",
+        "name": "Cajado Básico",
+        "description": "Um cajado para canalizar magias.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "magic": 3
+        },
+        "value": 50,
+        "icon": "🔮"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "bow_basic",
+        "name": "Arco Básico",
+        "description": "Um arco simples para caça.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "dexterity": 3
+        },
+        "value": 50,
+        "icon": "🏹"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "bow_basic",
+        "name": "Arco Básico",
+        "description": "Um arco simples para caça.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "dexterity": 3
+        },
+        "value": 50,
+        "icon": "🏹"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "bow_basic",
+        "name": "Arco Básico",
+        "description": "Um arco simples para caça.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "dexterity": 3
+        },
+        "value": 50,
+        "icon": "🏹"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "bow_basic",
+        "name": "Arco Básico",
+        "description": "Um arco simples para caça.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "dexterity": 3
+        },
+        "value": 50,
+        "icon": "🏹"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "bow_basic",
+        "name": "Arco Básico",
+        "description": "Um arco simples para caça.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "dexterity": 3
+        },
+        "value": 50,
+        "icon": "🏹"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "bow_basic",
+        "name": "Arco Básico",
+        "description": "Um arco simples para caça.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "dexterity": 3
+        },
+        "value": 50,
+        "icon": "🏹"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "sword_basic",
+        "name": "Espada Básica",
+        "description": "Uma espada simples mas eficaz.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "strength": 3
+        },
+        "value": 50,
+        "icon": "⚔️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "sword_basic",
+        "name": "Espada Básica",
+        "description": "Uma espada simples mas eficaz.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "strength": 3
+        },
+        "value": 50,
+        "icon": "⚔️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "sword_basic",
+        "name": "Espada Básica",
+        "description": "Uma espada simples mas eficaz.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "strength": 3
+        },
+        "value": 50,
+        "icon": "⚔️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "staff_basic",
+        "name": "Cajado Básico",
+        "description": "Um cajado para canalizar magias.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "magic": 3
+        },
+        "value": 50,
+        "icon": "🔮"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "sword_basic",
+        "name": "Espada Básica",
+        "description": "Uma espada simples mas eficaz.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "strength": 3
+        },
+        "value": 50,
+        "icon": "⚔️"
+      },
+      {
+        "id": "sword_basic",
+        "name": "Espada Básica",
+        "description": "Uma espada simples mas eficaz.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "strength": 3
+        },
+        "value": 50,
+        "icon": "⚔️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "staff_basic",
+        "name": "Cajado Básico",
+        "description": "Um cajado para canalizar magias.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "magic": 3
+        },
+        "value": 50,
+        "icon": "🔮"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "staff_basic",
+        "name": "Cajado Básico",
+        "description": "Um cajado para canalizar magias.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "magic": 3
+        },
+        "value": 50,
+        "icon": "🔮"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "sword_basic",
+        "name": "Espada Básica",
+        "description": "Uma espada simples mas eficaz.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "strength": 3
+        },
+        "value": 50,
+        "icon": "⚔️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "sword_basic",
+        "name": "Espada Básica",
+        "description": "Uma espada simples mas eficaz.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "strength": 3
+        },
+        "value": 50,
+        "icon": "⚔️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "bow_basic",
+        "name": "Arco Básico",
+        "description": "Um arco simples para caça.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "dexterity": 3
+        },
+        "value": 50,
+        "icon": "🏹"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "sword_basic",
+        "name": "Espada Básica",
+        "description": "Uma espada simples mas eficaz.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "strength": 3
+        },
+        "value": 50,
+        "icon": "⚔️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "sword_basic",
+        "name": "Espada Básica",
+        "description": "Uma espada simples mas eficaz.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "strength": 3
+        },
+        "value": 50,
+        "icon": "⚔️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "mana_potion",
+        "name": "Poção de Mana",
+        "description": "Restaura 30 pontos de mana.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 20,
+        "icon": "🔵",
+        "manaAmount": 30
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "health_potion",
+        "name": "Poção de Vida",
+        "description": "Restaura 50 pontos de vida.",
+        "type": "consumable",
+        "rarity": "common",
+        "level": 1,
+        "value": 25,
+        "icon": "❤️",
+        "healAmount": 50
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "leather_armor",
+        "name": "Armadura de Couro",
+        "description": "Armadura leve de couro.",
+        "type": "armor",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "vitality": 2,
+          "agility": 1
+        },
+        "value": 30,
+        "icon": "🛡️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      },
+      {
+        "id": "bow_basic",
+        "name": "Arco Básico",
+        "description": "Um arco simples para caça.",
+        "type": "weapon",
+        "rarity": "common",
+        "level": 1,
+        "stats": {
+          "dexterity": 3
+        },
+        "value": 50,
+        "icon": "🏹"
+      },
+      {
+        "id": "herb",
+        "name": "Erva Medicinal",
+        "description": "Erva usada para fazer poções.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 5,
+        "icon": "🌿"
+      },
+      {
+        "id": "iron_ore",
+        "name": "Minério de Ferro",
+        "description": "Minério usado para forjar armas.",
+        "type": "material",
+        "rarity": "common",
+        "level": 1,
+        "value": 10,
+        "icon": "⛏️"
+      }
+    ],
+    "battle": {
+      "isActive": false,
+      "player": {
+        "health": 160,
+        "maxHealth": 160,
+        "mana": 50,
+        "maxMana": 50
+      },
+      "monster": null,
+      "turn": "player",
+      "battleLog": []
+    },
+    "collection": {
+      "isActive": false,
+      "lastCollection": 0,
+      "collectionInterval": 30,
+      "skills": [],
+      "resources": []
+    },
+    "equippedItems": {}
+  },
+  {
+    "id": "fcfb9bcf-bf91-4902-bbe5-7fd2f894a2e1",
+    "email": "agrias@hotmail.com",
+    "nickname": "Agrias",
+    "password": "d0e14b26dea1ddc9a2e4ab5eabab4ca4f6a166409aee7c8ae2d25f0822fc3dbb",
+    "createdAt": "2025-08-22T15:30:40.301Z",
+    "lastLogin": "2025-08-22T15:30:40.301Z",
+    "characterClass": "archer",
+    "attributes": {
+      "strength": 8,
+      "magic": 5,
+      "dexterity": 25,
+      "agility": 15,
+      "vitality": 7
+    },
+    "availablePoints": 0,
+    "stats": {
+      "level": 1,
+      "experience": 0,
+      "experienceToNext": 100,
+      "health": 105,
+      "maxHealth": 105,
+      "mana": 50,
+      "maxMana": 50,
+      "attack": 26,
+      "defense": 12,
+      "criticalChance": 12.5,
+      "dodgeChance": 6
+    },
+    "inventory": [],
+    "battle": {
+      "isActive": false,
+      "player": {
+        "health": 105,
+        "maxHealth": 105,
+        "mana": 50,
+        "maxMana": 50
+      },
+      "monster": null,
+      "turn": "player",
+      "battleLog": []
+    },
+    "collection": {
+      "isActive": false,
+      "lastCollection": 0,
+      "collectionInterval": 30,
+      "resources": []
+    },
+    "gold": 100,
+    "level": 1,
+    "experience": 0,
+    "health": 100,
+    "maxHealth": 100,
+    "mana": 50,
+    "maxMana": 50,
+    "strength": 10,
+    "agility": 10,
+    "intelligence": 10
+  },
+  {
+    "id": "d20c602c-b58a-47dc-b7f9-e8d5ade25363",
+    "email": "goblin@hotmail.com",
+    "nickname": "Goblin",
+    "password": "d0e14b26dea1ddc9a2e4ab5eabab4ca4f6a166409aee7c8ae2d25f0822fc3dbb",
+    "createdAt": "2025-08-22T22:28:52.679Z",
+    "lastLogin": "2025-08-22T22:28:52.679Z",
+    "characterClass": "archer",
+    "attributes": {
+      "strength": 8,
+      "magic": 5,
+      "dexterity": 25,
+      "agility": 15,
+      "vitality": 7
+    },
+    "availablePoints": 0,
+    "stats": {
+      "level": 1,
+      "experience": 0,
+      "experienceToNext": 500,
+      "health": 21,
+      "maxHealth": 105,
+      "mana": 50,
+      "maxMana": 50,
+      "attack": 26,
+      "defense": 12,
+      "criticalChance": 12.5,
+      "dodgeChance": 6
+    },
+    "inventory": [],
+    "battle": {
+      "isActive": false,
+      "player": {
+        "health": 105,
+        "maxHealth": 105,
+        "mana": 50,
+        "maxMana": 50
+      },
+      "monster": null,
+      "turn": "player",
+      "battleLog": []
+    },
+    "collection": {
+      "isActive": false,
+      "lastCollection": 0,
+      "collectionInterval": 30,
+      "resources": []
+    },
+    "gold": 100,
+    "level": 1,
+    "experience": 0,
+    "health": 100,
+    "maxHealth": 100,
+    "mana": 50,
+    "maxMana": 50,
+    "strength": 10,
+    "agility": 10,
+    "intelligence": 10
+  }
+]
