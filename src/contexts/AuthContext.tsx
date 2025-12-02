@@ -364,32 +364,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Update local user data with new PvP stats
-      if (result.winner && result.winner.id === user?.id) {
+      if (!user) {
+        return { success: false };
+      }
+
+      if (result.winner && result.winner.id === user.id) {
         const updatedUser = {
           ...user,
           pvpStats: {
             honorPoints: result.winner.newHonorPoints,
-            wins: (user.pvpStats?.wins || 0) + 1,
-            losses: user.pvpStats?.losses || 0,
-            winStreak: (user.pvpStats?.winStreak || 0) + 1,
-            bestWinStreak: Math.max((user.pvpStats?.winStreak || 0) + 1, user.pvpStats?.bestWinStreak || 0),
-            totalBattles: (user.pvpStats?.totalBattles || 0) + 1,
+            wins: (user.pvpStats?.wins ?? 0) + 1,
+            losses: user.pvpStats?.losses ?? 0,
+            winStreak: (user.pvpStats?.winStreak ?? 0) + 1,
+            bestWinStreak: Math.max((user.pvpStats?.winStreak ?? 0) + 1, user.pvpStats?.bestWinStreak ?? 0),
+            totalBattles: (user.pvpStats?.totalBattles ?? 0) + 1,
             rank: result.winner.newRank,
             lastBattleTime: Date.now()
           }
         };
         setUser(updatedUser);
         localStorage.setItem('rpg_user', JSON.stringify(updatedUser));
-      } else if (result.loser && result.loser.id === user?.id) {
+      } else if (result.loser && result.loser.id === user.id) {
         const updatedUser = {
           ...user,
           pvpStats: {
             honorPoints: result.loser.newHonorPoints,
-            wins: user.pvpStats?.wins || 0,
-            losses: (user.pvpStats?.losses || 0) + 1,
+            wins: user.pvpStats?.wins ?? 0,
+            losses: (user.pvpStats?.losses ?? 0) + 1,
             winStreak: 0,
-            bestWinStreak: user.pvpStats?.bestWinStreak || 0,
-            totalBattles: (user.pvpStats?.totalBattles || 0) + 1,
+            bestWinStreak: user.pvpStats?.bestWinStreak ?? 0,
+            totalBattles: (user.pvpStats?.totalBattles ?? 0) + 1,
             rank: result.loser.newRank,
             lastBattleTime: Date.now()
           }
