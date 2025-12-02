@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
       // User has guildId but guild doesn't exist, just remove it
       const updatedUser = {
         ...user,
-        guildId: null,
-        guildRole: null
+        guildId: undefined,
+        guildRole: undefined
       };
       await updateUser(updatedUser);
       return NextResponse.json({
@@ -89,8 +89,8 @@ export async function POST(request: NextRequest) {
     // Remove user from guild
     const updatedUser = {
       ...user,
-      guildId: null,
-      guildRole: null
+      guildId: undefined,
+      guildRole: undefined
     };
 
     await updateUser(updatedUser);

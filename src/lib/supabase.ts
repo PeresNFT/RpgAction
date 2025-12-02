@@ -117,8 +117,8 @@ export function userToDbRow(user: User): any {
     strength: user.strength,
     agility: user.agility,
     intelligence: user.intelligence,
-    guild_id: user.guildId,
-    guild_role: user.guildRole,
+    guild_id: user.guildId ?? null,
+    guild_role: user.guildRole ?? null,
   };
 }
 
