@@ -52,6 +52,7 @@ export interface Monster {
     chance: number;
   }>;
   icon: string;
+  imagePath?: string; // Path para imagem do monstro (ex: /images/monsters/goblin.png)
   attributes?: Attributes;
   stats?: {
     maxHealth: number;

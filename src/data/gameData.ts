@@ -247,6 +247,35 @@ function generateMonster(level: number, monsterClass: 'warrior' | 'archer' | 'ma
   // Generate drops based on level and class
   const drops = generateMonsterDrops(level, monsterClass);
 
+  // Generate image path based on monster name
+  // Example: "Goblin Raivoso" -> "goblin.png"
+  const monsterNameLower = monsterName.toLowerCase();
+  let imageName = 'default';
+  
+  // Map monster names to image file names
+  if (monsterNameLower.includes('goblin')) imageName = 'goblin';
+  else if (monsterNameLower.includes('lobo')) imageName = 'wolf';
+  else if (monsterNameLower.includes('orc')) imageName = 'orc';
+  else if (monsterNameLower.includes('sombra')) imageName = 'shadow';
+  else if (monsterNameLower.includes('olho')) imageName = 'eye';
+  else if (monsterNameLower.includes('demônio') || monsterNameLower.includes('demonio')) imageName = 'demon';
+  else if (monsterNameLower.includes('dragão') || monsterNameLower.includes('dragao')) imageName = 'dragon';
+  else if (monsterNameLower.includes('fênix') || monsterNameLower.includes('fenix')) imageName = 'phoenix';
+  else if (monsterNameLower.includes('titã') || monsterNameLower.includes('tita')) imageName = 'titan';
+  else if (monsterNameLower.includes('vampiro')) imageName = 'vampire';
+  else if (monsterNameLower.includes('lich')) imageName = 'lich';
+  else if (monsterNameLower.includes('kraken')) imageName = 'kraken';
+  else if (monsterNameLower.includes('gigante')) imageName = 'giant';
+  else if (monsterNameLower.includes('elemental')) imageName = 'elemental';
+  else if (monsterNameLower.includes('necromante')) imageName = 'necromancer';
+  else if (monsterNameLower.includes('sereia')) imageName = 'mermaid';
+  else if (monsterNameLower.includes('minotauro')) imageName = 'minotaur';
+  else if (monsterNameLower.includes('hidra')) imageName = 'hydra';
+  else if (monsterNameLower.includes('anjo')) imageName = 'fallen_angel';
+  else if (monsterNameLower.includes('deus')) imageName = 'ancient_god';
+  else if (monsterNameLower.includes('criatura') || monsterNameLower.includes('vazio')) imageName = 'void_creature';
+  else if (monsterNameLower.includes('senhor') || monsterNameLower.includes('guerra')) imageName = 'war_lord';
+
   return {
     id: `${monsterName.toLowerCase().replace(/\s+/g, '_')}_${level}`,
     name: `${monsterName} Nível ${level}`,
@@ -259,6 +288,7 @@ function generateMonster(level: number, monsterClass: 'warrior' | 'archer' | 'ma
     gold,
     drops,
     icon: CHARACTER_CLASSES[monsterClass].icon,
+    imagePath: `/images/monsters/${imageName}.png`,
     attributes,
     stats: {
       maxHealth,
@@ -323,7 +353,8 @@ export function generateNewMonsterOfSameLevel(level: number): Monster {
   // Randomly select a name
   const monsterName = MONSTER_NAMES[Math.floor(Math.random() * MONSTER_NAMES.length)];
   
-  return generateMonster(level, monsterClass, monsterName);
+  const monster = generateMonster(level, monsterClass, monsterName);
+  return monster;
 }
 
 // Function to calculate penalty for fighting weak monsters

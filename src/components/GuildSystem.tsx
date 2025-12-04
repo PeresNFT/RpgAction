@@ -304,13 +304,13 @@ export function GuildSystem({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-purple to-primary-pink p-6 rounded-2xl border-2 border-custom">
+      <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Shield className="w-8 h-8 text-white" />
             <div>
-              <h2 className="text-2xl font-bold text-white">Guild System</h2>
-              <p className="text-gray-200">Join or create a guild to unlock powerful benefits!</p>
+              <h2 className="text-3xl font-bold text-white">Guild System</h2>
+              <p className="text-dark-text-secondary">Join or create a guild to unlock powerful benefits!</p>
             </div>
           </div>
         </div>
@@ -324,13 +324,13 @@ export function GuildSystem({
       )}
 
       {/* Tabs */}
-      <div className="flex space-x-2 border-b-2 border-custom">
+      <div className="flex space-x-2 border-b border-dark-border">
         <button
           onClick={() => setActiveTab('myGuild')}
-          className={`px-6 py-3 font-semibold transition-colors ${
+          className={`px-6 py-3 font-semibold transition-all duration-300 rounded-t-xl ${
             activeTab === 'myGuild'
-              ? 'border-b-2 border-primary-green text-primary-green'
-              : 'text-gray-400 hover:text-white'
+              ? 'bg-accent-purple text-white'
+              : 'text-dark-text-secondary hover:text-white hover:bg-dark-bg-tertiary'
           }`}
         >
           <div className="flex items-center space-x-2">
@@ -340,10 +340,10 @@ export function GuildSystem({
         </button>
         <button
           onClick={() => setActiveTab('search')}
-          className={`px-6 py-3 font-semibold transition-colors ${
+          className={`px-6 py-3 font-semibold transition-all duration-300 rounded-t-xl ${
             activeTab === 'search'
-              ? 'border-b-2 border-primary-blue text-primary-blue'
-              : 'text-gray-400 hover:text-white'
+              ? 'bg-accent-purple text-white'
+              : 'text-dark-text-secondary hover:text-white hover:bg-dark-bg-tertiary'
           }`}
         >
           <div className="flex items-center space-x-2">
@@ -353,10 +353,10 @@ export function GuildSystem({
         </button>
         <button
           onClick={() => setActiveTab('ranking')}
-          className={`px-6 py-3 font-semibold transition-colors ${
+          className={`px-6 py-3 font-semibold transition-all duration-300 rounded-t-xl ${
             activeTab === 'ranking'
-              ? 'border-b-2 border-primary-yellow text-primary-yellow'
-              : 'text-gray-400 hover:text-white'
+              ? 'bg-accent-purple text-white'
+              : 'text-dark-text-secondary hover:text-white hover:bg-dark-bg-tertiary'
           }`}
         >
           <div className="flex items-center space-x-2">
@@ -370,21 +370,21 @@ export function GuildSystem({
       {activeTab === 'myGuild' && (
         <div className="space-y-6">
           {!guild ? (
-            <div className="bg-gray-900 bg-opacity-50 p-8 rounded-2xl border-2 border-custom text-center">
-              <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">No Guild</h3>
-              <p className="text-gray-400 mb-6">Join an existing guild or create your own!</p>
+            <div className="bg-card-gradient p-8 rounded-2xl border border-dark-border card-glow text-center">
+              <Shield className="w-16 h-16 text-dark-text-muted mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-white mb-2">No Guild</h3>
+              <p className="text-dark-text-secondary mb-6">Join an existing guild or create your own!</p>
               <div className="flex space-x-4 justify-center">
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="bg-gradient-to-r from-primary-green to-primary-blue px-6 py-3 rounded-lg font-semibold text-white hover:opacity-90 transition-opacity flex items-center space-x-2"
+                  className="bg-accent-purple px-6 py-3 rounded-xl font-semibold text-white hover:opacity-90 transition-all duration-300 flex items-center space-x-2"
                 >
                   <Plus className="w-5 h-5" />
                   <span>Create Guild</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('search')}
-                  className="bg-gradient-to-r from-primary-purple to-primary-pink px-6 py-3 rounded-lg font-semibold text-white hover:opacity-90 transition-opacity flex items-center space-x-2"
+                  className="bg-accent-blue px-6 py-3 rounded-xl font-semibold text-white hover:opacity-90 transition-all duration-300 flex items-center space-x-2"
                 >
                   <Search className="w-5 h-5" />
                   <span>Search Guilds</span>
@@ -394,7 +394,7 @@ export function GuildSystem({
           ) : (
             <div className="space-y-6">
               {/* Guild Info Card */}
-              <div className="bg-gradient-to-br from-primary-brown to-primary-deep-orange p-6 rounded-2xl border-2 border-custom">
+              <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="text-6xl">{guild.icon}</div>
@@ -405,21 +405,21 @@ export function GuildSystem({
                             type="text"
                             value={editName}
                             onChange={(e) => setEditName(e.target.value)}
-                            className="bg-gray-800 text-white px-3 py-2 rounded-lg border border-custom w-full"
+                            className="bg-dark-bg-card text-white px-3 py-2 rounded-xl border border-dark-border w-full"
                             placeholder="Guild Name"
                           />
                           <input
                             type="text"
                             value={editDescription}
                             onChange={(e) => setEditDescription(e.target.value)}
-                            className="bg-gray-800 text-white px-3 py-2 rounded-lg border border-custom w-full"
+                            className="bg-dark-bg-card text-white px-3 py-2 rounded-xl border border-dark-border w-full"
                             placeholder="Description"
                           />
                           <input
                             type="text"
                             value={editIcon}
                             onChange={(e) => setEditIcon(e.target.value)}
-                            className="bg-gray-800 text-white px-3 py-2 rounded-lg border border-custom w-full"
+                            className="bg-dark-bg-card text-white px-3 py-2 rounded-xl border border-dark-border w-full"
                             placeholder="Icon (emoji)"
                           />
                         </div>
@@ -427,7 +427,7 @@ export function GuildSystem({
                         <>
                           <h3 className="text-2xl font-bold text-white">{guild.name}</h3>
                           {guild.description && (
-                            <p className="text-gray-200 mt-1">{guild.description}</p>
+                            <p className="text-dark-text-secondary mt-1">{guild.description}</p>
                           )}
                         </>
                       )}
@@ -441,7 +441,7 @@ export function GuildSystem({
                         setEditDescription(guild.description || '');
                         setEditIcon(guild.icon);
                       }}
-                      className="text-gray-300 hover:text-white transition-colors"
+                      className="text-dark-text-secondary hover:text-white transition-colors"
                     >
                       <Edit className="w-5 h-5" />
                     </button>
@@ -471,20 +471,20 @@ export function GuildSystem({
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                  <div className="bg-black bg-opacity-30 p-4 rounded-lg">
-                    <div className="text-gray-300 text-sm">Level</div>
+                  <div className="bg-dark-bg-card p-4 rounded-xl border border-dark-border">
+                    <div className="text-dark-text-secondary text-sm">Level</div>
                     <div className="text-2xl font-bold text-white">{guild.level}</div>
                   </div>
-                  <div className="bg-black bg-opacity-30 p-4 rounded-lg">
-                    <div className="text-gray-300 text-sm">Experience</div>
+                  <div className="bg-dark-bg-card p-4 rounded-xl border border-dark-border">
+                    <div className="text-dark-text-secondary text-sm">Experience</div>
                     <div className="text-2xl font-bold text-white">{guild.experience}/{guild.experienceToNext}</div>
                   </div>
-                  <div className="bg-black bg-opacity-30 p-4 rounded-lg">
-                    <div className="text-gray-300 text-sm">Members</div>
+                  <div className="bg-dark-bg-card p-4 rounded-xl border border-dark-border">
+                    <div className="text-dark-text-secondary text-sm">Members</div>
                     <div className="text-2xl font-bold text-white">{guild.memberCount}/{guild.maxMembers}</div>
                   </div>
-                  <div className="bg-black bg-opacity-30 p-4 rounded-lg">
-                    <div className="text-gray-300 text-sm">Bank Gold</div>
+                  <div className="bg-dark-bg-card p-4 rounded-xl border border-dark-border">
+                    <div className="text-dark-text-secondary text-sm">Bank Gold</div>
                     <div className="text-2xl font-bold text-primary-yellow">{guild.gold.toLocaleString()}</div>
                   </div>
                 </div>
@@ -492,14 +492,14 @@ export function GuildSystem({
                 <div className="mt-6 flex flex-wrap gap-2">
                   <button
                     onClick={() => setShowBankModal(true)}
-                    className="bg-primary-blue px-4 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity flex items-center space-x-2"
+                    className="bg-accent-blue px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300 flex items-center space-x-2"
                   >
                     <Coins className="w-4 h-4" />
                     <span>Guild Bank</span>
                   </button>
                   <button
                     onClick={() => setShowContributeModal(true)}
-                    className="bg-primary-green px-4 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity flex items-center space-x-2"
+                    className="bg-accent-purple px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300 flex items-center space-x-2"
                   >
                     <TrendingUp className="w-4 h-4" />
                     <span>Contribute XP</span>
@@ -507,7 +507,7 @@ export function GuildSystem({
                   {isLeader && (
                     <button
                       onClick={() => setActiveTab('search')}
-                      className="bg-primary-purple px-4 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity flex items-center space-x-2"
+                      className="bg-accent-cyan px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300 flex items-center space-x-2"
                     >
                       <UserPlus className="w-4 h-4" />
                       <span>Invite Members</span>
@@ -515,7 +515,7 @@ export function GuildSystem({
                   )}
                   <button
                     onClick={handleLeaveGuild}
-                    className="bg-red-600 px-4 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity flex items-center space-x-2"
+                    className="bg-gradient-to-r from-red-600 to-rose-600 px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300 flex items-center space-x-2"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Leave Guild</span>
@@ -524,8 +524,8 @@ export function GuildSystem({
               </div>
 
               {/* Members List */}
-              <div className="bg-gray-900 bg-opacity-50 p-6 rounded-2xl border-2 border-custom">
-                <h4 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+              <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+                <h4 className="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
                   <Users className="w-5 h-5" />
                   <span>Members ({members.length})</span>
                 </h4>
@@ -533,22 +533,22 @@ export function GuildSystem({
                   {members.map((member) => (
                     <div
                       key={member.id}
-                      className="bg-black bg-opacity-30 p-4 rounded-lg flex items-center justify-between"
+                      className="bg-dark-bg-card p-4 rounded-xl border border-dark-border flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary-green to-primary-blue rounded-full flex items-center justify-center">
+                        <div className="w-12 h-12 bg-accent-purple rounded-full flex items-center justify-center">
                           {member.role === 'leader' && <Crown className="w-6 h-6 text-primary-yellow" />}
-                          {member.role === 'officer' && <Star className="w-6 h-6 text-primary-blue" />}
-                          {member.role === 'member' && <Users className="w-6 h-6 text-gray-300" />}
+                          {member.role === 'officer' && <Star className="w-6 h-6 text-white" />}
+                          {member.role === 'member' && <Users className="w-6 h-6 text-white" />}
                         </div>
                         <div>
                           <div className="text-white font-semibold">{member.nickname}</div>
-                          <div className="text-gray-400 text-sm">
+                          <div className="text-dark-text-secondary text-sm">
                             {CHARACTER_CLASSES[member.characterClass]?.name || member.characterClass} • Level {member.level}
                           </div>
                         </div>
                       </div>
-                      <div className="text-gray-300 text-sm capitalize">{member.role}</div>
+                      <div className="text-dark-text-secondary text-sm capitalize">{member.role}</div>
                     </div>
                   ))}
                 </div>
@@ -561,24 +561,24 @@ export function GuildSystem({
       {/* Search Tab */}
       {activeTab === 'search' && (
         <div className="space-y-6">
-          <div className="bg-gray-900 bg-opacity-50 p-6 rounded-2xl border-2 border-custom">
-            <h3 className="text-xl font-bold text-white mb-4">Available Guilds</h3>
+          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+            <h3 className="text-2xl font-bold text-white mb-4">Available Guilds</h3>
             {isLoading ? (
-              <div className="text-center py-8 text-gray-400">Loading...</div>
+              <div className="text-center py-8 text-dark-text-secondary">Loading...</div>
             ) : searchResults.length === 0 ? (
-              <div className="text-center py-8 text-gray-400">No guilds found</div>
+              <div className="text-center py-8 text-dark-text-secondary">No guilds found</div>
             ) : (
               <div className="space-y-3">
                 {searchResults.map((guildRank) => (
                   <div
                     key={guildRank.guildId}
-                    className="bg-black bg-opacity-30 p-4 rounded-lg flex items-center justify-between hover:bg-opacity-50 transition-colors"
+                    className="bg-dark-bg-card p-4 rounded-xl border border-dark-border flex items-center justify-between hover:border-accent-purple transition-all duration-300"
                   >
                     <div className="flex items-center space-x-4">
                       <div className="text-4xl">{guildRank.icon}</div>
                       <div>
                         <div className="text-white font-semibold">{guildRank.name}</div>
-                        <div className="text-gray-400 text-sm">
+                        <div className="text-dark-text-secondary text-sm">
                           Level {guildRank.level} • {guildRank.memberCount} members • Leader: {guildRank.leaderNickname}
                         </div>
                       </div>
@@ -590,13 +590,13 @@ export function GuildSystem({
                           handleJoinGuild();
                         }}
                         disabled={isLoading || !!userGuildId}
-                        className="bg-primary-green px-4 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-accent-purple px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Join
                       </button>
                     )}
                     {userGuildId === guildRank.guildId && (
-                      <span className="text-primary-green font-semibold">Your Guild</span>
+                      <span className="text-accent-purple font-semibold">Your Guild</span>
                     )}
                   </div>
                 ))}
@@ -609,22 +609,22 @@ export function GuildSystem({
       {/* Ranking Tab */}
       {activeTab === 'ranking' && (
         <div className="space-y-6">
-          <div className="bg-gray-900 bg-opacity-50 p-6 rounded-2xl border-2 border-custom">
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+            <h3 className="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
               <Trophy className="w-5 h-5" />
               <span>Guild Rankings</span>
             </h3>
             {isLoading ? (
-              <div className="text-center py-8 text-gray-400">Loading...</div>
+              <div className="text-center py-8 text-dark-text-secondary">Loading...</div>
             ) : rankings.length === 0 ? (
-              <div className="text-center py-8 text-gray-400">No rankings available</div>
+              <div className="text-center py-8 text-dark-text-secondary">No rankings available</div>
             ) : (
               <div className="space-y-2">
                 {rankings.map((guildRank) => (
                   <div
                     key={guildRank.guildId}
-                    className={`bg-black bg-opacity-30 p-4 rounded-lg flex items-center justify-between ${
-                      userGuildId === guildRank.guildId ? 'border-2 border-primary-green' : ''
+                    className={`bg-dark-bg-card p-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${
+                      userGuildId === guildRank.guildId ? 'border-accent-purple border-2' : 'border-dark-border'
                     }`}
                   >
                     <div className="flex items-center space-x-4">
@@ -634,12 +634,12 @@ export function GuildSystem({
                       <div className="text-3xl">{guildRank.icon}</div>
                       <div>
                         <div className="text-white font-semibold">{guildRank.name}</div>
-                        <div className="text-gray-400 text-sm">
+                        <div className="text-dark-text-secondary text-sm">
                           Level {guildRank.level} • {guildRank.experience.toLocaleString()} XP • {guildRank.memberCount} members
                         </div>
                       </div>
                     </div>
-                    <div className="text-gray-300 text-sm">Leader: {guildRank.leaderNickname}</div>
+                    <div className="text-dark-text-secondary text-sm">Leader: {guildRank.leaderNickname}</div>
                   </div>
                 ))}
               </div>
@@ -651,32 +651,32 @@ export function GuildSystem({
       {/* Create Guild Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900 p-6 rounded-2xl border-2 border-custom max-w-md w-full">
+          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow max-w-md w-full">
             <h3 className="text-2xl font-bold text-white mb-4">Create Guild</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-gray-300 mb-2">Guild Name</label>
+                <label className="block text-dark-text-secondary mb-2">Guild Name</label>
                 <input
                   type="text"
                   value={createName}
                   onChange={(e) => setCreateName(e.target.value)}
-                  className="w-full bg-gray-800 text-white px-4 py-2 rounded-lg border border-custom"
+                  className="w-full bg-dark-bg-card text-white px-4 py-2 rounded-xl border border-dark-border"
                   placeholder="Enter guild name"
                   maxLength={30}
                 />
               </div>
               <div>
-                <label className="block text-gray-300 mb-2">Description (Optional)</label>
+                <label className="block text-dark-text-secondary mb-2">Description (Optional)</label>
                 <textarea
                   value={createDescription}
                   onChange={(e) => setCreateDescription(e.target.value)}
-                  className="w-full bg-gray-800 text-white px-4 py-2 rounded-lg border border-custom"
+                  className="w-full bg-dark-bg-card text-white px-4 py-2 rounded-xl border border-dark-border"
                   placeholder="Enter guild description"
                   rows={3}
                 />
               </div>
               <div>
-                <label className="block text-gray-300 mb-2">Choose Icon</label>
+                <label className="block text-dark-text-secondary mb-2">Choose Icon</label>
                 <div className="flex space-x-3">
                   {[
                     { icon: '🛡️', name: 'Shield' },
@@ -689,10 +689,10 @@ export function GuildSystem({
                       key={option.icon}
                       type="button"
                       onClick={() => setCreateIcon(option.icon)}
-                      className={`w-16 h-16 text-4xl rounded-lg border-2 transition-all hover:scale-110 ${
+                      className={`w-16 h-16 text-4xl rounded-xl border-2 transition-all duration-300 hover:scale-110 ${
                         createIcon === option.icon
-                          ? 'border-primary-green bg-primary-green bg-opacity-20 scale-110'
-                          : 'border-gray-600 bg-gray-800 hover:border-gray-500'
+                          ? 'border-accent-purple bg-accent-purple bg-opacity-20 scale-110'
+                          : 'border-dark-border bg-dark-bg-card hover:border-accent-purple'
                       }`}
                       title={option.name}
                     >
@@ -700,14 +700,14 @@ export function GuildSystem({
                     </button>
                   ))}
                 </div>
-                <p className="text-gray-400 text-sm mt-2">Selected: {createIcon}</p>
+                <p className="text-dark-text-secondary text-sm mt-2">Selected: {createIcon}</p>
               </div>
             </div>
             <div className="flex space-x-4 mt-6">
               <button
                 onClick={handleCreateGuild}
                 disabled={isLoading || !createName.trim()}
-                className="flex-1 bg-primary-green px-4 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-accent-purple px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Creating...' : 'Create'}
               </button>
@@ -718,7 +718,7 @@ export function GuildSystem({
                   setCreateDescription('');
                   setCreateIcon('🛡️');
                 }}
-                className="flex-1 bg-gray-700 px-4 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity"
+                className="flex-1 bg-dark-bg-tertiary px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300"
               >
                 Cancel
               </button>
@@ -730,26 +730,26 @@ export function GuildSystem({
       {/* Guild Bank Modal */}
       {showBankModal && guild && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900 p-6 rounded-2xl border-2 border-custom max-w-md w-full">
+          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow max-w-md w-full">
             <h3 className="text-2xl font-bold text-white mb-4">Guild Bank</h3>
             <div className="space-y-4">
-              <div className="bg-black bg-opacity-30 p-4 rounded-lg">
-                <div className="text-gray-300 text-sm">Your Gold</div>
+              <div className="bg-dark-bg-card p-4 rounded-xl border border-dark-border">
+                <div className="text-dark-text-secondary text-sm">Your Gold</div>
                 <div className="text-2xl font-bold text-primary-yellow">{userGold.toLocaleString()}</div>
               </div>
-              <div className="bg-black bg-opacity-30 p-4 rounded-lg">
-                <div className="text-gray-300 text-sm">Guild Bank</div>
+              <div className="bg-dark-bg-card p-4 rounded-xl border border-dark-border">
+                <div className="text-dark-text-secondary text-sm">Guild Bank</div>
                 <div className="text-2xl font-bold text-primary-yellow">{guild.gold.toLocaleString()}</div>
               </div>
               <div>
-                <label className="block text-gray-300 mb-2">Action</label>
+                <label className="block text-dark-text-secondary mb-2">Action</label>
                 <div className="flex space-x-2">
                   <button
                     onClick={() => setBankAction('deposit')}
-                    className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                    className={`flex-1 px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${
                       bankAction === 'deposit'
-                        ? 'bg-primary-green text-white'
-                        : 'bg-gray-700 text-gray-300'
+                        ? 'bg-accent-purple text-white'
+                        : 'bg-dark-bg-tertiary text-dark-text-secondary'
                     }`}
                   >
                     Deposit
@@ -757,10 +757,10 @@ export function GuildSystem({
                   <button
                     onClick={() => setBankAction('withdraw')}
                     disabled={!canEdit}
-                    className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                    className={`flex-1 px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${
                       bankAction === 'withdraw'
-                        ? 'bg-primary-blue text-white'
-                        : 'bg-gray-700 text-gray-300'
+                        ? 'bg-accent-blue text-white'
+                        : 'bg-dark-bg-tertiary text-dark-text-secondary'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     Withdraw
@@ -768,12 +768,12 @@ export function GuildSystem({
                 </div>
               </div>
               <div>
-                <label className="block text-gray-300 mb-2">Amount</label>
+                <label className="block text-dark-text-secondary mb-2">Amount</label>
                 <input
                   type="number"
                   value={bankAmount}
                   onChange={(e) => setBankAmount(e.target.value)}
-                  className="w-full bg-gray-800 text-white px-4 py-2 rounded-lg border border-custom"
+                  className="w-full bg-dark-bg-card text-white px-4 py-2 rounded-xl border border-dark-border"
                   placeholder="Enter amount"
                   min="1"
                 />
@@ -783,7 +783,7 @@ export function GuildSystem({
               <button
                 onClick={handleBankAction}
                 disabled={isLoading || !bankAmount}
-                className="flex-1 bg-primary-green px-4 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-accent-purple px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Processing...' : bankAction === 'deposit' ? 'Deposit' : 'Withdraw'}
               </button>
@@ -792,7 +792,7 @@ export function GuildSystem({
                   setShowBankModal(false);
                   setBankAmount('');
                 }}
-                className="flex-1 bg-gray-700 px-4 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity"
+                className="flex-1 bg-dark-bg-tertiary px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300"
               >
                 Cancel
               </button>
@@ -804,23 +804,23 @@ export function GuildSystem({
       {/* Contribute Modal */}
       {showContributeModal && guild && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900 p-6 rounded-2xl border-2 border-custom max-w-md w-full">
+          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow max-w-md w-full">
             <h3 className="text-2xl font-bold text-white mb-4">Contribute Experience</h3>
             <div className="space-y-4">
-              <div className="bg-black bg-opacity-30 p-4 rounded-lg">
-                <div className="text-gray-300 text-sm">Guild Level</div>
+              <div className="bg-dark-bg-card p-4 rounded-xl border border-dark-border">
+                <div className="text-dark-text-secondary text-sm">Guild Level</div>
                 <div className="text-2xl font-bold text-white">{guild.level}</div>
-                <div className="text-gray-400 text-sm mt-1">
+                <div className="text-dark-text-secondary text-sm mt-1">
                   {guild.experience}/{guild.experienceToNext} XP to next level
                 </div>
               </div>
               <div>
-                <label className="block text-gray-300 mb-2">Experience Amount</label>
+                <label className="block text-dark-text-secondary mb-2">Experience Amount</label>
                 <input
                   type="number"
                   value={contributeAmount}
                   onChange={(e) => setContributeAmount(e.target.value)}
-                  className="w-full bg-gray-800 text-white px-4 py-2 rounded-lg border border-custom"
+                  className="w-full bg-dark-bg-card text-white px-4 py-2 rounded-xl border border-dark-border"
                   placeholder="Enter experience amount"
                   min="1"
                 />
@@ -830,7 +830,7 @@ export function GuildSystem({
               <button
                 onClick={handleContribute}
                 disabled={isLoading || !contributeAmount}
-                className="flex-1 bg-primary-green px-4 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-accent-purple px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Contributing...' : 'Contribute'}
               </button>
@@ -839,7 +839,7 @@ export function GuildSystem({
                   setShowContributeModal(false);
                   setContributeAmount('');
                 }}
-                className="flex-1 bg-gray-700 px-4 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity"
+                className="flex-1 bg-dark-bg-tertiary px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300"
               >
                 Cancel
               </button>

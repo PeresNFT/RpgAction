@@ -34,6 +34,29 @@ import {
 import { CharacterClass, Attributes, Monster, Item } from '@/types/game';
 import { CHARACTER_CLASSES, MONSTERS, ITEMS, GAME_FORMULAS, COLLECTION_SKILLS, COLLECTION_RESOURCES, generateNewMonsterOfSameLevel, applyLevelPenalty } from '@/data/gameData';
 
+// Helper function to get character image path based on class and gender
+function getCharacterImagePath(characterClass: CharacterClass | null, isFemale: boolean = false): string | null {
+  if (!characterClass) return null;
+  
+  const classImageMap: Record<CharacterClass, { male: string; female: string }> = {
+    warrior: {
+      male: '/images/characters/Guerreiro.png',
+      female: '/images/characters/Guerreira.png'
+    },
+    archer: {
+      male: '/images/characters/Arqueiro.png',
+      female: '/images/characters/Arqueira.png'
+    },
+    mage: {
+      male: '/images/characters/Mago.png',
+      female: '/images/characters/Maga.png'
+    }
+  };
+  
+  const gender = isFemale ? 'female' : 'male';
+  return classImageMap[characterClass]?.[gender] || null;
+}
+
 export default function GamePage() {
   const { user, logout, updateCharacter, updateExperience, updateAttributes, updateHealth, useItem, rest, sellItems, updateCollection, searchPvPOpponents, startPvPBattle, getPvPRanking, createGuild, joinGuild, leaveGuild, getGuild, updateGuild, getGuildRanking, guildBank, contributeExperience, isLoading } = useAuth();
   const router = useRouter();
@@ -52,6 +75,24 @@ export default function GamePage() {
   const [showDeathMessage, setShowDeathMessage] = useState(false);
   const [deathInfo, setDeathInfo] = useState<{monsterName: string, experienceLost: number} | null>(null);
   const [currentMonsterHealth, setCurrentMonsterHealth] = useState<number>(0);
+  
+  // Character gender state (stored in localStorage)
+  const [characterGender, setCharacterGender] = useState<'male' | 'female'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('characterGender');
+      return (saved === 'female' ? 'female' : 'male') as 'male' | 'female';
+    }
+    return 'male';
+  });
+  
+  // Toggle character gender
+  const toggleCharacterGender = () => {
+    const newGender = characterGender === 'male' ? 'female' : 'male';
+    setCharacterGender(newGender);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('characterGender', newGender);
+    }
+  };
 
   // Redirect if not logged in
   useEffect(() => {
@@ -120,10 +161,10 @@ export default function GamePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
+      <div className="min-h-screen bg-dark-gradient flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-yellow mx-auto mb-4"></div>
-          <p className="text-white text-lg">Carregando...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-purple mx-auto mb-4"></div>
+          <p className="text-dark-text text-lg">Carregando...</p>
         </div>
       </div>
     );
@@ -498,31 +539,33 @@ export default function GamePage() {
       case 'character':
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-br from-primary-brown to-primary-deep-orange p-6 rounded-2xl border-2 border-custom">
-              <h3 className="text-2xl font-bold text-white mb-4">Informações do Personagem</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <p className="text-gray-300"><span className="text-white font-semibold">Nome:</span> {user.nickname}</p>
-                  <p className="text-gray-300"><span className="text-white font-semibold">Classe:</span> {user.characterClass ? CHARACTER_CLASSES[user.characterClass].name : 'Não escolhida'}</p>
-                  <p className="text-gray-300"><span className="text-white font-semibold">Nível:</span> {user.stats?.level || user.level || 1}</p>
-                  <p className="text-gray-300"><span className="text-white font-semibold">Experiência:</span> {user.stats?.experience || user.experience || 0}/{user.stats?.experienceToNext || 100}</p>
-                  <div className="w-full bg-gray-700 rounded-full h-2 mt-1">
-                    <div 
-                      className="bg-primary-yellow h-2 rounded-full transition-all duration-300" 
-                      style={{ width: `${((user.stats?.experience || user.experience || 0) / (user.stats?.experienceToNext || 100)) * 100}%` }}
-                    ></div>
+            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+              <h3 className="text-3xl font-bold text-white mb-6">Informações do Personagem</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <p className="text-dark-text"><span className="text-dark-text font-semibold">Nome:</span> <span className="text-accent-purple">{user.nickname}</span></p>
+                  <p className="text-dark-text"><span className="text-dark-text font-semibold">Classe:</span> <span className="text-accent-cyan">{user.characterClass ? CHARACTER_CLASSES[user.characterClass].name : 'Não escolhida'}</span></p>
+                  <p className="text-dark-text"><span className="text-dark-text font-semibold">Nível:</span> <span className="text-primary-yellow font-bold">{user.stats?.level || user.level || 1}</span></p>
+                  <div>
+                    <p className="text-dark-text-secondary text-sm mb-1">Experiência: {user.stats?.experience || user.experience || 0}/{user.stats?.experienceToNext || 100}</p>
+                    <div className="w-full bg-dark-bg-tertiary rounded-full h-3">
+                      <div 
+                        className="bg-gradient-to-r from-primary-yellow to-orange-500 h-3 rounded-full transition-all duration-300" 
+                        style={{ width: `${((user.stats?.experience || user.experience || 0) / (user.stats?.experienceToNext || 100)) * 100}%` }}
+                      ></div>
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <p className="text-gray-300"><span className="text-white font-semibold">Ouro:</span> {user.gold}</p>
-                  <p className="text-gray-300"><span className="text-white font-semibold">Pontos Disponíveis:</span> {user.availablePoints}</p>
-                  <p className="text-gray-300"><span className="text-white font-semibold">Guild:</span> {user.guildId || 'Nenhuma'}</p>
+                <div className="space-y-3">
+                  <p className="text-dark-text"><span className="text-dark-text font-semibold">Ouro:</span> <span className="text-primary-yellow font-bold">{user.gold}</span></p>
+                  <p className="text-dark-text"><span className="text-dark-text font-semibold">Pontos Disponíveis:</span> <span className="text-accent-purple font-bold">{user.availablePoints}</span></p>
+                  <p className="text-dark-text"><span className="text-dark-text font-semibold">Guild:</span> <span className="text-accent-cyan">{user.guildId || 'Nenhuma'}</span></p>
                   {user.availablePoints > 0 && (
                     <button
                       onClick={() => setShowLevelUpDistribution(true)}
-                      className="mt-2 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2"
+                      className="mt-2 bg-purple-gradient hover:opacity-90 text-white px-6 py-3 rounded-xl transition-all duration-300 flex items-center space-x-2 font-semibold shadow-lg"
                     >
-                      <Star className="w-4 h-4" />
+                      <Star className="w-5 h-5" />
                       <span>Distribuir Pontos</span>
                     </button>
                   )}
@@ -531,66 +574,72 @@ export default function GamePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-gradient-to-br from-primary-green to-primary-blue p-6 rounded-2xl border-2 border-custom">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Heart className="w-6 h-6 text-white" />
-                  <h4 className="text-xl font-bold text-white">Vida</h4>
+              <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-2 bg-red-500/20 rounded-lg">
+                    <Heart className="w-6 h-6 text-red-400" />
+                  </div>
+                  <h4 className="text-xl font-bold text-dark-text">Vida</h4>
                 </div>
-                <div className="text-3xl font-bold text-white">{user.stats?.health || user.health || 100}/{user.stats?.maxHealth || user.maxHealth || 100}</div>
-                <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div className="text-3xl font-bold text-dark-text mb-2">{user.stats?.health || user.health || 100}/{user.stats?.maxHealth || user.maxHealth || 100}</div>
+                <div className="w-full bg-dark-bg-tertiary rounded-full h-3">
                   <div 
-                    className="bg-red-500 h-2 rounded-full transition-all duration-300" 
+                    className="bg-gradient-to-r from-red-500 to-rose-600 h-3 rounded-full transition-all duration-300" 
                     style={{ width: `${((user.stats?.health || user.health || 100) / (user.stats?.maxHealth || user.maxHealth || 100)) * 100}%` }}
                   ></div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-primary-purple to-primary-pink p-6 rounded-2xl border-2 border-custom">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Zap className="w-6 h-6 text-white" />
-                  <h4 className="text-xl font-bold text-white">Mana</h4>
+              <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-2 bg-blue-500/20 rounded-lg">
+                    <Zap className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <h4 className="text-xl font-bold text-dark-text">Mana</h4>
                 </div>
-                <div className="text-3xl font-bold text-white">{user.stats?.mana || user.mana || 50}/{user.stats?.maxMana || user.maxMana || 50}</div>
-                <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div className="text-3xl font-bold text-dark-text mb-2">{user.stats?.mana || user.mana || 50}/{user.stats?.maxMana || user.maxMana || 50}</div>
+                <div className="w-full bg-dark-bg-tertiary rounded-full h-3">
                   <div 
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-300" 
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500 h-3 rounded-full transition-all duration-300" 
                     style={{ width: `${((user.stats?.mana || user.mana || 50) / (user.stats?.maxMana || user.maxMana || 50)) * 100}%` }}
                   ></div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-primary-orange to-primary-yellow p-6 rounded-2xl border-2 border-custom">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Coins className="w-6 h-6 text-white" />
-                  <h4 className="text-xl font-bold text-white">Ouro</h4>
+              <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-2 bg-yellow-500/20 rounded-lg">
+                    <Coins className="w-6 h-6 text-yellow-400" />
+                  </div>
+                  <h4 className="text-xl font-bold text-dark-text">Ouro</h4>
                 </div>
-                <div className="text-3xl font-bold text-white">{user.gold}</div>
-                <p className="text-gray-300 text-sm mt-2">Moeda</p>
+                <div className="text-3xl font-bold text-primary-yellow mb-2">{user.gold}</div>
+                <p className="text-dark-text-secondary text-sm">Moeda</p>
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-2xl border-2 border-custom">
-              <h4 className="text-xl font-bold text-white mb-4">Atributos</h4>
+            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+              <h4 className="text-2xl font-bold text-dark-text mb-6">Atributos</h4>
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Força:</span>
-                  <span className="text-white font-bold">{user.attributes?.strength || user.strength || 10}</span>
+                <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border flex items-center justify-between">
+                  <span className="text-dark-text-secondary">Força:</span>
+                  <span className="text-red-400 font-bold text-lg">{user.attributes?.strength || user.strength || 10}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Magia:</span>
-                  <span className="text-white font-bold">{user.attributes?.magic || user.intelligence || 10}</span>
+                <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border flex items-center justify-between">
+                  <span className="text-dark-text-secondary">Magia:</span>
+                  <span className="text-purple-400 font-bold text-lg">{user.attributes?.magic || user.intelligence || 10}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Destreza:</span>
-                  <span className="text-white font-bold">{user.attributes?.dexterity || 10}</span>
+                <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border flex items-center justify-between">
+                  <span className="text-dark-text-secondary">Destreza:</span>
+                  <span className="text-blue-400 font-bold text-lg">{user.attributes?.dexterity || 10}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Agilidade:</span>
-                  <span className="text-white font-bold">{user.attributes?.agility || user.agility || 10}</span>
+                <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border flex items-center justify-between">
+                  <span className="text-dark-text-secondary">Agilidade:</span>
+                  <span className="text-green-400 font-bold text-lg">{user.attributes?.agility || user.agility || 10}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Vitalidade:</span>
-                  <span className="text-white font-bold">{user.attributes?.vitality || 10}</span>
+                <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border flex items-center justify-between">
+                  <span className="text-dark-text-secondary">Vitalidade:</span>
+                  <span className="text-cyan-400 font-bold text-lg">{user.attributes?.vitality || 10}</span>
                 </div>
               </div>
             </div>
@@ -599,19 +648,19 @@ export default function GamePage() {
               <h4 className="text-xl font-bold text-white mb-4">Status de Combate</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Ataque:</span>
+                  <span className="text-dark-text-secondary">Ataque:</span>
                   <span className="text-white font-bold">{user.stats?.attack || 20}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Defesa:</span>
+                  <span className="text-dark-text-secondary">Defesa:</span>
                   <span className="text-white font-bold">{user.stats?.defense || 15}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Crítico:</span>
+                  <span className="text-dark-text-secondary">Crítico:</span>
                   <span className="text-white font-bold">{(user.stats?.criticalChance || 5).toFixed(1)}%</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Esquiva:</span>
+                  <span className="text-dark-text-secondary">Esquiva:</span>
                   <span className="text-white font-bold">{(user.stats?.dodgeChance || 4).toFixed(1)}%</span>
                 </div>
               </div>
@@ -622,87 +671,87 @@ export default function GamePage() {
        case 'profile':
          return (
            <div className="space-y-6">
-             <div className="bg-gradient-to-br from-primary-purple to-primary-pink p-6 rounded-2xl border-2 border-custom">
-               <h3 className="text-2xl font-bold text-white mb-4">Perfil de Equipamentos</h3>
+             <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+               <h3 className="text-3xl font-bold text-white mb-6">Perfil de Equipamentos</h3>
                
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                  {/* Character Model */}
-                 <div className="bg-gray-800 p-6 rounded-lg border border-custom">
+                 <div className="bg-dark-bg-card p-6 rounded-xl border border-dark-border">
                    <h4 className="text-white font-bold mb-4 text-center">Personagem</h4>
                    <div className="flex flex-col items-center space-y-4">
                      {/* Head */}
-                     <div className="w-16 h-16 bg-gray-700 rounded-lg border-2 border-dashed border-gray-500 flex items-center justify-center">
+                     <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
                        {user.equippedItems?.helmet ? (
                          <span className="text-2xl">{user.equippedItems.helmet.icon}</span>
                        ) : (
-                         <span className="text-gray-400 text-sm">Capacete</span>
+                         <span className="text-dark-text-muted text-sm">Capacete</span>
                        )}
                      </div>
                      
                      {/* Body */}
                      <div className="flex space-x-4">
-                       <div className="w-16 h-16 bg-gray-700 rounded-lg border-2 border-dashed border-gray-500 flex items-center justify-center">
+                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
                          {user.equippedItems?.weapon ? (
                            <span className="text-2xl">{user.equippedItems.weapon.icon}</span>
                          ) : (
-                           <span className="text-gray-400 text-sm">Arma</span>
+                           <span className="text-dark-text-muted text-sm">Arma</span>
                          )}
                        </div>
-                       <div className="w-16 h-16 bg-gray-700 rounded-lg border-2 border-dashed border-gray-500 flex items-center justify-center">
+                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
                          {user.equippedItems?.armor ? (
                            <span className="text-2xl">{user.equippedItems.armor.icon}</span>
                          ) : (
-                           <span className="text-gray-400 text-sm">Armadura</span>
+                           <span className="text-dark-text-muted text-sm">Armadura</span>
                          )}
                        </div>
-                       <div className="w-16 h-16 bg-gray-700 rounded-lg border-2 border-dashed border-gray-500 flex items-center justify-center">
+                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
                          {user.equippedItems?.offhand ? (
                            <span className="text-2xl">{user.equippedItems.offhand.icon}</span>
                          ) : (
-                           <span className="text-gray-400 text-sm">2ª Mão</span>
+                           <span className="text-dark-text-muted text-sm">2ª Mão</span>
                          )}
                        </div>
                      </div>
                      
                      {/* Legs and Feet */}
                      <div className="flex space-x-4">
-                       <div className="w-16 h-16 bg-gray-700 rounded-lg border-2 border-dashed border-gray-500 flex items-center justify-center">
+                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
                          {user.equippedItems?.pants ? (
                            <span className="text-2xl">{user.equippedItems.pants.icon}</span>
                          ) : (
-                           <span className="text-gray-400 text-sm">Calça</span>
+                           <span className="text-dark-text-muted text-sm">Calça</span>
                          )}
                        </div>
-                       <div className="w-16 h-16 bg-gray-700 rounded-lg border-2 border-dashed border-gray-500 flex items-center justify-center">
+                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
                          {user.equippedItems?.boots ? (
                            <span className="text-2xl">{user.equippedItems.boots.icon}</span>
                          ) : (
-                           <span className="text-gray-400 text-sm">Bota</span>
+                           <span className="text-dark-text-muted text-sm">Bota</span>
                          )}
                        </div>
                      </div>
                      
                      {/* Accessories */}
                      <div className="flex space-x-4">
-                       <div className="w-12 h-12 bg-gray-700 rounded-lg border-2 border-dashed border-gray-500 flex items-center justify-center">
+                       <div className="w-12 h-12 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
                          {user.equippedItems?.ring ? (
                            <span className="text-lg">{user.equippedItems.ring.icon}</span>
                          ) : (
-                           <span className="text-gray-400 text-xs">Anel</span>
+                           <span className="text-dark-text-muted text-xs">Anel</span>
                          )}
                        </div>
-                       <div className="w-12 h-12 bg-gray-700 rounded-lg border-2 border-dashed border-gray-500 flex items-center justify-center">
+                       <div className="w-12 h-12 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
                          {user.equippedItems?.amulet ? (
                            <span className="text-lg">{user.equippedItems.amulet.icon}</span>
                          ) : (
-                           <span className="text-gray-400 text-xs">Amuleto</span>
+                           <span className="text-dark-text-muted text-xs">Amuleto</span>
                          )}
                        </div>
-                       <div className="w-12 h-12 bg-gray-700 rounded-lg border-2 border-dashed border-gray-500 flex items-center justify-center">
+                       <div className="w-12 h-12 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
                          {user.equippedItems?.relic ? (
                            <span className="text-lg">{user.equippedItems.relic.icon}</span>
                          ) : (
-                           <span className="text-gray-400 text-xs">Relíquia</span>
+                           <span className="text-dark-text-muted text-xs">Relíquia</span>
                          )}
                        </div>
                      </div>
@@ -710,27 +759,27 @@ export default function GamePage() {
                  </div>
                  
                  {/* Equipment Stats */}
-                 <div className="bg-gray-800 p-6 rounded-lg border border-custom">
+                 <div className="bg-dark-bg-card p-6 rounded-xl border border-dark-border">
                    <h4 className="text-white font-bold mb-4">Bônus de Equipamentos</h4>
                    <div className="space-y-2">
                      <div className="flex justify-between">
-                       <span className="text-gray-300">Força:</span>
+                       <span className="text-dark-text-secondary">Força:</span>
                        <span className="text-white font-bold">+0</span>
                      </div>
                      <div className="flex justify-between">
-                       <span className="text-gray-300">Magia:</span>
+                       <span className="text-dark-text-secondary">Magia:</span>
                        <span className="text-white font-bold">+0</span>
                      </div>
                      <div className="flex justify-between">
-                       <span className="text-gray-300">Destreza:</span>
+                       <span className="text-dark-text-secondary">Destreza:</span>
                        <span className="text-white font-bold">+0</span>
                      </div>
                      <div className="flex justify-between">
-                       <span className="text-gray-300">Agilidade:</span>
+                       <span className="text-dark-text-secondary">Agilidade:</span>
                        <span className="text-white font-bold">+0</span>
                      </div>
                      <div className="flex justify-between">
-                       <span className="text-gray-300">Vitalidade:</span>
+                       <span className="text-dark-text-secondary">Vitalidade:</span>
                        <span className="text-white font-bold">+0</span>
                      </div>
                    </div>
@@ -743,60 +792,93 @@ export default function GamePage() {
        case 'inventory':
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-br from-primary-brown to-primary-deep-orange p-6 rounded-2xl border-2 border-custom">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-2xl font-bold text-white">Inventário</h3>
+            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-3xl font-bold text-white">Inventário</h3>
                 <button
                   onClick={() => setShowSellModal(true)}
-                  className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white px-4 py-2 rounded-lg font-bold transition-all duration-300 flex items-center space-x-2"
+                  className="bg-purple-gradient hover:opacity-90 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center space-x-2 shadow-lg"
                 >
-                  <span>💰</span>
+                  <Coins className="w-5 h-5" />
                   <span>Vender Itens</span>
                 </button>
               </div>
               
               {(user.inventory?.length || 0) === 0 ? (
-                <p className="text-gray-300">Seu inventário está vazio. Derrote monstros para coletar itens!</p>
+                <div className="text-center py-12">
+                  <Package className="w-16 h-16 mx-auto mb-4 text-dark-text-muted" />
+                  <p className="text-dark-text-secondary text-lg">Seu inventário está vazio</p>
+                  <p className="text-dark-text-muted text-sm mt-2">Derrote monstros para coletar itens!</p>
+                </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {getStackedInventory().map((item, index) => (
-                    <div key={index} className="bg-gray-800 p-4 rounded-lg border border-custom">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <span className="text-2xl">{item.icon}</span>
-                          <div>
-                            <h4 className="text-white font-bold">{item.name}</h4>
-                            <p className="text-gray-400 text-sm">{item.description}</p>
-                            <p className="text-primary-yellow text-sm">Valor: {item.value} ouro</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {getStackedInventory().map((item, index) => {
+                    const rarityColors: Record<string, string> = {
+                      common: 'border-dark-border bg-dark-bg-tertiary',
+                      uncommon: 'border-green-500/50 bg-green-500/10',
+                      rare: 'border-blue-500/50 bg-blue-500/10',
+                      epic: 'border-purple-500/50 bg-purple-500/10',
+                      legendary: 'border-yellow-500/50 bg-yellow-500/10'
+                    };
+                    
+                    const rarity = item.rarity || 'common';
+                    
+                    return (
+                      <div 
+                        key={index} 
+                        className={`${rarityColors[rarity] || rarityColors.common} p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg`}
+                      >
+                        <div className="flex flex-col space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center space-x-3 flex-1">
+                              <span className="text-3xl">{item.icon}</span>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-dark-text font-bold text-sm truncate">{item.name}</h4>
+                                <p className="text-dark-text-secondary text-xs mt-1 line-clamp-2">{item.description}</p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between pt-2 border-t border-dark-border">
+                            <div className="flex items-center space-x-2">
+                              <Coins className="w-4 h-4 text-primary-yellow" />
+                              <span className="text-primary-yellow text-sm font-semibold">{item.value}</span>
+                            </div>
                             {item.amount > 1 && (
-                              <p className="text-blue-400 text-sm font-bold">x{item.amount}</p>
+                              <span className="bg-accent-purple text-white px-2 py-1 rounded-lg text-xs font-bold">
+                                x{item.amount}
+                              </span>
                             )}
                           </div>
-                        </div>
-                        <div className="flex flex-col space-y-2">
-                          {(item.type === 'weapon' || item.type === 'armor') && (
-                            <button className="bg-primary-green hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
-                              Equipar
-                            </button>
-                          )}
-                          {item.type === 'consumable' && (
+                          
+                          <div className="flex flex-col space-y-2 pt-2">
+                            {(item.type === 'weapon' || item.type === 'armor') && (
+                              <button className="bg-accent-purple hover:bg-accent-purple-dark text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center justify-center space-x-2">
+                                <SwordIcon className="w-4 h-4" />
+                                <span>Equipar</span>
+                              </button>
+                            )}
+                            {item.type === 'consumable' && (
+                              <button 
+                                onClick={() => handleUseItem(item.id)}
+                                className="bg-accent-blue hover:opacity-90 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center justify-center space-x-2"
+                              >
+                                <ZapIcon className="w-4 h-4" />
+                                <span>Usar</span>
+                              </button>
+                            )}
                             <button 
-                              onClick={() => handleUseItem(item.id)}
-                              className="bg-primary-blue hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                              onClick={() => handleSelectItemForSale(item.id, item.amount)}
+                              className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center justify-center space-x-2"
                             >
-                              Usar
+                              <Coins className="w-4 h-4" />
+                              <span>Vender</span>
                             </button>
-                          )}
-                          <button 
-                            onClick={() => handleSelectItemForSale(item.id, item.amount)}
-                            className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm"
-                          >
-                            Vender
-                          </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -806,26 +888,55 @@ export default function GamePage() {
       case 'battle':
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-br from-primary-red to-primary-deep-orange p-6 rounded-2xl border-2 border-custom">
-              <h3 className="text-2xl font-bold text-white mb-4">Arena de Batalha</h3>
+            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+              <h3 className="text-3xl font-bold text-white mb-6">Arena de Batalha</h3>
               
                              {selectedMonster ? (
                  <div className="space-y-4">
                                        {/* Player Health Bar */}
-                    <div className="bg-gray-800 p-4 rounded-lg border border-custom">
+                    <div className="bg-dark-bg-card p-6 rounded-2xl border border-dark-border card-glow">
                       <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center space-x-3">
-                          <span className="text-4xl">{user.characterClass ? CHARACTER_CLASSES[user.characterClass].icon : '👤'}</span>
+                        <div className="flex items-center space-x-4">
+                          {getCharacterImagePath(user.characterClass, characterGender === 'female') ? (
+                            <div className="relative cursor-pointer" onClick={toggleCharacterGender} title="Clique para alternar entre masculino/feminino">
+                              <img 
+                                src={getCharacterImagePath(user.characterClass, characterGender === 'female')!} 
+                                alt={user.characterClass ? CHARACTER_CLASSES[user.characterClass].name : 'Personagem'}
+                                className="w-20 h-20 object-contain rounded-lg hover:opacity-80 transition-opacity"
+                                onError={(e) => {
+                                  // Fallback para ícone se imagem não existir
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    const fallback = document.createElement('span');
+                                    fallback.className = 'text-4xl cursor-pointer';
+                                    fallback.textContent = user.characterClass ? CHARACTER_CLASSES[user.characterClass].icon : '👤';
+                                    fallback.onclick = toggleCharacterGender;
+                                    parent.appendChild(fallback);
+                                  }
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <span 
+                              className="text-4xl cursor-pointer hover:opacity-80 transition-opacity" 
+                              onClick={toggleCharacterGender}
+                              title="Clique para alternar entre masculino/feminino"
+                            >
+                              {user.characterClass ? CHARACTER_CLASSES[user.characterClass].icon : '👤'}
+                            </span>
+                          )}
                           <div>
                             <h4 className="text-white font-bold text-xl">{user.nickname}</h4>
-                            <p className="text-gray-400">Nível {user.stats?.level || user.level || 1}</p>
+                            <p className="text-dark-text-secondary">Nível {user.stats?.level || user.level || 1}</p>
                           </div>
                         </div>
                         <div className="text-right">
                           <div className="text-white font-bold">{user.stats?.health || user.health || 100}/{user.stats?.maxHealth || user.maxHealth || 100}</div>
-                          <div className="w-32 bg-gray-700 rounded-full h-2 mt-1">
+                          <div className="w-32 bg-dark-bg-tertiary rounded-full h-2.5 mt-1">
                             <div 
-                              className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                              className="bg-gradient-to-r from-green-500 to-emerald-500 h-2.5 rounded-full transition-all duration-300"
                               style={{ width: `${((user.stats?.health || user.health || 100) / (user.stats?.maxHealth || user.maxHealth || 100)) * 100}%` }}
                             ></div>
                           </div>
@@ -835,12 +946,12 @@ export default function GamePage() {
                       {/* Experience Bar */}
                       <div className="mt-3">
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="text-gray-300">Experiência:</span>
+                          <span className="text-dark-text-secondary">Experiência:</span>
                           <span className="text-primary-yellow font-bold">
                             {user.stats?.experience || user.experience || 0}/{user.stats?.experienceToNext || 100}
                           </span>
                         </div>
-                        <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div className="w-full bg-dark-bg-tertiary rounded-full h-2">
                           <div 
                             className="bg-primary-yellow h-2 rounded-full transition-all duration-300"
                             style={{ width: `${((user.stats?.experience || user.experience || 0) / (user.stats?.experienceToNext || 100)) * 100}%` }}
@@ -850,22 +961,44 @@ export default function GamePage() {
                     </div>
 
                    {/* Monster Health Bar */}
-                   <div className="bg-gray-800 p-4 rounded-lg border border-custom">
+                   <div className="bg-dark-bg-card p-6 rounded-2xl border border-dark-border card-glow">
                      <div className="flex items-center justify-between mb-4">
-                       <div className="flex items-center space-x-3">
-                         <span className="text-4xl">{selectedMonster.icon}</span>
+                       <div className="flex items-center space-x-4">
+                         {selectedMonster.imagePath ? (
+                           <div className="relative">
+                             <img 
+                               src={selectedMonster.imagePath} 
+                               alt={selectedMonster.name}
+                               className="w-20 h-20 object-contain rounded-lg bg-dark-bg-tertiary p-2 border border-dark-border-light"
+                               onError={(e) => {
+                                 // Fallback para ícone se imagem não existir
+                                 const target = e.target as HTMLImageElement;
+                                 target.style.display = 'none';
+                                 const parent = target.parentElement;
+                                 if (parent) {
+                                   const fallback = document.createElement('span');
+                                   fallback.className = 'text-4xl';
+                                   fallback.textContent = selectedMonster.icon;
+                                   parent.appendChild(fallback);
+                                 }
+                               }}
+                             />
+                           </div>
+                         ) : (
+                           <span className="text-4xl">{selectedMonster.icon}</span>
+                         )}
                          <div>
-                           <h4 className="text-white font-bold text-xl">{selectedMonster.name}</h4>
-                           <p className="text-gray-400">Nível {selectedMonster.level}</p>
+                           <h4 className="text-dark-text font-bold text-xl">{selectedMonster.name}</h4>
+                           <p className="text-dark-text-secondary">Nível {selectedMonster.level}</p>
                          </div>
                        </div>
                                                <div className="text-right">
                           <div className="text-white font-bold">
                             {currentMonsterHealth > 0 ? currentMonsterHealth : selectedMonster.health}/{selectedMonster.maxHealth}
                           </div>
-                          <div className="w-32 bg-gray-700 rounded-full h-2 mt-1">
+                          <div className="w-32 bg-dark-bg-tertiary rounded-full h-2.5 mt-1">
                             <div 
-                              className="bg-red-500 h-2 rounded-full transition-all duration-300"
+                              className="bg-gradient-to-r from-red-500 to-rose-600 h-2.5 rounded-full transition-all duration-300"
                               style={{ 
                                 width: `${((currentMonsterHealth > 0 ? currentMonsterHealth : selectedMonster.health) / selectedMonster.maxHealth) * 100}%` 
                               }}
@@ -948,7 +1081,7 @@ export default function GamePage() {
                 </div>
               ) : (
                                  <div>
-                   <p className="text-gray-300 mb-4">Escolha um monstro para batalhar:</p>
+                   <p className="text-dark-text-secondary mb-4">Escolha um monstro para batalhar:</p>
                    
                    {/* Monster Level Filter */}
                    <div className="mb-6">
@@ -984,20 +1117,42 @@ export default function GamePage() {
                        <div
                          key={monster.id}
                          onClick={() => handleStartBattle(monster)}
-                         className="bg-gray-800 p-4 rounded-lg border border-custom cursor-pointer hover:border-primary-yellow transition-colors"
+                         className="bg-card-gradient p-4 rounded-xl border border-dark-border cursor-pointer hover:border-accent-purple hover:scale-105 transition-all duration-300 card-glow"
                        >
                          <div className="text-center">
-                           <div className="text-3xl mb-2">{monster.icon}</div>
-                           <h4 className="text-white font-bold text-sm">{monster.name}</h4>
-                           <p className="text-gray-400 text-xs">Nível {monster.level}</p>
-                           <div className="mt-2 space-y-1">
-                             <p className="text-primary-yellow text-xs">{monster.experience} EXP</p>
-                             <p className="text-primary-green text-xs">{monster.gold} Ouro</p>
-                             <div className="flex justify-center space-x-2 text-xs">
-                               <span className="text-red-400">ATK: {monster.attack}</span>
-                               <span className="text-blue-400">DEF: {monster.defense}</span>
+                           {monster.imagePath ? (
+                             <div className="mb-3 flex justify-center">
+                               <img 
+                                 src={monster.imagePath} 
+                                 alt={monster.name}
+                                 className="w-20 h-20 object-contain rounded-lg bg-dark-bg-tertiary p-2 border border-dark-border-light"
+                                 onError={(e) => {
+                                   // Fallback para ícone se imagem não existir
+                                   const target = e.target as HTMLImageElement;
+                                   target.style.display = 'none';
+                                   const parent = target.parentElement;
+                                   if (parent) {
+                                     const fallback = document.createElement('span');
+                                     fallback.className = 'text-3xl';
+                                     fallback.textContent = monster.icon;
+                                     parent.appendChild(fallback);
+                                   }
+                                 }}
+                               />
                              </div>
-                             <p className="text-blue-400 text-xs mt-1">
+                           ) : (
+                             <div className="text-3xl mb-2">{monster.icon}</div>
+                           )}
+                           <h4 className="text-white font-bold text-sm mb-1">{monster.name}</h4>
+                           <p className="text-dark-text-secondary text-xs mb-2">Nível {monster.level}</p>
+                           <div className="mt-2 space-y-1">
+                             <p className="text-primary-yellow text-xs font-semibold">{monster.experience} EXP</p>
+                             <p className="text-primary-green text-xs font-semibold">{monster.gold} Ouro</p>
+                             <div className="flex justify-center space-x-2 text-xs mt-2">
+                               <span className="text-red-400 font-semibold">ATK: {monster.attack}</span>
+                               <span className="text-blue-400 font-semibold">DEF: {monster.defense}</span>
+                             </div>
+                             <p className="text-accent-cyan text-xs mt-1">
                                {monster.icon === '⚔️' ? 'Guerreiro' : 
                                 monster.icon === '🏹' ? 'Arqueiro' : 
                                 monster.icon === '🔮' ? 'Mago' : 'Desconhecido'}
@@ -1062,7 +1217,7 @@ export default function GamePage() {
        case 'collection':
          return (
            <div className="space-y-6">
-             <div className="bg-gradient-to-br from-primary-green to-primary-blue p-6 rounded-2xl border-2 border-custom">
+             <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
                <h3 className="text-2xl font-bold text-white mb-4">Sistema de Coleta</h3>
                
                <div className="mb-6">
@@ -1072,9 +1227,9 @@ export default function GamePage() {
                      {Math.floor(collectionTimer / 60)}:{(collectionTimer % 60).toString().padStart(2, '0')}
                    </span>
                  </div>
-                 <div className="w-full bg-gray-700 rounded-full h-2">
+                 <div className="w-full bg-dark-bg-tertiary rounded-full h-2">
                    <div 
-                     className="bg-primary-green h-2 rounded-full transition-all duration-1000"
+                     className="bg-accent-purple h-2 rounded-full transition-all duration-1000"
                      style={{ width: `${(((user.collection?.collectionInterval || 30) - collectionTimer) / (user.collection?.collectionInterval || 30)) * 100}%` }}
                    ></div>
                  </div>
@@ -1088,19 +1243,19 @@ export default function GamePage() {
                    const experienceToNext = skillData?.experienceToNext || 50;
                    
                    return (
-                     <div key={skill.type} className="bg-gray-800 p-4 rounded-lg border border-custom">
+                     <div key={skill.type} className="bg-dark-bg-card p-4 rounded-xl border border-dark-border">
                        <div className="text-center mb-3">
                          <div className="text-3xl mb-2">{skill.icon}</div>
                          <h4 className="text-white font-bold">{skill.name}</h4>
-                         <p className="text-gray-400 text-sm">{skill.description}</p>
+                         <p className="text-dark-text-secondary text-sm">{skill.description}</p>
                        </div>
                        
                        <div className="mb-3">
                          <div className="flex justify-between text-sm mb-1">
-                           <span className="text-gray-300">Nível {level}</span>
+                           <span className="text-dark-text-secondary">Nível {level}</span>
                            <span className="text-primary-yellow">{experience}/{experienceToNext} EXP</span>
                          </div>
-                         <div className="w-full bg-gray-700 rounded-full h-2">
+                         <div className="w-full bg-dark-bg-tertiary rounded-full h-2">
                            <div 
                              className="bg-primary-yellow h-2 rounded-full transition-all duration-300"
                              style={{ width: `${(experience / experienceToNext) * 100}%` }}
@@ -1111,10 +1266,10 @@ export default function GamePage() {
                        <button
                          onClick={() => handleCollectResources(skill.type)}
                          disabled={collectionTimer > 0}
-                         className={`w-full px-4 py-2 rounded-lg font-bold transition-colors flex items-center justify-center space-x-2 ${
+                         className={`w-full px-4 py-2 rounded-lg font-bold transition-all duration-300 flex items-center justify-center space-x-2 ${
                            collectionTimer <= 0
-                             ? 'bg-primary-green hover:bg-green-600 text-white'
-                             : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                             ? 'bg-accent-purple hover:opacity-90 text-white'
+                             : 'bg-dark-bg-tertiary text-dark-text-muted cursor-not-allowed'
                          }`}
                        >
                          <Target className="w-4 h-4" />
@@ -1131,35 +1286,35 @@ export default function GamePage() {
        case 'rest':
          return (
            <div className="space-y-6">
-             <div className="bg-gradient-to-br from-primary-green to-primary-blue p-6 rounded-2xl border-2 border-custom">
+             <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
                <h3 className="text-2xl font-bold text-white mb-4">Sistema de Descanso</h3>
                
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                  {/* Descanso Gratuito */}
-                 <div className="bg-gray-800 p-6 rounded-lg border border-custom">
+                 <div className="bg-dark-bg-card p-6 rounded-xl border border-dark-border">
                    <div className="text-center mb-4">
                      <div className="text-4xl mb-2">😴</div>
                      <h4 className="text-white font-bold text-xl">Descanso Gratuito</h4>
-                     <p className="text-gray-300 text-sm mt-2">
+                     <p className="text-dark-text-secondary text-sm mt-2">
                        Recupera HP e MP completos sem custo
                      </p>
                    </div>
                    
                    <div className="mb-4">
                      <div className="flex justify-between text-sm mb-2">
-                       <span className="text-gray-300">Tempo de Descanso:</span>
+                       <span className="text-dark-text-secondary">Tempo de Descanso:</span>
                        <span className="text-primary-yellow font-bold">
                          {Math.floor((user.stats?.level || user.level || 1) / 5) + 1} minuto(s)
                        </span>
                      </div>
-                     <div className="text-xs text-gray-400">
+                     <div className="text-xs text-dark-text-muted">
                        Base: 1 minuto + 1 minuto a cada 5 níveis
                      </div>
                    </div>
                    
                    <button
                      onClick={handleRest}
-                     className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all duration-300 flex items-center justify-center space-x-2"
+                     className="w-full bg-accent-purple hover:opacity-90 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center space-x-2"
                    >
                      <Heart className="w-5 h-5" />
                      <span>Descansar</span>
@@ -1167,20 +1322,20 @@ export default function GamePage() {
                  </div>
                  
                  {/* Status Atual */}
-                 <div className="bg-gray-800 p-6 rounded-lg border border-custom">
+                 <div className="bg-dark-bg-card p-6 rounded-xl border border-dark-border">
                    <h4 className="text-white font-bold mb-4">Status Atual</h4>
                    
                    <div className="space-y-4">
                      <div>
                        <div className="flex justify-between text-sm mb-1">
-                         <span className="text-gray-300">Vida:</span>
+                         <span className="text-dark-text-secondary">Vida:</span>
                          <span className="text-white font-bold">
                            {user.stats?.health || user.health || 100}/{user.stats?.maxHealth || user.maxHealth || 100}
                          </span>
                        </div>
-                       <div className="w-full bg-gray-700 rounded-full h-2">
+                       <div className="w-full bg-dark-bg-tertiary rounded-full h-2">
                          <div 
-                           className="bg-red-500 h-2 rounded-full transition-all duration-300"
+                           className="bg-gradient-to-r from-red-500 to-rose-600 h-2 rounded-full transition-all duration-300"
                            style={{ width: `${((user.stats?.health || user.health || 100) / (user.stats?.maxHealth || user.maxHealth || 100)) * 100}%` }}
                          ></div>
                        </div>
@@ -1188,23 +1343,23 @@ export default function GamePage() {
                      
                      <div>
                        <div className="flex justify-between text-sm mb-1">
-                         <span className="text-gray-300">Mana:</span>
+                         <span className="text-dark-text-secondary">Mana:</span>
                          <span className="text-white font-bold">
                            {user.stats?.mana || user.mana || 50}/{user.stats?.maxMana || user.maxMana || 50}
                          </span>
                        </div>
-                       <div className="w-full bg-gray-700 rounded-full h-2">
+                       <div className="w-full bg-dark-bg-tertiary rounded-full h-2">
                          <div 
-                           className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                           className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
                            style={{ width: `${((user.stats?.mana || user.mana || 50) / (user.stats?.maxMana || user.maxMana || 50)) * 100}%` }}
                          ></div>
                        </div>
                      </div>
                    </div>
                    
-                   <div className="mt-4 p-3 bg-gray-700 rounded-lg">
+                   <div className="mt-4 p-3 bg-dark-bg-tertiary rounded-lg">
                      <h5 className="text-white font-semibold mb-2">Informações:</h5>
-                     <ul className="text-xs text-gray-300 space-y-1">
+                     <ul className="text-xs text-dark-text-secondary space-y-1">
                        <li>• Descanso recupera HP e MP ao máximo</li>
                        <li>• Tempo aumenta com o nível do personagem</li>
                        <li>• Alternativa gratuita às poções</li>
@@ -1220,7 +1375,7 @@ export default function GamePage() {
        case 'guild':
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-br from-primary-blue to-primary-cyan p-6 rounded-2xl border-2 border-custom">
+            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
               <h3 className="text-2xl font-bold text-white mb-4">Sistema de Guild</h3>
               {user.guildId ? (
                 <p className="text-gray-300">Você é membro de uma guild.</p>
@@ -1244,7 +1399,7 @@ export default function GamePage() {
       case 'market':
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-br from-primary-yellow to-primary-orange p-6 rounded-2xl border-2 border-custom">
+            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
               <h3 className="text-2xl font-bold text-white mb-4">Mercado de Trading</h3>
               <p className="text-gray-300">O mercado está vazio. Itens aparecerão conforme os jogadores começarem a negociar!</p>
             </div>
@@ -1254,9 +1409,9 @@ export default function GamePage() {
       case 'world':
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-br from-primary-green to-primary-blue p-6 rounded-2xl border-2 border-custom">
+            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
               <h3 className="text-2xl font-bold text-white mb-4">Mapa do Mundo</h3>
-              <p className="text-gray-300">Explore o vasto mundo do RPG Browser!</p>
+              <p className="text-dark-text-secondary">Explore o vasto mundo do RPG Browser!</p>
             </div>
           </div>
         );
@@ -1467,28 +1622,28 @@ export default function GamePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+    <div className="min-h-screen bg-dark-gradient content-layer">
       {/* Top Navigation */}
-      <nav className="bg-black bg-opacity-50 backdrop-blur-sm border-b-2 border-custom">
+      <nav className="bg-dark-bg-secondary bg-opacity-80 backdrop-blur-md border-b border-dark-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <Sword className="w-8 h-8 text-primary-orange" />
+              <Sword className="w-8 h-8 text-accent-purple" />
               <span className="text-2xl font-bold text-white">RPG Browser</span>
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-white">
+              <div className="flex items-center space-x-2 bg-dark-bg-tertiary px-4 py-2 rounded-lg border border-dark-border">
                 <Coins className="w-5 h-5 text-primary-yellow" />
-                <span className="font-semibold">{user.gold}</span>
+                <span className="font-semibold text-dark-text">{user.gold}</span>
               </div>
-              <div className="flex items-center space-x-2 text-white">
-                <Star className="w-5 h-5 text-primary-yellow" />
-                <span className="font-semibold">Lv.{user.stats?.level || user.level || 1}</span>
+              <div className="flex items-center space-x-2 bg-dark-bg-tertiary px-4 py-2 rounded-lg border border-dark-border">
+                <Star className="w-5 h-5 text-accent-purple" />
+                <span className="font-semibold text-dark-text">Lv.{user.stats?.level || user.level || 1}</span>
               </div>
               <button
                 onClick={handleLogout}
-                className="bg-primary-red text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
+                className="bg-gradient-to-r from-red-600 to-rose-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all duration-300 flex items-center space-x-2 font-semibold"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sair</span>
@@ -1500,17 +1655,53 @@ export default function GamePage() {
 
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 bg-black bg-opacity-50 border-r-2 border-custom min-h-screen">
+        <div className="w-64 bg-dark-bg-secondary border-r border-dark-border min-h-screen">
           <div className="p-4">
-            <div className="bg-gradient-to-br from-primary-brown to-primary-deep-orange p-4 rounded-2xl border-2 border-custom mb-6">
+            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow mb-6">
               <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-r from-primary-green to-primary-blue rounded-full mx-auto mb-3 flex items-center justify-center">
-                  <Crown className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-white font-bold">{user.nickname}</h3>
-                <p className="text-gray-300 text-sm">Nível {user.stats?.level || user.level || 1}</p>
+                {getCharacterImagePath(user.characterClass, characterGender === 'female') ? (
+                  <div 
+                    className="w-32 h-32 mx-auto mb-4 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+                    onClick={toggleCharacterGender}
+                    title="Clique para alternar entre masculino/feminino"
+                  >
+                    <img 
+                      src={getCharacterImagePath(user.characterClass, characterGender === 'female')!} 
+                      alt={user.characterClass ? CHARACTER_CLASSES[user.characterClass].name : 'Personagem'}
+                      className="w-32 h-32 object-contain rounded-full shadow-lg"
+                      onError={(e) => {
+                        // Fallback para ícone se imagem não existir
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          const fallback = document.createElement('div');
+                          fallback.className = 'w-24 h-24 bg-purple-gradient rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-105 transition-transform';
+                          fallback.onclick = toggleCharacterGender;
+                          const icon = document.createElement('span');
+                          icon.className = 'text-4xl';
+                          icon.textContent = user.characterClass ? CHARACTER_CLASSES[user.characterClass].icon : '👤';
+                          fallback.appendChild(icon);
+                          parent.appendChild(fallback);
+                        }
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div 
+                    className="w-24 h-24 bg-purple-gradient rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg cursor-pointer hover:scale-105 transition-transform"
+                    onClick={toggleCharacterGender}
+                    title="Clique para alternar entre masculino/feminino"
+                  >
+                    <span className="text-4xl">
+                      {user.characterClass ? CHARACTER_CLASSES[user.characterClass].icon : '👤'}
+                    </span>
+                  </div>
+                )}
+                <h3 className="text-dark-text font-bold text-xl">{user.nickname}</h3>
+                <p className="text-dark-text-secondary text-sm mt-1">Nível {user.stats?.level || user.level || 1}</p>
                 {user.characterClass && (
-                  <p className="text-primary-yellow text-sm">{CHARACTER_CLASSES[user.characterClass].name}</p>
+                  <p className="text-accent-purple text-sm font-semibold mt-1">{CHARACTER_CLASSES[user.characterClass].name}</p>
                 )}
               </div>
             </div>
@@ -1522,14 +1713,14 @@ export default function GamePage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors ${
+                    className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all duration-300 ${
                       activeTab === tab.id
-                        ? 'bg-gradient-to-r from-primary-green to-primary-blue text-white'
-                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                        ? 'bg-purple-gradient text-white shadow-lg'
+                        : 'text-dark-text-secondary hover:bg-dark-bg-tertiary hover:text-dark-text'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
-                    <span>{tab.label}</span>
+                    <span className="font-medium">{tab.label}</span>
                   </button>
                 );
               })}
