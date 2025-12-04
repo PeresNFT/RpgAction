@@ -868,7 +868,28 @@ export default function GamePage() {
                               </button>
                             )}
                             <button 
-                              onClick={() => handleSelectItemForSale(item.id, item.amount)}
+                              onClick={async () => {
+                                try {
+                                  const result = await sellItems([{ itemId: item.id, amount: item.amount || 1 }]);
+                                  if (result.success) {
+                                    setBattleLog(prev => [
+                                      result.message || `Item vendido por ${result.totalGold || 0} ouro!`,
+                                      ...prev
+                                    ]);
+                                  } else {
+                                    setBattleLog(prev => [
+                                      'Erro ao vender item. Tente novamente.',
+                                      ...prev
+                                    ]);
+                                  }
+                                } catch (error) {
+                                  console.error('Erro ao vender item:', error);
+                                  setBattleLog(prev => [
+                                    'Erro ao vender item. Tente novamente.',
+                                    ...prev
+                                  ]);
+                                }
+                              }}
                               className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center justify-center space-x-2"
                             >
                               <Coins className="w-4 h-4" />
@@ -1148,15 +1169,6 @@ export default function GamePage() {
                            <div className="mt-2 space-y-1">
                              <p className="text-primary-yellow text-xs font-semibold">{monster.experience} EXP</p>
                              <p className="text-primary-green text-xs font-semibold">{monster.gold} Ouro</p>
-                             <div className="flex justify-center space-x-2 text-xs mt-2">
-                               <span className="text-red-400 font-semibold">ATK: {monster.attack}</span>
-                               <span className="text-blue-400 font-semibold">DEF: {monster.defense}</span>
-                             </div>
-                             <p className="text-accent-cyan text-xs mt-1">
-                               {monster.icon === '⚔️' ? 'Guerreiro' : 
-                                monster.icon === '🏹' ? 'Arqueiro' : 
-                                monster.icon === '🔮' ? 'Mago' : 'Desconhecido'}
-                             </p>
                            </div>
                          </div>
                        </div>
@@ -1206,7 +1218,6 @@ export default function GamePage() {
             onUpdateGuild={updateGuild}
             onGetRanking={getGuildRanking}
             onGuildBank={guildBank}
-            onContribute={contributeExperience}
             userGuildId={user.guildId}
             userGuildRole={user.guildRole}
             userId={user.id}

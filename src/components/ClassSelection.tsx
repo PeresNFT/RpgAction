@@ -23,7 +23,7 @@ export function ClassSelection({ onClassSelected }: ClassSelectionProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
+    <div className="min-h-screen bg-dark-gradient flex items-center justify-center p-4">
       <div className="max-w-4xl w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
@@ -46,7 +46,7 @@ export function ClassSelection({ onClassSelected }: ClassSelectionProps) {
                   isSelected ? 'ring-4 ring-primary-yellow' : 'hover:ring-2 hover:ring-primary-yellow'
                 }`}
               >
-                <div className={`bg-gradient-to-br ${classData.color} p-6 rounded-2xl border-2 border-custom h-full`}>
+                <div className="bg-card-gradient p-6 rounded-2xl border-2 border-dark-border h-full">
                   <div className="text-center">
                     <div className="text-6xl mb-4">{classData.icon}</div>
                     <h3 className="text-2xl font-bold text-white mb-2">{classData.name}</h3>

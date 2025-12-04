@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { User } from '@/types/user';
 import { CollectionType } from '@/types/game';
 import { getUserById, updateUser, userWithoutPassword } from '@/lib/db-helpers';
+import { ITEMS } from '@/data/gameData';
 
 function calculateCollectionLevelUp(currentLevel: number, currentExp: number, expGained: number): {
   newLevel: number;
@@ -93,14 +94,17 @@ export async function POST(request: NextRequest) {
         if (existingItem) {
           existingItem.amount = (existingItem.amount || 1) + resource.amount;
         } else {
+          // Try to find the item template in ITEMS array
+          const itemTemplate = ITEMS.find(item => item.id === resource.id);
+          
           updatedInventory.push({
             id: resource.id,
             name: resource.name,
-            description: `Recurso coletado`,
+            description: itemTemplate?.description || `Recurso coletado`,
             type: 'material',
-            rarity: 'common',
-            level: 1,
-            value: 1,
+            rarity: itemTemplate?.rarity || 'common',
+            level: itemTemplate?.level || 1,
+            value: itemTemplate?.value || 1,
             icon: resource.icon,
             amount: resource.amount
           });

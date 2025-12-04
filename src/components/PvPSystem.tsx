@@ -59,6 +59,9 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
   const [currentUserStats, setCurrentUserStats] = useState<any>(null);
   const [pvpCooldown, setPvpCooldown] = useState(0); // Cooldown timer in seconds
   const PVP_COOLDOWN_SECONDS = 600; // 10 minutes
+  const [refreshCooldown, setRefreshCooldown] = useState(0); // Refresh cooldown timer in seconds
+  const REFRESH_COOLDOWN_SECONDS = 30; // 30 seconds
+  const [lastRefreshTime, setLastRefreshTime] = useState<number>(0); // Timestamp of last refresh
 
   // Calculate PvP cooldown based on lastBattleTime
   useEffect(() => {
@@ -98,9 +101,37 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
     return () => clearInterval(interval);
   }, [userPvPStats?.lastBattleTime]);
 
+  // Calculate refresh cooldown
+  useEffect(() => {
+    const calculateRefreshCooldown = (): number => {
+      if (lastRefreshTime === 0) {
+        return 0; // No cooldown if never refreshed
+      }
+
+      const now = Date.now();
+      const timeSinceLastRefresh = Math.floor((now - lastRefreshTime) / 1000);
+      
+      if (timeSinceLastRefresh >= REFRESH_COOLDOWN_SECONDS) {
+        return 0; // Cooldown expired
+      } else {
+        return Math.max(0, REFRESH_COOLDOWN_SECONDS - timeSinceLastRefresh);
+      }
+    };
+
+    // Calculate initial cooldown value
+    setRefreshCooldown(calculateRefreshCooldown());
+
+    // Update cooldown every second
+    const interval = setInterval(() => {
+      setRefreshCooldown(calculateRefreshCooldown());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastRefreshTime]);
+
   // Auto-search opponents when entering PvP tab
   useEffect(() => {
-    if (activeTab === 'search' && opponents.length === 0 && !isSearching) {
+    if (activeTab === 'search' && opponents.length === 0 && !isSearching && refreshCooldown === 0) {
       handleSearchOpponents();
     }
   }, [activeTab]);
@@ -112,12 +143,17 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
   }, [activeTab]);
 
   const handleSearchOpponents = async () => {
+    if (refreshCooldown > 0) {
+      return; // Cooldown still active
+    }
+
     setIsSearching(true);
     try {
       const result = await onSearchOpponents();
       if (result.success) {
         setOpponents(result.opponents || []);
         setCurrentUserStats(result.currentUserStats);
+        setLastRefreshTime(Date.now()); // Update last refresh time
       }
     } catch (error) {
       console.error('Error searching opponents:', error);
@@ -367,15 +403,23 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
               <h4 className="text-2xl font-bold text-white">Buscar Oponentes</h4>
               <button
                 onClick={handleSearchOpponents}
-                disabled={isSearching}
+                disabled={isSearching || refreshCooldown > 0}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-bold transition-all duration-300 ${
-                  isSearching
+                  isSearching || refreshCooldown > 0
                     ? 'bg-dark-bg-tertiary text-dark-text-muted cursor-not-allowed'
                     : 'bg-accent-purple hover:opacity-90 text-white'
                 }`}
+                title={refreshCooldown > 0 ? `Aguarde ${formatCooldown(refreshCooldown)} para atualizar novamente` : ''}
               >
                 <Search className="w-4 h-4" />
-                <span>{isSearching ? 'Buscando...' : 'Atualizar'}</span>
+                <span>
+                  {isSearching 
+                    ? 'Buscando...' 
+                    : refreshCooldown > 0 
+                      ? `Atualizar (${formatCooldown(refreshCooldown)})`
+                      : 'Atualizar'
+                  }
+                </span>
               </button>
             </div>
 

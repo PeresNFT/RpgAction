@@ -53,8 +53,6 @@ export async function POST(request: NextRequest) {
     // Shuffle opponents randomly
     const shuffledOpponents = [...availableOpponents].sort(() => Math.random() - 0.5);
     
-    // Get up to 4 unique opponents, repeating if necessary
-    const selectedOpponents: PvPSearchResult[] = [];
     const targetCount = 4;
     
     if (shuffledOpponents.length === 0) {
@@ -70,20 +68,13 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // Fill with unique opponents first
-    for (let i = 0; i < Math.min(targetCount, shuffledOpponents.length); i++) {
-      selectedOpponents.push(shuffledOpponents[i]);
-    }
-    
-    // If we need more, repeat opponents
-    while (selectedOpponents.length < targetCount) {
-      const randomIndex = Math.floor(Math.random() * shuffledOpponents.length);
-      selectedOpponents.push(shuffledOpponents[randomIndex]);
-    }
+    // Get exactly 4 unique opponents (no repetitions)
+    // If there are fewer than 4 available, return all unique opponents
+    const selectedOpponents = shuffledOpponents.slice(0, Math.min(targetCount, shuffledOpponents.length));
 
     return NextResponse.json({
       success: true,
-      opponents: selectedOpponents.slice(0, targetCount),
+      opponents: selectedOpponents,
       currentUserStats: {
         level: currentUser.stats?.level || currentUser.level || 1,
         honorPoints: currentUserPvP.honorPoints,

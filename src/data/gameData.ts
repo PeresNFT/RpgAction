@@ -118,7 +118,7 @@ export const ITEMS: Item[] = [
     icon: '🔵',
     manaAmount: 30
   },
-  // Materials
+  // Materials (Collection resources worth 1 gold for selling - intended for crafting)
   {
     id: 'herb',
     name: 'Erva Medicinal',
@@ -126,7 +126,7 @@ export const ITEMS: Item[] = [
     type: 'material',
     rarity: 'common',
     level: 1,
-    value: 5,
+    value: 1,
     icon: '🌿'
   },
   {
@@ -136,8 +136,112 @@ export const ITEMS: Item[] = [
     type: 'material',
     rarity: 'common',
     level: 1,
-    value: 10,
+    value: 1,
     icon: '⛏️'
+  },
+  // Collection Resources - Woodcutting (All worth 1 gold for selling - intended for crafting)
+  {
+    id: 'wood',
+    name: 'Madeira',
+    description: 'Madeira coletada de árvores.',
+    type: 'material',
+    rarity: 'common',
+    level: 1,
+    value: 1,
+    icon: '🪵'
+  },
+  {
+    id: 'oak_wood',
+    name: 'Madeira de Carvalho',
+    description: 'Madeira de carvalho de alta qualidade.',
+    type: 'material',
+    rarity: 'uncommon',
+    level: 5,
+    value: 1,
+    icon: '🌳'
+  },
+  {
+    id: 'pine_wood',
+    name: 'Madeira de Pinho',
+    description: 'Madeira de pinho resistente.',
+    type: 'material',
+    rarity: 'uncommon',
+    level: 8,
+    value: 1,
+    icon: '🌲'
+  },
+  // Collection Resources - Fishing (All worth 1 gold for selling - intended for crafting)
+  {
+    id: 'fish',
+    name: 'Peixe',
+    description: 'Peixe fresco pescado.',
+    type: 'material',
+    rarity: 'common',
+    level: 1,
+    value: 1,
+    icon: '🐟'
+  },
+  {
+    id: 'salmon',
+    name: 'Salmão',
+    description: 'Salmão de alta qualidade.',
+    type: 'material',
+    rarity: 'uncommon',
+    level: 5,
+    value: 1,
+    icon: '🐠'
+  },
+  {
+    id: 'tuna',
+    name: 'Atum',
+    description: 'Atum grande e nutritivo.',
+    type: 'material',
+    rarity: 'rare',
+    level: 10,
+    value: 1,
+    icon: '🐡'
+  },
+  // Collection Resources - Mining (All worth 1 gold for selling - intended for crafting)
+  {
+    id: 'copper_ore',
+    name: 'Minério de Cobre',
+    description: 'Minério de cobre útil para forja.',
+    type: 'material',
+    rarity: 'common',
+    level: 5,
+    value: 1,
+    icon: '🟠'
+  },
+  {
+    id: 'gold_ore',
+    name: 'Minério de Ouro',
+    description: 'Minério de ouro valioso.',
+    type: 'material',
+    rarity: 'rare',
+    level: 10,
+    value: 1,
+    icon: '🟡'
+  },
+  // Collection Resources - Farming (All worth 1 gold for selling - intended for crafting)
+  {
+    id: 'wheat',
+    name: 'Trigo',
+    description: 'Trigo cultivado.',
+    type: 'material',
+    rarity: 'common',
+    level: 3,
+    value: 1,
+    icon: '🌾'
+  },
+  {
+    id: 'corn',
+    name: 'Milho',
+    description: 'Milho cultivado.',
+    type: 'material',
+    rarity: 'common',
+    level: 6,
+    value: 1,
+    icon: '🌽'
   }
 ];
 
@@ -278,7 +382,7 @@ function generateMonster(level: number, monsterClass: 'warrior' | 'archer' | 'ma
 
   return {
     id: `${monsterName.toLowerCase().replace(/\s+/g, '_')}_${level}`,
-    name: `${monsterName} Nível ${level}`,
+    name: monsterName,
     level,
     health: maxHealth,
     maxHealth,

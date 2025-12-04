@@ -6,7 +6,6 @@ import {
   Shield, 
   Crown, 
   Coins, 
-  TrendingUp,
   Plus,
   Minus,
   Settings,
@@ -30,7 +29,6 @@ interface GuildSystemProps {
   onUpdateGuild: (guildId: string, updates: any) => Promise<{ success: boolean; guild?: Guild }>;
   onGetRanking: (limit?: number, offset?: number) => Promise<{ success: boolean; rankings?: GuildRanking[]; total?: number }>;
   onGuildBank: (action: 'deposit' | 'withdraw', amount: number) => Promise<{ success: boolean; message?: string; userGold?: number; guildGold?: number }>;
-  onContribute: (experience: number) => Promise<{ success: boolean; message?: string; guild?: Guild; leveledUp?: boolean }>;
   userGuildId?: string;
   userGuildRole?: 'member' | 'officer' | 'leader';
   userId: string;
@@ -45,7 +43,6 @@ export function GuildSystem({
   onUpdateGuild,
   onGetRanking,
   onGuildBank,
-  onContribute,
   userGuildId,
   userGuildRole,
   userId,
@@ -70,10 +67,6 @@ export function GuildSystem({
   const [bankAction, setBankAction] = useState<'deposit' | 'withdraw'>('deposit');
   const [bankAmount, setBankAmount] = useState('');
   const [showBankModal, setShowBankModal] = useState(false);
-  
-  // Contribute
-  const [contributeAmount, setContributeAmount] = useState('');
-  const [showContributeModal, setShowContributeModal] = useState(false);
   
   // Edit Guild
   const [isEditing, setIsEditing] = useState(false);
@@ -218,34 +211,6 @@ export function GuildSystem({
     }
   };
 
-  const handleContribute = async () => {
-    const amount = parseInt(contributeAmount);
-    if (!amount || amount <= 0) {
-      setError('Please enter a valid experience amount');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await onContribute(amount);
-      if (result.success) {
-        setShowContributeModal(false);
-        setContributeAmount('');
-        await loadGuildData();
-        if (result.leveledUp) {
-          alert('🎉 Guild leveled up!');
-        }
-      } else {
-        setError(result.message || 'Failed to contribute experience');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to contribute experience');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleUpdateGuild = async () => {
     if (!guild || !isEditing) return;
@@ -496,13 +461,6 @@ export function GuildSystem({
                   >
                     <Coins className="w-4 h-4" />
                     <span>Guild Bank</span>
-                  </button>
-                  <button
-                    onClick={() => setShowContributeModal(true)}
-                    className="bg-accent-purple px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300 flex items-center space-x-2"
-                  >
-                    <TrendingUp className="w-4 h-4" />
-                    <span>Contribute XP</span>
                   </button>
                   {isLeader && (
                     <button
@@ -801,52 +759,6 @@ export function GuildSystem({
         </div>
       )}
 
-      {/* Contribute Modal */}
-      {showContributeModal && guild && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow max-w-md w-full">
-            <h3 className="text-2xl font-bold text-white mb-4">Contribute Experience</h3>
-            <div className="space-y-4">
-              <div className="bg-dark-bg-card p-4 rounded-xl border border-dark-border">
-                <div className="text-dark-text-secondary text-sm">Guild Level</div>
-                <div className="text-2xl font-bold text-white">{guild.level}</div>
-                <div className="text-dark-text-secondary text-sm mt-1">
-                  {guild.experience}/{guild.experienceToNext} XP to next level
-                </div>
-              </div>
-              <div>
-                <label className="block text-dark-text-secondary mb-2">Experience Amount</label>
-                <input
-                  type="number"
-                  value={contributeAmount}
-                  onChange={(e) => setContributeAmount(e.target.value)}
-                  className="w-full bg-dark-bg-card text-white px-4 py-2 rounded-xl border border-dark-border"
-                  placeholder="Enter experience amount"
-                  min="1"
-                />
-              </div>
-            </div>
-            <div className="flex space-x-4 mt-6">
-              <button
-                onClick={handleContribute}
-                disabled={isLoading || !contributeAmount}
-                className="flex-1 bg-accent-purple px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? 'Contributing...' : 'Contribute'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowContributeModal(false);
-                  setContributeAmount('');
-                }}
-                className="flex-1 bg-dark-bg-tertiary px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

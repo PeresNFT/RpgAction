@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { User } from '@/types/user';
 import { GAME_FORMULAS } from '@/data/gameData';
-import { getUserById, updateUser, userWithoutPassword } from '@/lib/db-helpers';
+import { getUserById, updateUser, userWithoutPassword, getGuildById, updateGuild } from '@/lib/db-helpers';
 
 function calculateLevelUp(user: User, experienceGained: number): {
   newLevel: number;
@@ -68,9 +68,52 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
+
+    // Check for guild bonus (level 1 = +25% experience)
+    let finalExperienceGained = experienceGained;
+    let guildBonus = 0;
     
-    // Calcular level up
-    const levelUpData = calculateLevelUp(user, experienceGained);
+    if (user.guildId) {
+      const guild = await getGuildById(user.guildId);
+      if (guild) {
+        // Apply +25% experience bonus if guild is level 1
+        if (guild.level === 1) {
+          guildBonus = Math.floor(experienceGained * 0.25);
+          finalExperienceGained = experienceGained + guildBonus;
+        }
+        
+        // Auto-contribute 10% of base experience to guild
+        if (experienceGained > 0) {
+          const guildContribution = Math.floor(experienceGained * 0.1);
+          if (guildContribution > 0) {
+            try {
+              let newGuildExperience = guild.experience + guildContribution;
+              let newGuildLevel = guild.level;
+              let newGuildExperienceToNext = guild.experienceToNext;
+
+              // Level up guild if needed
+              while (newGuildExperience >= newGuildExperienceToNext) {
+                newGuildExperience -= newGuildExperienceToNext;
+                newGuildLevel += 1;
+                newGuildExperienceToNext = Math.floor(100 * Math.pow(1.5, newGuildLevel - 1));
+              }
+
+              await updateGuild(user.guildId, {
+                level: newGuildLevel,
+                experience: newGuildExperience,
+                experienceToNext: newGuildExperienceToNext
+              });
+            } catch (error) {
+              console.error('Failed to auto-contribute to guild:', error);
+              // Continue even if guild contribution fails
+            }
+          }
+        }
+      }
+    }
+    
+    // Calcular level up with final experience (including bonus)
+    const levelUpData = calculateLevelUp(user, finalExperienceGained);
     
     // Atualizar stats baseado no novo nível
     const newStats = {
@@ -111,7 +154,9 @@ export async function POST(request: NextRequest) {
       success: true,
       user: userWithoutPassword(savedUser),
       levelUp: levelUpData.levelUp,
-      experienceGained,
+      experienceGained: finalExperienceGained,
+      baseExperienceGained: experienceGained,
+      guildBonus: guildBonus,
       goldGained: goldGained || 0,
       itemsGained: itemsGained || []
     });
