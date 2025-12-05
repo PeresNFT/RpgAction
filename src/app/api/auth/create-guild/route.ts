@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     const guild = await createGuild({
       name: name.trim(),
       description: description?.trim(),
-      icon: icon || '🛡️',
+      icon: icon || 'guild1',
       leaderId: userId
     });
 

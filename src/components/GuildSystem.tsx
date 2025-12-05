@@ -19,7 +19,7 @@ import {
   Edit
 } from 'lucide-react';
 import { Guild, GuildMember, GuildRanking } from '@/types/game';
-import { CHARACTER_CLASSES } from '@/data/gameData';
+import { CHARACTER_CLASSES, getGuildIconImagePath, GUILD_ICONS } from '@/data/gameData';
 
 interface GuildSystemProps {
   onCreateGuild: (name: string, description?: string, icon?: string) => Promise<{ success: boolean; guild?: Guild }>;
@@ -60,7 +60,7 @@ export function GuildSystem({
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [createName, setCreateName] = useState('');
   const [createDescription, setCreateDescription] = useState('');
-  const [createIcon, setCreateIcon] = useState('🛡️');
+  const [createIcon, setCreateIcon] = useState('guild1');
   const [joinGuildId, setJoinGuildId] = useState('');
   
   // Guild Bank
@@ -70,13 +70,57 @@ export function GuildSystem({
   
   // Edit Guild
   const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editIcon, setEditIcon] = useState('');
   
   // Search guilds
   const [searchResults, setSearchResults] = useState<GuildRanking[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  // Helper component to render guild icon (image or emoji fallback)
+  const GuildIcon = ({ icon, size = 'large' }: { icon: string; size?: 'small' | 'medium' | 'large' }) => {
+    const imagePath = getGuildIconImagePath(icon);
+    
+    // Tamanhos baseados no padrão de collection
+    const sizeClasses = {
+      small: 'w-8 h-8',
+      medium: 'w-12 h-12',
+      large: 'w-24 h-24' // Mesmo tamanho dos ícones de collection
+    };
+    
+    const textSizeClasses = {
+      small: 'text-2xl',
+      medium: 'text-3xl',
+      large: 'text-6xl'
+    };
+    
+    if (imagePath) {
+      return (
+        <div className="flex items-center justify-center">
+          <img 
+            src={imagePath} 
+            alt={`Guild icon ${icon}`}
+            className={`${sizeClasses[size]} object-contain`}
+            onError={(e) => {
+              // Fallback para emoji se imagem não existir
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              const parent = target.parentElement;
+              if (parent) {
+                const fallback = document.createElement('div');
+                fallback.className = textSizeClasses[size];
+                fallback.textContent = '🛡️';
+                parent.appendChild(fallback);
+              }
+            }}
+          />
+        </div>
+      );
+    }
+    
+    // Fallback para emoji se não for um ícone numérico
+    return <div className={textSizeClasses[size]}>{icon || '🛡️'}</div>;
+  };
 
   // Load guild data when user has a guild
   useEffect(() => {
@@ -122,7 +166,7 @@ export function GuildSystem({
         setShowCreateModal(false);
         setCreateName('');
         setCreateDescription('');
-        setCreateIcon('🛡️');
+        setCreateIcon('guild1');
         setActiveTab('myGuild');
       } else {
         setError('Failed to create guild');
@@ -220,7 +264,7 @@ export function GuildSystem({
 
     try {
       const updates: any = {};
-      if (editName.trim() !== guild.name) updates.name = editName.trim();
+      // Nome não é editável - removido
       if (editDescription.trim() !== (guild.description || '')) updates.description = editDescription.trim() || null;
       if (editIcon !== guild.icon) updates.icon = editIcon;
 
@@ -362,17 +406,11 @@ export function GuildSystem({
               <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-4">
-                    <div className="text-6xl">{guild.icon}</div>
+                    <GuildIcon icon={guild.icon} size="large" />
                     <div>
                       {isEditing ? (
                         <div className="space-y-2">
-                          <input
-                            type="text"
-                            value={editName}
-                            onChange={(e) => setEditName(e.target.value)}
-                            className="bg-dark-bg-card text-white px-3 py-2 rounded-xl border border-dark-border w-full"
-                            placeholder="Guild Name"
-                          />
+                          <h3 className="text-2xl font-bold text-white">{guild.name}</h3>
                           <input
                             type="text"
                             value={editDescription}
@@ -380,13 +418,41 @@ export function GuildSystem({
                             className="bg-dark-bg-card text-white px-3 py-2 rounded-xl border border-dark-border w-full"
                             placeholder="Description"
                           />
-                          <input
-                            type="text"
-                            value={editIcon}
-                            onChange={(e) => setEditIcon(e.target.value)}
-                            className="bg-dark-bg-card text-white px-3 py-2 rounded-xl border border-dark-border w-full"
-                            placeholder="Icon (emoji)"
-                          />
+                          <div>
+                            <label className="block text-dark-text-secondary mb-2">Choose Icon</label>
+                            <div className="grid grid-cols-5 gap-2 max-h-48 overflow-y-auto">
+                              {GUILD_ICONS.map((guildIcon) => (
+                                <button
+                                  key={guildIcon.id}
+                                  type="button"
+                                  onClick={() => setEditIcon(guildIcon.id)}
+                                  className={`w-16 h-16 rounded-xl border-2 transition-all duration-300 hover:scale-110 flex items-center justify-center ${
+                                    editIcon === guildIcon.id
+                                      ? 'border-accent-purple bg-accent-purple bg-opacity-20 scale-110'
+                                      : 'border-dark-border bg-dark-bg-card hover:border-accent-purple'
+                                  }`}
+                                  title={guildIcon.name}
+                                >
+                                  <img 
+                                    src={guildIcon.imagePath} 
+                                    alt={guildIcon.name}
+                                    className="w-12 h-12 object-contain"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                      const parent = target.parentElement;
+                                      if (parent) {
+                                        const fallback = document.createElement('div');
+                                        fallback.className = 'text-2xl';
+                                        fallback.textContent = guildIcon.fallbackIcon;
+                                        parent.appendChild(fallback);
+                                      }
+                                    }}
+                                  />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       ) : (
                         <>
@@ -402,7 +468,6 @@ export function GuildSystem({
                     <button
                       onClick={() => {
                         setIsEditing(true);
-                        setEditName(guild.name);
                         setEditDescription(guild.description || '');
                         setEditIcon(guild.icon);
                       }}
@@ -423,7 +488,6 @@ export function GuildSystem({
                       <button
                         onClick={() => {
                           setIsEditing(false);
-                          setEditName('');
                           setEditDescription('');
                           setEditIcon('');
                         }}
@@ -533,7 +597,7 @@ export function GuildSystem({
                     className="bg-dark-bg-card p-4 rounded-xl border border-dark-border flex items-center justify-between hover:border-accent-purple transition-all duration-300"
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="text-4xl">{guildRank.icon}</div>
+                      <GuildIcon icon={guildRank.icon} size="medium" />
                       <div>
                         <div className="text-white font-semibold">{guildRank.name}</div>
                         <div className="text-dark-text-secondary text-sm">
@@ -589,7 +653,7 @@ export function GuildSystem({
                       <div className="text-2xl font-bold text-primary-yellow w-8">
                         #{guildRank.rank}
                       </div>
-                      <div className="text-3xl">{guildRank.icon}</div>
+                      <GuildIcon icon={guildRank.icon} size="medium" />
                       <div>
                         <div className="text-white font-semibold">{guildRank.name}</div>
                         <div className="text-dark-text-secondary text-sm">
@@ -635,26 +699,35 @@ export function GuildSystem({
               </div>
               <div>
                 <label className="block text-dark-text-secondary mb-2">Choose Icon</label>
-                <div className="flex space-x-3">
-                  {[
-                    { icon: '🛡️', name: 'Shield' },
-                    { icon: '⚔️', name: 'Swords' },
-                    { icon: '🏰', name: 'Castle' },
-                    { icon: '👑', name: 'Crown' },
-                    { icon: '🐉', name: 'Dragon' }
-                  ].map((option) => (
+                <div className="grid grid-cols-5 gap-2 max-h-48 overflow-y-auto">
+                  {GUILD_ICONS.map((guildIcon) => (
                     <button
-                      key={option.icon}
+                      key={guildIcon.id}
                       type="button"
-                      onClick={() => setCreateIcon(option.icon)}
-                      className={`w-16 h-16 text-4xl rounded-xl border-2 transition-all duration-300 hover:scale-110 ${
-                        createIcon === option.icon
+                      onClick={() => setCreateIcon(guildIcon.id)}
+                      className={`w-16 h-16 rounded-xl border-2 transition-all duration-300 hover:scale-110 flex items-center justify-center ${
+                        createIcon === guildIcon.id
                           ? 'border-accent-purple bg-accent-purple bg-opacity-20 scale-110'
                           : 'border-dark-border bg-dark-bg-card hover:border-accent-purple'
                       }`}
-                      title={option.name}
+                      title={guildIcon.name}
                     >
-                      {option.icon}
+                      <img 
+                        src={guildIcon.imagePath} 
+                        alt={guildIcon.name}
+                        className="w-12 h-12 object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            const fallback = document.createElement('div');
+                            fallback.className = 'text-2xl';
+                            fallback.textContent = guildIcon.fallbackIcon;
+                            parent.appendChild(fallback);
+                          }
+                        }}
+                      />
                     </button>
                   ))}
                 </div>
@@ -674,7 +747,7 @@ export function GuildSystem({
                   setShowCreateModal(false);
                   setCreateName('');
                   setCreateDescription('');
-                  setCreateIcon('🛡️');
+                  setCreateIcon('guild1');
                 }}
                 className="flex-1 bg-dark-bg-tertiary px-4 py-2 rounded-xl text-white font-semibold hover:opacity-90 transition-all duration-300"
               >

@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         magic: 10,
         dexterity: 10,
         agility: 10,
-        vitality: 10,
+        luck: 5,
       },
       availablePoints: 0,
       stats: {
@@ -96,8 +96,10 @@ export async function POST(request: NextRequest) {
         maxMana: 50,
         attack: 20,
         defense: 15,
-        criticalChance: 5,
+        accuracy: 80,
         dodgeChance: 4,
+        criticalChance: 1.5,
+        criticalResist: 1,
       },
       inventory: [],
       battle: {
@@ -121,6 +123,7 @@ export async function POST(request: NextRequest) {
       },
       equippedItems: {},
       gold: 100,
+      diamonds: 0,
       // Legacy fields
       level: 1,
       experience: 0,

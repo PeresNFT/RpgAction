@@ -5,9 +5,9 @@ import { getUserById, updateUser, userWithoutPassword } from '@/lib/db-helpers';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId, health } = body;
+    const { userId, health, mana } = body;
 
-    if (!userId || health === undefined) {
+    if (!userId || (health === undefined && mana === undefined)) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -23,13 +23,20 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Atualizar vida do jogador
+    // Atualizar vida e/ou mana do jogador
+    const updatedStats: any = { ...user.stats };
+    
+    if (health !== undefined) {
+      updatedStats.health = Math.max(0, Math.min(health, user.stats?.maxHealth || user.maxHealth || 100));
+    }
+    
+    if (mana !== undefined) {
+      updatedStats.mana = Math.max(0, Math.min(mana, user.stats?.maxMana || user.maxMana || 50));
+    }
+    
     const updatedUser: User = {
       ...user,
-      stats: {
-        ...user.stats,
-        health: Math.max(0, health) // Garantir que não fique negativo
-      }
+      stats: updatedStats
     };
 
     const savedUser = await updateUser(updatedUser);

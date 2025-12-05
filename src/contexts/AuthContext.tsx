@@ -160,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateHealth = async (health: number): Promise<boolean> => {
+  const updateHealth = async (health?: number, mana?: number): Promise<boolean> => {
     try {
       const response = await fetch('/api/auth/update-health', {
         method: 'POST',
@@ -169,14 +169,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
         body: JSON.stringify({
           userId: user?.id,
-          health,
+          ...(health !== undefined && { health }),
+          ...(mana !== undefined && { mana }),
         }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to update health');
+        throw new Error(result.error || 'Failed to update health/mana');
       }
 
       setUser(result.user);
@@ -718,9 +719,254 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const upgradeSkill = async (skillId: string): Promise<{ success: boolean; error?: string; skillLevel?: number; goldSpent?: number }> => {
+    try {
+      if (!user) {
+        return { success: false, error: 'User not logged in' };
+      }
+
+      const response = await fetch('/api/auth/upgrade-skill', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          skillId,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: result.error || 'Failed to upgrade skill' };
+      }
+
+      setUser(result.user);
+      localStorage.setItem('rpg_user', JSON.stringify(result.user));
+      return { 
+        success: true, 
+        skillLevel: result.skillLevel,
+        goldSpent: result.goldSpent
+      };
+    } catch (error: any) {
+      console.error('Upgrade skill error:', error);
+      return { success: false, error: 'Internal server error' };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('rpg_user');
+  };
+
+  // Market functions
+  const listMarketItems = async (currencyType?: 'gold' | 'diamonds', limit: number = 50, offset: number = 0): Promise<{ success: boolean; items?: any[]; total?: number }> => {
+    try {
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+        offset: offset.toString(),
+      });
+      if (currencyType) {
+        params.append('currencyType', currencyType);
+      }
+
+      const response = await fetch(`/api/auth/market/list?${params.toString()}`);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to list market items');
+      }
+
+      return { success: true, items: result.items, total: result.total };
+    } catch (error: any) {
+      console.error('List market items error:', error);
+      return { success: false };
+    }
+  };
+
+  const addMarketItem = async (itemId: string, amount: number, price: number, priceDiamonds: number | undefined, currencyType: 'gold' | 'diamonds'): Promise<{ success: boolean; error?: string; marketItem?: any }> => {
+    try {
+      if (!user) {
+        return { success: false, error: 'User not logged in' };
+      }
+
+      const response = await fetch('/api/auth/market/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          itemId,
+          amount,
+          price,
+          priceDiamonds,
+          currencyType,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: result.error || 'Failed to add item to market' };
+      }
+
+      // Update user data with returned user
+      if (result.user) {
+        setUser(result.user);
+        localStorage.setItem('rpg_user', JSON.stringify(result.user));
+      }
+
+      return { success: true, marketItem: result.marketItem };
+    } catch (error: any) {
+      console.error('Add market item error:', error);
+      return { success: false, error: 'Internal server error' };
+    }
+  };
+
+  const buyMarketItem = async (marketItemId: string): Promise<{ success: boolean; error?: string; message?: string }> => {
+    try {
+      if (!user) {
+        return { success: false, error: 'User not logged in' };
+      }
+
+      const response = await fetch('/api/auth/market/buy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          buyerId: user.id,
+          marketItemId,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: result.error || 'Failed to buy item' };
+      }
+
+      // Update user data with returned buyer data
+      if (result.buyer) {
+        setUser(result.buyer);
+        localStorage.setItem('rpg_user', JSON.stringify(result.buyer));
+      }
+
+      return { success: true, message: result.message };
+    } catch (error: any) {
+      console.error('Buy market item error:', error);
+      return { success: false, error: 'Internal server error' };
+    }
+  };
+
+  const removeMarketItem = async (marketItemId: string): Promise<{ success: boolean; error?: string; message?: string }> => {
+    try {
+      if (!user) {
+        return { success: false, error: 'User not logged in' };
+      }
+
+      const response = await fetch('/api/auth/market/remove', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          marketItemId,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: result.error || 'Failed to remove item from market' };
+      }
+
+      // Update user data with returned user data
+      if (result.user) {
+        setUser(result.user);
+        localStorage.setItem('rpg_user', JSON.stringify(result.user));
+      }
+
+      return { success: true, message: result.message };
+    } catch (error: any) {
+      console.error('Remove market item error:', error);
+      return { success: false, error: 'Internal server error' };
+    }
+  };
+
+  const buyShopItem = async (shopItemId: string): Promise<{ success: boolean; error?: string; message?: string }> => {
+    try {
+      if (!user) {
+        return { success: false, error: 'User not logged in' };
+      }
+
+      const response = await fetch('/api/auth/buy-shop-item', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          shopItemId,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: result.error || 'Failed to buy shop item' };
+      }
+
+      // Update user data with returned user
+      if (result.user) {
+        setUser(result.user);
+        localStorage.setItem('rpg_user', JSON.stringify(result.user));
+      }
+
+      return { success: true, message: result.message };
+    } catch (error: any) {
+      console.error('Buy shop item error:', error);
+      return { success: false, error: 'Internal server error' };
+    }
+  };
+
+  const updateProfileImage = async (imagePath: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      if (!user) {
+        return { success: false, error: 'User not logged in' };
+      }
+
+      const response = await fetch('/api/auth/update-profile-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          imagePath,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: result.error || 'Failed to update profile image' };
+      }
+
+      // Update user data with returned user
+      if (result.user) {
+        setUser(result.user);
+        localStorage.setItem('rpg_user', JSON.stringify(result.user));
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Update profile image error:', error);
+      return { success: false, error: 'Internal server error' };
+    }
   };
 
   const value: AuthContextType = {
@@ -746,6 +992,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getGuildRanking,
     guildBank,
     contributeExperience,
+    upgradeSkill,
+    listMarketItems,
+    addMarketItem,
+    buyMarketItem,
+    removeMarketItem,
+    buyShopItem,
+    updateProfileImage,
     logout,
     isLoading,
   };

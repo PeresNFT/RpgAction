@@ -1,11 +1,11 @@
 export type CharacterClass = 'warrior' | 'archer' | 'mage';
 
 export interface Attributes {
-  strength: number;    // Força - Dano físico, carregar peso
-  magic: number;       // Magia - Dano mágico, mana
-  dexterity: number;   // Destreza - Precisão, crítico
-  agility: number;     // Agilidade - Velocidade, esquiva
-  vitality: number;    // Vitalidade - HP, resistência
+  strength: number;    // STR - Vida, Dano para Guerreiro
+  magic: number;       // MAG - Mana, Dano para Mago
+  dexterity: number;   // DEX - Precisão, Dano para Arqueiro
+  agility: number;     // AGI - Esquiva, Reduz crítico recebido
+  luck: number;        // LUK - Crítico, Resistência a crítico
 }
 
 export interface CharacterStats {
@@ -18,8 +18,11 @@ export interface CharacterStats {
   maxMana: number;
   attack: number;
   defense: number;
-  criticalChance: number;
-  dodgeChance: number;
+  accuracy: number;        // Precisão (DEX)
+  dodgeChance: number;     // Esquiva (AGI)
+  criticalChance: number;  // Crítico (LUK)
+  criticalResist: number;  // Resistência a crítico (LUK)
+  lastRestTime?: number; // Timestamp do último descanso para cooldown
 }
 
 export interface Item {
@@ -35,6 +38,7 @@ export interface Item {
   amount?: number;
   healAmount?: number;  // Para poções de vida
   manaAmount?: number;  // Para poções de mana
+  imagePath?: string;  // Caminho da imagem do item
 }
 
 export interface Monster {
@@ -59,8 +63,10 @@ export interface Monster {
     maxMana: number;
     attack: number;
     defense: number;
-    criticalChance: number;
+    accuracy: number;
     dodgeChance: number;
+    criticalChance: number;
+    criticalResist: number;
   };
 }
 
@@ -164,6 +170,7 @@ export interface PvPRanking {
   wins: number;
   losses: number;
   winRate: number;
+  profileImage?: string;
 }
 
 export interface PvPSearchResult {
@@ -172,6 +179,7 @@ export interface PvPSearchResult {
   characterClass: CharacterClass;
   level: number;
   honorPoints: number;
+  profileImage?: string;
   estimatedWaitTime: number; // em segundos
 }
 
@@ -231,4 +239,44 @@ export interface GuildRanking {
   experience: number;
   memberCount: number;
   leaderNickname: string;
+}
+
+// Skill System Types
+export interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  characterClass: CharacterClass;
+  manaCost: number;
+  cooldown: number; // em segundos
+  effect: {
+    type: 'damage' | 'heal' | 'buff' | 'debuff';
+    value: number; // Multiplicador ou valor fixo
+    target: 'self' | 'enemy';
+    duration?: number; // Para buffs/debuffs
+  };
+  icon: string;
+  level: number; // Level mínimo necessário
+}
+
+export interface PlayerSkill {
+  skillId: string;
+  level: number;
+  lastUsed?: number; // Timestamp do último uso para cooldown
+}
+
+// Market System Types
+export interface MarketItem {
+  id: string;
+  sellerId: string;
+  sellerNickname: string;
+  item: Item;
+  amount: number; // Quantidade de itens à venda
+  price: number; // Price per unit in gold (ou total, dependendo da implementação)
+  priceDiamonds?: number; // Optional price per unit in diamonds
+  currencyType: 'gold' | 'diamonds'; // Which currency is being used
+  createdAt: string;
+  expiresAt?: string; // Optional expiration date
+  isSold: boolean;
+  buyerId?: string;
 }

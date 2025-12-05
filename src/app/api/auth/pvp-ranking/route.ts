@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
         losses: user.pvpStats!.losses,
         winRate: user.pvpStats!.totalBattles > 0 
           ? Math.round((user.pvpStats!.wins / user.pvpStats!.totalBattles) * 100) 
-          : 0
+          : 0,
+        profileImage: user.profileImage
       }));
     
     const pvpUsers = pvpUsersData.sort((a, b) => {

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { CHARACTER_CLASSES, getRankIcon } from '@/data/gameData';
 import { PvPSearchResult, PvPRanking, CharacterClass } from '@/types/game';
+import { ProfileImage } from '@/components/ProfileImage';
 
 // Helper function to get character image path based on class
 function getCharacterImagePath(characterClass: CharacterClass | null, isFemale: boolean = false): string | null {
@@ -62,6 +63,9 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
   const [refreshCooldown, setRefreshCooldown] = useState(0); // Refresh cooldown timer in seconds
   const REFRESH_COOLDOWN_SECONDS = 30; // 30 seconds
   const [lastRefreshTime, setLastRefreshTime] = useState<number>(0); // Timestamp of last refresh
+  const [rankingRefreshCooldown, setRankingRefreshCooldown] = useState(0); // Ranking refresh cooldown timer in seconds
+  const RANKING_REFRESH_COOLDOWN_SECONDS = 10; // 10 seconds
+  const [lastRankingRefreshTime, setLastRankingRefreshTime] = useState<number>(0); // Timestamp of last ranking refresh
 
   // Calculate PvP cooldown based on lastBattleTime
   useEffect(() => {
@@ -129,6 +133,34 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
     return () => clearInterval(interval);
   }, [lastRefreshTime]);
 
+  // Calculate ranking refresh cooldown
+  useEffect(() => {
+    const calculateRankingRefreshCooldown = (): number => {
+      if (lastRankingRefreshTime === 0) {
+        return 0; // No cooldown if never refreshed
+      }
+
+      const now = Date.now();
+      const timeSinceLastRefresh = Math.floor((now - lastRankingRefreshTime) / 1000);
+      
+      if (timeSinceLastRefresh >= RANKING_REFRESH_COOLDOWN_SECONDS) {
+        return 0; // Cooldown expired
+      } else {
+        return Math.max(0, RANKING_REFRESH_COOLDOWN_SECONDS - timeSinceLastRefresh);
+      }
+    };
+
+    // Calculate initial cooldown value
+    setRankingRefreshCooldown(calculateRankingRefreshCooldown());
+
+    // Update cooldown every second
+    const interval = setInterval(() => {
+      setRankingRefreshCooldown(calculateRankingRefreshCooldown());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastRankingRefreshTime]);
+
   // Auto-search opponents when entering PvP tab
   useEffect(() => {
     if (activeTab === 'search' && opponents.length === 0 && !isSearching && refreshCooldown === 0) {
@@ -137,8 +169,9 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
   }, [activeTab]);
 
   useEffect(() => {
-    if (activeTab === 'ranking') {
-      loadRanking();
+    if (activeTab === 'ranking' && rankings.length === 0 && !isLoadingRanking) {
+      // Load ranking on first visit (no cooldown check)
+      loadRanking(false);
     }
   }, [activeTab]);
 
@@ -162,12 +195,17 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
     }
   };
 
-  const loadRanking = async () => {
+  const loadRanking = async (checkCooldown: boolean = true) => {
+    if (checkCooldown && rankingRefreshCooldown > 0) {
+      return; // Cooldown still active
+    }
+
     setIsLoadingRanking(true);
     try {
       const result = await onGetRanking(50, 0);
       if (result.success) {
         setRankings(result.rankings || []);
+        setLastRankingRefreshTime(Date.now()); // Update last ranking refresh time
       }
     } catch (error) {
       console.error('Error loading ranking:', error);
@@ -478,7 +516,7 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
                       }`}
                     >
                       <Sword className="w-4 h-4" />
-                      <span>{pvpCooldown <= 0 ? 'Batalhar' : 'Cooldown Ativo'}</span>
+                      <span>{pvpCooldown <= 0 ? 'Batalhar' : `Batalhar (${formatCooldown(pvpCooldown)})`}</span>
                     </button>
                   </div>
                 ))}
@@ -496,15 +534,23 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
               <h4 className="text-2xl font-bold text-white">🏆 Ranking PvP</h4>
               <button
                 onClick={loadRanking}
-                disabled={isLoadingRanking}
+                disabled={isLoadingRanking || rankingRefreshCooldown > 0}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-bold transition-all duration-300 ${
-                  isLoadingRanking
+                  isLoadingRanking || rankingRefreshCooldown > 0
                     ? 'bg-dark-bg-tertiary text-dark-text-muted cursor-not-allowed'
                     : 'bg-accent-purple hover:opacity-90 text-white'
                 }`}
+                title={rankingRefreshCooldown > 0 ? `Aguarde ${formatCooldown(rankingRefreshCooldown)} para atualizar novamente` : ''}
               >
                 <Zap className="w-4 h-4" />
-                <span>{isLoadingRanking ? 'Carregando...' : 'Atualizar'}</span>
+                <span>
+                  {isLoadingRanking 
+                    ? 'Carregando...' 
+                    : rankingRefreshCooldown > 0 
+                      ? `Atualizar (${formatCooldown(rankingRefreshCooldown)})`
+                      : 'Atualizar'
+                  }
+                </span>
               </button>
             </div>
 
@@ -528,27 +574,13 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
                         </div>
                         
                         <div className="flex items-center space-x-3">
-                          {getCharacterImagePath(player.characterClass, false) ? (
-                            <img 
-                              src={getCharacterImagePath(player.characterClass, false)!} 
-                              alt={CHARACTER_CLASSES[player.characterClass].name}
-                              className="w-12 h-12 object-contain rounded-lg"
-                              onError={(e) => {
-                                // Fallback para ícone se imagem não existir
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  const fallback = document.createElement('span');
-                                  fallback.className = 'text-2xl';
-                                  fallback.textContent = CHARACTER_CLASSES[player.characterClass].icon;
-                                  parent.appendChild(fallback);
-                                }
-                              }}
-                            />
-                          ) : (
-                            <span className="text-2xl">{CHARACTER_CLASSES[player.characterClass].icon}</span>
-                          )}
+                          <ProfileImage
+                            profileImage={player.profileImage}
+                            characterClass={player.characterClass}
+                            characterGender="male"
+                            size="large"
+                            showEditButton={false}
+                          />
                           <div>
                             <h5 className="text-white font-bold">{player.nickname}</h5>
                             <p className="text-dark-text-secondary text-sm">Nível {player.level}</p>

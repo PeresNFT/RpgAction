@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
         characterClass: user.characterClass!,
         level: user.stats?.level || user.level || 1,
         honorPoints: user.pvpStats?.honorPoints || 0,
+        profileImage: user.profileImage,
         estimatedWaitTime: 0 // Not used anymore
       }));
 

@@ -34,7 +34,7 @@ export function dbRowToUser(row: any): User {
       magic: 10,
       dexterity: 10,
       agility: 10,
-      vitality: 10,
+      luck: 5,
     },
     availablePoints: row.available_points || 0,
     stats: row.stats || {
@@ -47,8 +47,10 @@ export function dbRowToUser(row: any): User {
       maxMana: 50,
       attack: 20,
       defense: 15,
-      criticalChance: 5,
+      accuracy: 80,
       dodgeChance: 4,
+      criticalChance: 1.5,
+      criticalResist: 1,
     },
     inventory: row.inventory || [],
     battle: row.battle || {
@@ -72,7 +74,9 @@ export function dbRowToUser(row: any): User {
     },
     equippedItems: row.equipped_items || {},
     gold: row.gold || 100,
+    diamonds: row.diamonds || 0,
     pvpStats: row.pvp_stats,
+    skills: row.skills || [],
     // Legacy fields
     level: row.stats?.level || row.level || 1,
     experience: row.stats?.experience || row.experience || 0,
@@ -85,6 +89,8 @@ export function dbRowToUser(row: any): User {
     intelligence: row.attributes?.magic || row.intelligence || 10,
     guildId: row.guild_id,
     guildRole: row.guild_role,
+    purchasedItems: row.purchased_items || [],
+    profileImage: row.profile_image || undefined,
   };
 }
 
@@ -106,7 +112,9 @@ export function userToDbRow(user: User): any {
     collection: user.collection,
     equipped_items: user.equippedItems,
     gold: user.gold,
+    diamonds: user.diamonds || 0,
     pvp_stats: user.pvpStats,
+    skills: user.skills || [],
     // Legacy fields for backward compatibility
     level: user.level,
     experience: user.experience,
@@ -119,6 +127,8 @@ export function userToDbRow(user: User): any {
     intelligence: user.intelligence,
     guild_id: user.guildId ?? null,
     guild_role: user.guildRole ?? null,
+    purchased_items: user.purchasedItems || [],
+    profile_image: user.profileImage || null,
   };
 }
 

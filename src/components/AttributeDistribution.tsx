@@ -44,12 +44,14 @@ export function AttributeDistribution({ characterClass, onAttributesConfirmed }:
   const calculateStats = () => {
     const level = 1;
     return {
-      maxHealth: GAME_FORMULAS.maxHealth(attributes.vitality, level),
+      maxHealth: GAME_FORMULAS.maxHealth(attributes.strength, level, characterClass),
       maxMana: GAME_FORMULAS.maxMana(attributes.magic, level),
-      attack: GAME_FORMULAS.attack(attributes.strength, attributes.magic, level),
-      defense: GAME_FORMULAS.defense(attributes.vitality, level),
-      criticalChance: GAME_FORMULAS.criticalChance(attributes.dexterity),
-      dodgeChance: GAME_FORMULAS.dodgeChance(attributes.agility)
+      attack: GAME_FORMULAS.attack(attributes.strength, attributes.magic, attributes.dexterity, level, characterClass),
+      defense: GAME_FORMULAS.defense(attributes.strength, level, characterClass),
+      accuracy: GAME_FORMULAS.accuracy(attributes.dexterity),
+      dodgeChance: GAME_FORMULAS.dodgeChance(attributes.agility),
+      criticalChance: GAME_FORMULAS.criticalChance(attributes.luck),
+      criticalResist: GAME_FORMULAS.criticalResist(attributes.luck)
     };
   };
 
@@ -58,38 +60,38 @@ export function AttributeDistribution({ characterClass, onAttributesConfirmed }:
   const attributeConfigs = [
     {
       key: 'strength' as keyof Attributes,
-      name: 'Força',
-      description: 'Aumenta dano físico e capacidade de carregar peso',
+      name: 'Força (STR)',
+      description: 'Aumenta vida máxima e dano para Guerreiro',
       icon: Shield,
       color: 'from-red-500 to-red-700'
     },
     {
       key: 'magic' as keyof Attributes,
-      name: 'Magia',
-      description: 'Aumenta dano mágico e mana máxima',
+      name: 'Magia (MAG)',
+      description: 'Aumenta mana máxima e dano para Mago',
       icon: ZapIcon,
       color: 'from-purple-500 to-purple-700'
     },
     {
       key: 'dexterity' as keyof Attributes,
-      name: 'Destreza',
-      description: 'Aumenta chance de crítico e precisão',
+      name: 'Destreza (DEX)',
+      description: 'Aumenta precisão e dano para Arqueiro',
       icon: Target,
       color: 'from-blue-500 to-blue-700'
     },
     {
       key: 'agility' as keyof Attributes,
-      name: 'Agilidade',
-      description: 'Aumenta chance de esquiva e velocidade',
+      name: 'Agilidade (AGI)',
+      description: 'Aumenta chance de esquiva e reduz crítico recebido',
       icon: Zap,
       color: 'from-green-500 to-green-700'
     },
     {
-      key: 'vitality' as keyof Attributes,
-      name: 'Vitalidade',
-      description: 'Aumenta vida máxima e defesa',
+      key: 'luck' as keyof Attributes,
+      name: 'Sorte (LUK)',
+      description: 'Aumenta chance de crítico e resistência a crítico',
       icon: Heart,
-      color: 'from-orange-500 to-orange-700'
+      color: 'from-yellow-500 to-yellow-700'
     }
   ];
 

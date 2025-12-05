@@ -128,7 +128,7 @@ export async function getGuildById(guildId: string): Promise<Guild | null> {
     id: data.id,
     name: data.name,
     description: data.description || undefined,
-    icon: data.icon || '🛡️',
+    icon: data.icon || 'guild1',
     level: data.level || 1,
     experience: data.experience || 0,
     experienceToNext: data.experience_to_next || 100,
@@ -189,7 +189,7 @@ export async function createGuild(guildData: {
     .insert({
       name: guildData.name,
       description: guildData.description || null,
-      icon: guildData.icon || '🛡️',
+      icon: guildData.icon || 'guild1',
       leader_id: guildData.leaderId,
       level: 1,
       experience: 0,

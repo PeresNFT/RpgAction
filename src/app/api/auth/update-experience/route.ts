@@ -115,19 +115,22 @@ export async function POST(request: NextRequest) {
     // Calcular level up with final experience (including bonus)
     const levelUpData = calculateLevelUp(user, finalExperienceGained);
     
-    // Atualizar stats baseado no novo nível
+    // Atualizar stats baseado no novo nível (novo sistema)
+    const attributes = user.attributes || { strength: 10, magic: 10, dexterity: 10, agility: 10, luck: 5 };
     const newStats = {
       ...user.stats,
       level: levelUpData.newLevel,
       experience: levelUpData.newExperience,
       experienceToNext: levelUpData.experienceToNext,
       // Recalcular stats baseado no novo nível
-      maxHealth: GAME_FORMULAS.maxHealth(user.attributes?.vitality || 10, levelUpData.newLevel, user.characterClass || undefined),
-      maxMana: GAME_FORMULAS.maxMana(user.attributes?.magic || 10, levelUpData.newLevel),
-      attack: GAME_FORMULAS.attack(user.attributes?.strength || 10, user.attributes?.magic || 10, levelUpData.newLevel),
-      defense: GAME_FORMULAS.defense(user.attributes?.vitality || 10, levelUpData.newLevel),
-      criticalChance: GAME_FORMULAS.criticalChance(user.attributes?.dexterity || 10),
-      dodgeChance: GAME_FORMULAS.dodgeChance(user.attributes?.agility || 10)
+      maxHealth: GAME_FORMULAS.maxHealth(attributes.strength || 10, levelUpData.newLevel, user.characterClass || undefined),
+      maxMana: GAME_FORMULAS.maxMana(attributes.magic || 10, levelUpData.newLevel),
+      attack: GAME_FORMULAS.attack(attributes.strength || 10, attributes.magic || 10, attributes.dexterity || 10, levelUpData.newLevel, user.characterClass || undefined),
+      defense: GAME_FORMULAS.defense(attributes.strength || 10, levelUpData.newLevel, user.characterClass || undefined),
+      accuracy: GAME_FORMULAS.accuracy(attributes.dexterity || 10),
+      dodgeChance: GAME_FORMULAS.dodgeChance(attributes.agility || 10),
+      criticalChance: GAME_FORMULAS.criticalChance(attributes.luck || 5),
+      criticalResist: GAME_FORMULAS.criticalResist(attributes.luck || 5)
     };
 
     // Atualizar vida e mana para o máximo se subiu de nível

@@ -72,8 +72,8 @@ export function ClassSelection({ onClassSelected }: ClassSelectionProps) {
                           <span className="text-white font-bold">{classData.baseStats.agility}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-300">Vitalidade:</span>
-                          <span className="text-white font-bold">{classData.baseStats.vitality}</span>
+                          <span className="text-gray-300">Sorte (LUK):</span>
+                          <span className="text-white font-bold">{classData.baseStats.luck || 5}</span>
                         </div>
                       </div>
                     </div>

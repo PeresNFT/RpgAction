@@ -20,7 +20,11 @@ CREATE TABLE IF NOT EXISTS users (
   collection JSONB DEFAULT '{"isActive": false, "lastCollection": 0, "collectionInterval": 30, "skills": [], "resources": []}'::jsonb,
   equipped_items JSONB DEFAULT '{}'::jsonb,
   gold INTEGER DEFAULT 100,
+  diamonds INTEGER DEFAULT 0, -- Premium currency (cash/R$)
   pvp_stats JSONB,
+  skills JSONB DEFAULT '[]'::jsonb,
+  purchased_items JSONB DEFAULT '[]'::jsonb, -- Items purchased from shop (profile images, etc)
+  profile_image TEXT, -- Selected profile image path
   
   -- Legacy fields (para compatibilidade)
   level INTEGER DEFAULT 1,

@@ -1,4 +1,4 @@
-import { CharacterClass, Item, Monster } from '@/types/game';
+import { CharacterClass, Item, Monster, Skill } from '@/types/game';
 
 export const CHARACTER_CLASSES = {
   warrior: {
@@ -10,7 +10,7 @@ export const CHARACTER_CLASSES = {
       magic: 5,
       dexterity: 8,
       agility: 7,
-      vitality: 15,
+      luck: 5,
     },
     baseHealthPerLevel: 15, // HP base por nível para Guerreiro
     icon: '⚔️',
@@ -25,7 +25,7 @@ export const CHARACTER_CLASSES = {
       magic: 5,
       dexterity: 15,
       agility: 15,
-      vitality: 7,
+      luck: 7,
     },
     baseHealthPerLevel: 10, // HP base por nível para Arqueiro
     icon: '🏹',
@@ -40,7 +40,7 @@ export const CHARACTER_CLASSES = {
       magic: 20,
       dexterity: 8,
       agility: 7,
-      vitality: 10,
+      luck: 10,
     },
     baseHealthPerLevel: 8, // HP base por nível para Mago
     icon: '🔮',
@@ -105,7 +105,8 @@ export const ITEMS: Item[] = [
     level: 1,
     value: 25,
     icon: '❤️',
-    healAmount: 50
+    healAmount: 50,
+    imagePath: '/images/items/health_potion.png'
   },
   {
     id: 'mana_potion',
@@ -116,7 +117,8 @@ export const ITEMS: Item[] = [
     level: 1,
     value: 20,
     icon: '🔵',
-    manaAmount: 30
+    manaAmount: 30,
+    imagePath: '/images/items/mana_potion.png'
   },
   // Materials (Collection resources worth 1 gold for selling - intended for crafting)
   {
@@ -246,13 +248,14 @@ export const ITEMS: Item[] = [
 ];
 
 // Game formulas (must be defined before monster generation)
+// Escaláveis para valores infinitos (5000+ atributos)
 export const GAME_FORMULAS = {
   // Experience needed for next level
   experienceToNext: (level: number) => level * 500,
   
-  // Health calculation (includes base health per class)
-  maxHealth: (vitality: number, level: number, characterClass?: CharacterClass) => {
-    const baseHealth = 50 + (vitality * 5);
+  // Health calculation - STR based (includes base health per class)
+  maxHealth: (strength: number, level: number, characterClass?: CharacterClass) => {
+    const baseHealth = 50 + (strength * 5);
     const levelHealth = level * 10;
     
     // Adicionar HP base por classe se especificado
@@ -264,22 +267,88 @@ export const GAME_FORMULAS = {
     return baseHealth + levelHealth;
   },
   
-  // Mana calculation
+  // Mana calculation - MAG based
   maxMana: (magic: number, level: number) => 30 + (magic * 3) + (level * 5),
   
-  // Attack calculation
-  attack: (strength: number, magic: number, level: number) => 
-    Math.floor((strength * 2) + (magic * 1.5) + (level * 3)),
+  // Attack calculation - Class based (STR/MAG/DEX)
+  attack: (strength: number, magic: number, dexterity: number, level: number, characterClass?: CharacterClass) => {
+    const baseAttack = level * 3;
+    if (characterClass === 'warrior') {
+      return Math.floor((strength * 2) + baseAttack);
+    } else if (characterClass === 'mage') {
+      return Math.floor((magic * 2.5) + baseAttack);
+    } else if (characterClass === 'archer') {
+      return Math.floor((dexterity * 2) + baseAttack);
+    }
+    // Fallback: média dos atributos
+    return Math.floor(((strength * 2) + (magic * 1.5) + (dexterity * 1.5)) / 3 + baseAttack);
+  },
   
-  // Defense calculation
-  defense: (vitality: number, level: number) => 
-    Math.floor((vitality * 1.5) + (level * 2)),
+  // Defense calculation - Level based + STR bonus for warrior
+  defense: (strength: number, level: number, characterClass?: CharacterClass) => {
+    const baseDefense = level * 2;
+    if (characterClass === 'warrior') {
+      return Math.floor(baseDefense + (strength * 0.5));
+    }
+    return baseDefense;
+  },
   
-  // Critical chance
-  criticalChance: (dexterity: number) => Math.min(dexterity * 0.5, 25),
+  // Accuracy calculation - DEX based (escalável)
+  accuracy: (dexterity: number) => {
+    // Base 80%, bonus até 15% (máximo 95%)
+    const bonus = Math.min(15, dexterity * 0.003); // 0.3% por 100 DEX
+    return 80 + bonus;
+  },
   
-  // Dodge chance
-  dodgeChance: (agility: number) => Math.min(agility * 0.4, 20)
+  // Dodge chance - AGI based (escalável)
+  dodgeChance: (agility: number) => {
+    // Máximo 40% de esquiva
+    return Math.min(40, agility * 0.01); // 1% por 100 AGI
+  },
+  
+  // Critical chance - LUK based (escalável)
+  criticalChance: (luck: number) => {
+    // Máximo 50% de crítico
+    return Math.min(50, luck * 0.3); // 0.3% por ponto de LUK
+  },
+  
+  // Critical resist - LUK based
+  criticalResist: (luck: number) => {
+    // Reduz crítico recebido
+    return luck * 0.2; // 0.2% redução por ponto de LUK
+  },
+  
+  // Calculate accuracy vs dodge (for hit chance)
+  calculateHitChance: (attackerDEX: number, defenderAGI: number) => {
+    const baseAccuracy = 80; // Base 80%
+    const attackerAccuracy = GAME_FORMULAS.accuracy(attackerDEX);
+    const defenderDodge = GAME_FORMULAS.dodgeChance(defenderAGI);
+    
+    // Fórmula proporcional escalável
+    const difference = attackerDEX - defenderAGI;
+    const sum = attackerDEX + defenderAGI;
+    const bonus = sum > 0 ? (difference / sum) * 15 : 0;
+    
+    const hitChance = baseAccuracy + bonus;
+    return Math.min(95, Math.max(80, hitChance)); // Entre 80% e 95%
+  },
+  
+  // Calculate damage with proportional defense
+  calculateDamage: (attack: number, defense: number) => {
+    // Defesa reduz % do dano (não subtrai valor fixo)
+    const defenseReduction = (defense / (defense + 100)) * 100;
+    const damage = attack * (1 - defenseReduction / 100);
+    const minDamage = attack * 0.10; // Mínimo 10% do ataque
+    return Math.max(minDamage, damage);
+  },
+  
+  // Calculate final critical chance (considering resist)
+  calculateFinalCritical: (attackerLUK: number, defenderLUK: number) => {
+    const baseCrit = GAME_FORMULAS.criticalChance(attackerLUK);
+    const critResist = GAME_FORMULAS.criticalResist(defenderLUK);
+    const finalCrit = Math.max(0, baseCrit - critResist);
+    return Math.min(50, finalCrit); // Máximo 50%
+  }
 };
 
 // Creative monster names for each level
@@ -312,22 +381,24 @@ const MONSTER_NAMES = [
 function generateMonster(level: number, monsterClass: 'warrior' | 'archer' | 'mage', monsterName: string): Monster {
   const baseStats = CHARACTER_CLASSES[monsterClass].baseStats;
   
-  // Calculate attributes based on level and class
+  // Calculate attributes based on level and class (novo sistema)
   const attributes = {
     strength: Math.floor(baseStats.strength + (level * 0.8)),
     magic: Math.floor(baseStats.magic + (level * 0.8)),
     dexterity: Math.floor(baseStats.dexterity + (level * 0.8)),
     agility: Math.floor(baseStats.agility + (level * 0.8)),
-    vitality: Math.floor(baseStats.vitality + (level * 0.8))
+    luck: Math.floor((baseStats.luck || 5) + (level * 0.8))
   };
 
-  // Calculate stats using the same formulas as players
-  const maxHealth = GAME_FORMULAS.maxHealth(attributes.vitality, level, monsterClass);
+  // Calculate stats using the new formulas
+  const maxHealth = GAME_FORMULAS.maxHealth(attributes.strength, level, monsterClass);
   const maxMana = GAME_FORMULAS.maxMana(attributes.magic, level);
-  const attack = GAME_FORMULAS.attack(attributes.strength, attributes.magic, level);
-  const defense = GAME_FORMULAS.defense(attributes.vitality, level);
-  const criticalChance = GAME_FORMULAS.criticalChance(attributes.dexterity);
+  const attack = GAME_FORMULAS.attack(attributes.strength, attributes.magic, attributes.dexterity, level, monsterClass);
+  const defense = GAME_FORMULAS.defense(attributes.strength, level, monsterClass);
+  const accuracy = GAME_FORMULAS.accuracy(attributes.dexterity);
   const dodgeChance = GAME_FORMULAS.dodgeChance(attributes.agility);
+  const criticalChance = GAME_FORMULAS.criticalChance(attributes.luck);
+  const criticalResist = GAME_FORMULAS.criticalResist(attributes.luck);
 
   // Experience and gold scaling
   const baseExperience = Math.floor(level * 25 + (level * level * 0.5));
@@ -399,8 +470,10 @@ function generateMonster(level: number, monsterClass: 'warrior' | 'archer' | 'ma
       maxMana,
       attack,
       defense,
+      accuracy,
+      dodgeChance,
       criticalChance,
-      dodgeChance
+      criticalResist
     }
   };
 }
@@ -489,28 +562,138 @@ export const COLLECTION_SKILLS = [
     name: 'Mineração',
     icon: '⛏️',
     description: 'Extrair minérios e pedras preciosas',
-    color: 'from-gray-600 to-gray-800'
+    color: 'from-gray-600 to-gray-800',
+    imagePath: '/images/collection/Mineracao.png'
   },
   {
     type: 'woodcutting' as const,
     name: 'Lenhador',
     icon: '🪓',
     description: 'Cortar madeiras e árvores',
-    color: 'from-green-600 to-green-800'
+    color: 'from-green-600 to-green-800',
+    imagePath: '/images/collection/Lenhador.png'
   },
   {
     type: 'farming' as const,
     name: 'Agricultura',
     icon: '🌾',
     description: 'Cultivar plantas e ervas',
-    color: 'from-yellow-600 to-yellow-800'
+    color: 'from-yellow-600 to-yellow-800',
+    imagePath: '/images/collection/Agricultura.png'
   },
   {
     type: 'fishing' as const,
     name: 'Pesca',
     icon: '🎣',
     description: 'Pescar peixes e tesouros',
-    color: 'from-blue-600 to-blue-800'
+    color: 'from-blue-600 to-blue-800',
+    imagePath: '/images/collection/Pesca.png'
+  }
+];
+
+/**
+ * Obtém o caminho da imagem do ícone de guild
+ * @param icon - Nome do ícone (guild1, guild2, ..., guild20) ou emoji como fallback
+ * @returns Caminho da imagem ou null se não for um ícone válido
+ */
+export function getGuildIconImagePath(icon: string): string | null {
+  // Verifica se é um ícone numérico (guild1 a guild20)
+  const match = icon.match(/^guild(\d+)$/i);
+  if (match) {
+    const num = parseInt(match[1]);
+    if (num >= 1 && num <= 20) {
+      return `/images/guild/guild${num}.png`;
+    }
+  }
+  return null;
+}
+
+/**
+ * Lista de ícones de guild disponíveis (guild1 a guild20)
+ */
+export const GUILD_ICONS = Array.from({ length: 20 }, (_, i) => ({
+  id: `guild${i + 1}`,
+  name: `Guild ${i + 1}`,
+  imagePath: `/images/guild/guild${i + 1}.png`,
+  fallbackIcon: '🛡️'
+}));
+
+/**
+ * Tipos de itens da loja NPC
+ */
+export type ShopItemType = 'consumable' | 'profile_image';
+
+export interface ShopItem {
+  id: string;
+  name: string;
+  description: string;
+  type: ShopItemType;
+  icon: string;
+  priceGold?: number;
+  priceDiamonds?: number;
+  imagePath?: string; // Para fotos de perfil
+  itemId?: string; // ID do item do jogo (para poções)
+}
+
+/**
+ * Itens disponíveis na loja NPC
+ */
+export const SHOP_ITEMS: ShopItem[] = [
+  // Poções
+  {
+    id: 'shop_health_potion',
+    name: 'Poção de Vida',
+    description: 'Restaura 50 pontos de vida instantaneamente.',
+    type: 'consumable',
+    icon: '❤️',
+    priceGold: 50,
+    itemId: 'health_potion'
+  },
+  {
+    id: 'shop_mana_potion',
+    name: 'Poção de Mana',
+    description: 'Restaura 30 pontos de mana instantaneamente.',
+    type: 'consumable',
+    icon: '🔵',
+    priceGold: 40,
+    itemId: 'mana_potion'
+  },
+  // Fotos de perfil (Cash/Diamonds)
+  {
+    id: 'shop_profile_1',
+    name: 'Foto de Perfil 1',
+    description: 'Foto de perfil exclusiva #1',
+    type: 'profile_image',
+    icon: '🖼️',
+    priceDiamonds: 10,
+    imagePath: '/images/profile/profile1.png'
+  },
+  {
+    id: 'shop_profile_2',
+    name: 'Foto de Perfil 2',
+    description: 'Foto de perfil exclusiva #2',
+    type: 'profile_image',
+    icon: '🖼️',
+    priceDiamonds: 10,
+    imagePath: '/images/profile/profile2.png'
+  },
+  {
+    id: 'shop_profile_3',
+    name: 'Foto de Perfil 3',
+    description: 'Foto de perfil exclusiva #3',
+    type: 'profile_image',
+    icon: '🖼️',
+    priceDiamonds: 10,
+    imagePath: '/images/profile/profile3.png'
+  },
+  {
+    id: 'shop_profile_4',
+    name: 'Foto de Perfil 4',
+    description: 'Foto de perfil exclusiva #4',
+    type: 'profile_image',
+    icon: '🖼️',
+    priceDiamonds: 10,
+    imagePath: '/images/profile/profile4.png'
   }
 ];
 
@@ -635,7 +818,8 @@ export const COLLECTION_RESOURCES = {
 
 // PvP System Constants
 export const PVP_RANKS = {
-  BRONZE: { name: 'Bronze', minPoints: 0, icon: '🥉' },
+  IRON: { name: 'Ferro', minPoints: 0, icon: '⚫' },
+  BRONZE: { name: 'Bronze', minPoints: 50, icon: '🥉' },
   SILVER: { name: 'Prata', minPoints: 100, icon: '🥈' },
   GOLD: { name: 'Ouro', minPoints: 300, icon: '🥇' },
   PLATINUM: { name: 'Platina', minPoints: 600, icon: '💎' },
@@ -675,16 +859,25 @@ export function calculatePvPBattle(player1: any, player2: any): { winner: string
   while (p1Health > 0 && p2Health > 0 && round <= maxRounds) {
     battleLog.push(`\n🔄 Rodada ${round}:`);
     
-    // Player 1 attacks Player 2
+    // Player 1 attacks Player 2 - Novo sistema
     const p1Attack = player1.stats.attack;
-    const p1Critical = Math.random() * 100 < player1.stats.criticalChance;
-    const p2Dodge = Math.random() * 100 < player2.stats.dodgeChance;
+    const p1DEX = player1.attributes?.dexterity || 10;
+    const p1LUK = player1.attributes?.luck || 5;
+    const p2AGI = player2.attributes?.agility || 10;
+    const p2LUK = player2.attributes?.luck || 5;
     
-    if (p2Dodge) {
+    // Verificar precisão vs esquiva
+    const p1HitChance = GAME_FORMULAS.calculateHitChance(p1DEX, p2AGI);
+    const p1HitRoll = Math.random() * 100;
+    
+    if (p1HitRoll > p1HitChance) {
       battleLog.push(`⚡ ${player2.nickname} esquivou o ataque de ${player1.nickname}!`);
     } else {
-      const p1Damage = Math.max(1, p1Attack - player2.stats.defense);
-      const finalP1Damage = p1Critical ? Math.floor(p1Damage * 1.5) : p1Damage;
+      // Calcular dano proporcional
+      const p1BaseDamage = GAME_FORMULAS.calculateDamage(p1Attack, player2.stats.defense);
+      const p1CritChance = GAME_FORMULAS.calculateFinalCritical(p1LUK, p2LUK);
+      const p1Critical = Math.random() * 100 < p1CritChance;
+      const finalP1Damage = p1Critical ? Math.floor(p1BaseDamage * 1.5) : Math.floor(p1BaseDamage);
       
       p2Health = Math.max(0, p2Health - finalP1Damage);
       
@@ -700,16 +893,25 @@ export function calculatePvPBattle(player1: any, player2: any): { winner: string
       }
     }
     
-    // Player 2 attacks Player 1
+    // Player 2 attacks Player 1 - Novo sistema
     const p2Attack = player2.stats.attack;
-    const p2Critical = Math.random() * 100 < player2.stats.criticalChance;
-    const p1Dodge = Math.random() * 100 < player1.stats.dodgeChance;
+    const p2DEX = player2.attributes?.dexterity || 10;
+    const p2LUK2 = player2.attributes?.luck || 5;
+    const p1AGI = player1.attributes?.agility || 10;
+    const p1LUK2 = player1.attributes?.luck || 5;
     
-    if (p1Dodge) {
+    // Verificar precisão vs esquiva
+    const p2HitChance = GAME_FORMULAS.calculateHitChance(p2DEX, p1AGI);
+    const p2HitRoll = Math.random() * 100;
+    
+    if (p2HitRoll > p2HitChance) {
       battleLog.push(`⚡ ${player1.nickname} esquivou o ataque de ${player2.nickname}!`);
     } else {
-      const p2Damage = Math.max(1, p2Attack - player1.stats.defense);
-      const finalP2Damage = p2Critical ? Math.floor(p2Damage * 1.5) : p2Damage;
+      // Calcular dano proporcional
+      const p2BaseDamage = GAME_FORMULAS.calculateDamage(p2Attack, player1.stats.defense);
+      const p2CritChance = GAME_FORMULAS.calculateFinalCritical(p2LUK2, p1LUK2);
+      const p2Critical = Math.random() * 100 < p2CritChance;
+      const finalP2Damage = p2Critical ? Math.floor(p2BaseDamage * 1.5) : Math.floor(p2BaseDamage);
       
       p1Health = Math.max(0, p1Health - finalP2Damage);
       
@@ -778,11 +980,13 @@ export function getRankFromPoints(honorPoints: number): string {
   if (honorPoints >= PVP_RANKS.PLATINUM.minPoints) return PVP_RANKS.PLATINUM.name;
   if (honorPoints >= PVP_RANKS.GOLD.minPoints) return PVP_RANKS.GOLD.name;
   if (honorPoints >= PVP_RANKS.SILVER.minPoints) return PVP_RANKS.SILVER.name;
-  return PVP_RANKS.BRONZE.name;
+  if (honorPoints >= PVP_RANKS.BRONZE.minPoints) return PVP_RANKS.BRONZE.name;
+  return PVP_RANKS.IRON.name;
 }
 
 export function getRankIcon(rank: string): string {
   switch (rank) {
+    case PVP_RANKS.IRON.name: return PVP_RANKS.IRON.icon;
     case PVP_RANKS.BRONZE.name: return PVP_RANKS.BRONZE.icon;
     case PVP_RANKS.SILVER.name: return PVP_RANKS.SILVER.icon;
     case PVP_RANKS.GOLD.name: return PVP_RANKS.GOLD.icon;
@@ -790,8 +994,255 @@ export function getRankIcon(rank: string): string {
     case PVP_RANKS.DIAMOND.name: return PVP_RANKS.DIAMOND.icon;
     case PVP_RANKS.MASTER.name: return PVP_RANKS.MASTER.icon;
     case PVP_RANKS.GRANDMASTER.name: return PVP_RANKS.GRANDMASTER.icon;
-    default: return PVP_RANKS.BRONZE.icon;
+    default: return PVP_RANKS.IRON.icon;
   }
 }
+
+// Skill System - 3 skills per class (TODAS começam no nível 1)
+export const SKILLS: Skill[] = [
+  // Warrior Skills (Ganha de Arqueiro)
+  {
+    id: 'warrior_damage',
+    name: 'Golpe Poderoso',
+    description: 'Um golpe devastador que causa dano baseado em sua Força.',
+    characterClass: 'warrior',
+    manaCost: 20,
+    cooldown: 3,
+    effect: {
+      type: 'damage',
+      value: 1.3, // Base 130% do ataque, escala com STR e level da skill
+      target: 'enemy'
+    },
+    icon: '⚔️',
+    level: 1 // Nível mínimo 1 (todos começam no lv 1)
+  },
+  {
+    id: 'warrior_defense',
+    name: 'Postura Defensiva',
+    description: 'Aumenta sua defesa temporariamente.',
+    characterClass: 'warrior',
+    manaCost: 25,
+    cooldown: 5,
+    effect: {
+      type: 'buff',
+      value: 0.3, // +30% defesa
+      target: 'self',
+      duration: 4
+    },
+    icon: '🛡️',
+    level: 1
+  },
+  {
+    id: 'warrior_heal',
+    name: 'Regeneração',
+    description: 'Recupera vida baseado em sua Força.',
+    characterClass: 'warrior',
+    manaCost: 30,
+    cooldown: 6,
+    effect: {
+      type: 'heal',
+      value: 0.25, // 25% da vida máxima + bônus de STR
+      target: 'self'
+    },
+    icon: '💚',
+    level: 1
+  },
+  
+  // Archer Skills (Ganha de Mago)
+  {
+    id: 'archer_damage',
+    name: 'Flecha Precisão',
+    description: 'Flecha precisa que causa mais dano que Guerreiro, menos que Mago.',
+    characterClass: 'archer',
+    manaCost: 18,
+    cooldown: 2,
+    effect: {
+      type: 'damage',
+      value: 1.5, // 150% do ataque, escala com DEX e level da skill
+      target: 'enemy'
+    },
+    icon: '🏹',
+    level: 1
+  },
+  {
+    id: 'archer_burst',
+    name: 'Rajada de Flechas',
+    description: 'Ataque devastador com alto consumo de MP.',
+    characterClass: 'archer',
+    manaCost: 60,
+    cooldown: 8,
+    effect: {
+      type: 'damage',
+      value: 2.5, // 250% do ataque, escala com DEX e level da skill
+      target: 'enemy'
+    },
+    icon: '🎯',
+    level: 1
+  },
+  {
+    id: 'archer_buff',
+    name: 'Concentração',
+    description: 'Aumenta dano e esquiva temporariamente.',
+    characterClass: 'archer',
+    manaCost: 35,
+    cooldown: 7,
+    effect: {
+      type: 'buff',
+      value: 0.25, // +25% dano e esquiva
+      target: 'self',
+      duration: 5
+    },
+    icon: '💨',
+    level: 1
+  },
+  
+  // Mage Skills (Ganha de Guerreiro)
+  {
+    id: 'mage_damage',
+    name: 'Bola de Fogo',
+    description: 'Magia de fogo que causa o maior dano entre as classes.',
+    characterClass: 'mage',
+    manaCost: 25,
+    cooldown: 3,
+    effect: {
+      type: 'damage',
+      value: 1.8, // 180% do ataque, escala com MAG e level da skill
+      target: 'enemy'
+    },
+    icon: '🔥',
+    level: 1
+  },
+  {
+    id: 'mage_burn',
+    name: 'Chama Ardente',
+    description: 'Pode queimar o inimigo por 3 turnos causando dano contínuo.',
+    characterClass: 'mage',
+    manaCost: 30,
+    cooldown: 5,
+    effect: {
+      type: 'debuff',
+      value: 0.1, // 10% do ataque por turno (burn)
+      target: 'enemy',
+      duration: 3
+    },
+    icon: '🔥',
+    level: 1
+  },
+  {
+    id: 'mage_shield',
+    name: 'Escudo Mágico',
+    description: 'Reduz dano recebido temporariamente.',
+    characterClass: 'mage',
+    manaCost: 40,
+    cooldown: 8,
+    effect: {
+      type: 'buff',
+      value: 0.35, // -35% dano recebido
+      target: 'self',
+      duration: 4
+    },
+    icon: '🛡️',
+    level: 1
+  }
+];
+
+// Helper function to get skills by class
+export function getSkillsByClass(characterClass: CharacterClass): Skill[] {
+  return SKILLS.filter(skill => skill.characterClass === characterClass);
+}
+
+// Helper function to get skill by id
+export function getSkillById(skillId: string): Skill | undefined {
+  return SKILLS.find(skill => skill.id === skillId);
+}
+
+// Skill calculation functions - Escaláveis com nível e atributos
+export const SKILL_FORMULAS = {
+  // Calculate skill damage based on class attribute and level
+  calculateSkillDamage: (
+    baseAttack: number,
+    skillMultiplier: number,
+    attributeValue: number, // STR para guerreiro, MAG para mago, DEX para arqueiro
+    level: number,
+    skillId: string
+  ): number => {
+    // Base damage from attack
+    const baseDamage = baseAttack * skillMultiplier;
+    
+    // Bonus from attribute (scales with attribute)
+    let attributeBonus = 0;
+    if (skillId.includes('warrior')) {
+      attributeBonus = attributeValue * 0.5; // STR bonus
+    } else if (skillId.includes('mage')) {
+      attributeBonus = attributeValue * 0.6; // MAG bonus (mages scale better)
+    } else if (skillId.includes('archer')) {
+      attributeBonus = attributeValue * 0.4; // DEX bonus
+    }
+    
+    // Level scaling bonus
+    const levelBonus = level * 2;
+    
+    return Math.floor(baseDamage + attributeBonus + levelBonus);
+  },
+  
+  // Calculate skill heal based on max health, STR, and level
+  calculateSkillHeal: (
+    maxHealth: number,
+    basePercentage: number,
+    strength: number,
+    level: number
+  ): number => {
+    const baseHeal = maxHealth * basePercentage;
+    const strBonus = strength * 1.5;
+    const levelBonus = level * 3;
+    return Math.floor(baseHeal + strBonus + levelBonus);
+  },
+  
+  // Calculate skill mana cost (scales slightly with level)
+  calculateSkillManaCost: (
+    baseCost: number,
+    level: number,
+    scaleFactor: number = 0.5
+  ): number => {
+    return Math.floor(baseCost + (level * scaleFactor));
+  },
+  
+  // Calculate defense penetration for archer skills
+  calculateDefensePenetration: (
+    dexterity: number,
+    basePenetration: number = 0.3
+  ): number => {
+    // Max 70% penetration
+    const dexBonus = Math.min(0.4, dexterity * 0.0008); // 0.08% per 100 DEX
+    return Math.min(0.7, basePenetration + dexBonus);
+  },
+  
+  // Calculate skill upgrade cost
+  calculateSkillUpgradeCost: (currentLevel: number): number => {
+    if (currentLevel === 1) {
+      return 10000; // Lv 2 = 10k gold
+    } else if (currentLevel === 2) {
+      return 15000; // Lv 3 = 15k gold
+    } else {
+      // Lv 4+ = +50% do valor anterior
+      let cost = 15000;
+      for (let i = 3; i < currentLevel; i++) {
+        cost = Math.floor(cost * 1.5);
+      }
+      return Math.floor(cost * 1.5); // Custo para o próximo nível
+    }
+  },
+  
+  // Calculate skill effect value based on skill level
+  calculateSkillEffectValue: (
+    baseValue: number,
+    skillLevel: number,
+    skillId: string
+  ): number => {
+    // Cada nível aumenta o valor em 10%
+    const levelMultiplier = 1 + ((skillLevel - 1) * 0.1);
+    return baseValue * levelMultiplier;
+  }
+};
 
 

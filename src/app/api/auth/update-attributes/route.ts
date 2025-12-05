@@ -38,15 +38,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Recalcular stats com os novos atributos
+    // Recalcular stats com os novos atributos (novo sistema)
     const newStats = {
       ...user.stats,
-      maxHealth: GAME_FORMULAS.maxHealth(attributes.vitality, user.stats.level, user.characterClass || undefined),
+      maxHealth: GAME_FORMULAS.maxHealth(attributes.strength, user.stats.level, user.characterClass || undefined),
       maxMana: GAME_FORMULAS.maxMana(attributes.magic, user.stats.level),
-      attack: GAME_FORMULAS.attack(attributes.strength, attributes.magic, user.stats.level),
-      defense: GAME_FORMULAS.defense(attributes.vitality, user.stats.level),
-      criticalChance: GAME_FORMULAS.criticalChance(attributes.dexterity),
-      dodgeChance: GAME_FORMULAS.dodgeChance(attributes.agility)
+      attack: GAME_FORMULAS.attack(attributes.strength, attributes.magic, attributes.dexterity, user.stats.level, user.characterClass || undefined),
+      defense: GAME_FORMULAS.defense(attributes.strength, user.stats.level, user.characterClass || undefined),
+      accuracy: GAME_FORMULAS.accuracy(attributes.dexterity),
+      dodgeChance: GAME_FORMULAS.dodgeChance(attributes.agility),
+      criticalChance: GAME_FORMULAS.criticalChance(attributes.luck),
+      criticalResist: GAME_FORMULAS.criticalResist(attributes.luck)
     };
 
     // Atualizar vida e mana para o máximo se os atributos aumentaram

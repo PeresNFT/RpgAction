@@ -1,4 +1,4 @@
-import { CharacterClass, Attributes, CharacterStats, Item, BattleState, CollectionState, PvPStats } from './game';
+import { CharacterClass, Attributes, CharacterStats, Item, BattleState, CollectionState, PvPStats, PlayerSkill } from './game';
 
 export interface User {
   id: string;
@@ -27,7 +27,9 @@ export interface User {
     relic?: Item;
   };
   gold: number;
+  diamonds: number; // Premium currency (cash/R$)
   pvpStats?: PvPStats; // Add PvP stats
+  skills?: PlayerSkill[]; // Player's unlocked skills and cooldowns
   // Legacy fields (for backward compatibility)
   level: number;
   experience: number;
@@ -40,6 +42,9 @@ export interface User {
   intelligence: number;
   guildId?: string;
   guildRole?: 'member' | 'officer' | 'leader';
+  // Shop & Profile
+  purchasedItems?: string[]; // IDs of purchased items (profile images, etc)
+  profileImage?: string; // Selected profile image path
 }
 
 export interface LoginFormData {
@@ -61,7 +66,7 @@ export interface AuthContextType {
   updateCharacter: (characterClass: CharacterClass, attributes: Attributes) => Promise<boolean>;
   updateExperience: (experienceGained: number, goldGained?: number, itemsGained?: any[]) => Promise<{ success: boolean; levelUp?: boolean }>;
   updateAttributes: (attributes: Attributes) => Promise<boolean>;
-  updateHealth: (health: number) => Promise<boolean>;
+  updateHealth: (health?: number, mana?: number) => Promise<boolean>;
   useItem: (itemId: string) => Promise<{ success: boolean; effectsApplied?: string[]; itemUsed?: string }>;
   rest: () => Promise<{ success: boolean; restTimeMinutes?: number; message?: string }>;
   sellItems: (itemsToSell: Array<{itemId: string, amount: number}>) => Promise<{ success: boolean; totalGold?: number; soldItems?: any[]; message?: string }>;
@@ -77,6 +82,15 @@ export interface AuthContextType {
   getGuildRanking: (limit?: number, offset?: number) => Promise<{ success: boolean; rankings?: any[]; total?: number }>;
   guildBank: (action: 'deposit' | 'withdraw', amount: number) => Promise<{ success: boolean; message?: string; userGold?: number; guildGold?: number }>;
   contributeExperience: (experience: number) => Promise<{ success: boolean; message?: string; guild?: any; leveledUp?: boolean }>;
+  upgradeSkill: (skillId: string) => Promise<{ success: boolean; error?: string; skillLevel?: number; goldSpent?: number }>;
+  // Market functions
+  listMarketItems: (currencyType?: 'gold' | 'diamonds', limit?: number, offset?: number) => Promise<{ success: boolean; items?: any[]; total?: number }>;
+  addMarketItem: (itemId: string, amount: number, price: number, priceDiamonds: number | undefined, currencyType: 'gold' | 'diamonds') => Promise<{ success: boolean; error?: string; marketItem?: any }>;
+  buyMarketItem: (marketItemId: string) => Promise<{ success: boolean; error?: string; message?: string }>;
+  removeMarketItem: (marketItemId: string) => Promise<{ success: boolean; error?: string; message?: string }>;
+  // Shop functions
+  buyShopItem: (shopItemId: string) => Promise<{ success: boolean; error?: string; message?: string }>;
+  updateProfileImage: (imagePath: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isLoading: boolean;
 }

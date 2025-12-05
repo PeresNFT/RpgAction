@@ -8,6 +8,8 @@ import { AttributeDistribution } from '@/components/AttributeDistribution';
 import { LevelUpAttributeDistribution } from '@/components/LevelUpAttributeDistribution';
 import { PvPSystem } from '@/components/PvPSystem';
 import { GuildSystem } from '@/components/GuildSystem';
+import { MarketSystem } from '@/components/MarketSystem';
+import { ProfileImage } from '@/components/ProfileImage';
 import { 
   Sword, 
   Shield, 
@@ -26,13 +28,16 @@ import {
   Plus,
   Minus,
   Timer,
+  X,
+  User,
   Sword as SwordIcon,
   Shield as ShieldIcon,
   Zap as ZapIcon,
-  Trophy
+  Trophy,
+  Sparkles
 } from 'lucide-react';
 import { CharacterClass, Attributes, Monster, Item } from '@/types/game';
-import { CHARACTER_CLASSES, MONSTERS, ITEMS, GAME_FORMULAS, COLLECTION_SKILLS, COLLECTION_RESOURCES, generateNewMonsterOfSameLevel, applyLevelPenalty } from '@/data/gameData';
+import { CHARACTER_CLASSES, MONSTERS, ITEMS, GAME_FORMULAS, COLLECTION_SKILLS, COLLECTION_RESOURCES, generateNewMonsterOfSameLevel, applyLevelPenalty, SKILLS, getSkillsByClass, getSkillById, SKILL_FORMULAS, getRankFromPoints, getRankIcon, SHOP_ITEMS } from '@/data/gameData';
 
 // Helper function to get character image path based on class and gender
 function getCharacterImagePath(characterClass: CharacterClass | null, isFemale: boolean = false): string | null {
@@ -58,7 +63,7 @@ function getCharacterImagePath(characterClass: CharacterClass | null, isFemale: 
 }
 
 export default function GamePage() {
-  const { user, logout, updateCharacter, updateExperience, updateAttributes, updateHealth, useItem, rest, sellItems, updateCollection, searchPvPOpponents, startPvPBattle, getPvPRanking, createGuild, joinGuild, leaveGuild, getGuild, updateGuild, getGuildRanking, guildBank, contributeExperience, isLoading } = useAuth();
+  const { user, logout, updateCharacter, updateExperience, updateAttributes, updateHealth, useItem, rest, sellItems, updateCollection, searchPvPOpponents, startPvPBattle, getPvPRanking, createGuild, joinGuild, leaveGuild, getGuild, updateGuild, getGuildRanking, guildBank, contributeExperience, upgradeSkill, listMarketItems, addMarketItem, buyMarketItem, removeMarketItem, buyShopItem, updateProfileImage, isLoading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('character');
   const [showClassSelection, setShowClassSelection] = useState(false);
@@ -66,15 +71,29 @@ export default function GamePage() {
   const [selectedMonster, setSelectedMonster] = useState<Monster | null>(null);
   const [battleLog, setBattleLog] = useState<string[]>([]);
   const [collectionTimer, setCollectionTimer] = useState(0);
+  const [restCooldown, setRestCooldown] = useState(0); // Cooldown timer in seconds
+  const [skillCooldowns, setSkillCooldowns] = useState<Record<string, number>>({}); // Skill cooldowns in turns (not seconds)
   const [selectedCharacterClass, setSelectedCharacterClass] = useState<CharacterClass | null>(null);
   const [showLevelUpDistribution, setShowLevelUpDistribution] = useState(false);
   const [levelFilter, setLevelFilter] = useState<number>(0);
   const [showSellModal, setShowSellModal] = useState(false);
   const [selectedItemsToSell, setSelectedItemsToSell] = useState<Array<{itemId: string, amount: number}>>([]);
+  const [showSellAllModal, setShowSellAllModal] = useState(false);
 
   const [showDeathMessage, setShowDeathMessage] = useState(false);
   const [deathInfo, setDeathInfo] = useState<{monsterName: string, experienceLost: number} | null>(null);
   const [currentMonsterHealth, setCurrentMonsterHealth] = useState<number>(0);
+  const [pvpUserRank, setPvpUserRank] = useState<number | null>(null);
+  const [showEditProfileImage, setShowEditProfileImage] = useState(false);
+  
+  // Active buffs state - { skillId: { duration: number, effect: {...} } }
+  const [activeBuffs, setActiveBuffs] = useState<Record<string, { duration: number; effect: any; skillName: string }>>({});
+  
+  // Active debuffs on monster (burn, etc.)
+  const [activeDebuffs, setActiveDebuffs] = useState<Record<string, { duration: number; effect: any; skillName: string; damage?: number }>>({});
+  
+  // Guild name state
+  const [guildName, setGuildName] = useState<string | null>(null);
   
   // Character gender state (stored in localStorage)
   const [characterGender, setCharacterGender] = useState<'male' | 'female'>(() => {
@@ -156,6 +175,189 @@ export default function GamePage() {
 
     return () => clearInterval(interval);
   }, [user?.collection?.lastCollection, user?.collection?.collectionInterval]);
+
+  // Calculate rest cooldown based on lastRestTime and user level
+  useEffect(() => {
+    if (!user) {
+      setRestCooldown(0);
+      return;
+    }
+
+    const userLevel = user.stats?.level || user.level || 1;
+    
+    // Calculate cooldown duration based on level
+    // Level 1-4: 1 minute (60 seconds)
+    // Level 5-9: 2 minutes (120 seconds)
+    // Level 10-14: 3 minutes (180 seconds)
+    // etc.
+    const calculateRestCooldownDuration = (level: number): number => {
+      if (level <= 4) {
+        return 60; // 1 minuto
+      }
+      return 60 + Math.floor((level - 1) / 5) * 60; // 1 minuto base + 1 minuto a cada 5 níveis
+    };
+
+    const cooldownDuration = calculateRestCooldownDuration(userLevel);
+
+    // Function to calculate remaining cooldown based on timestamp
+    const calculateRemainingCooldown = (): number => {
+      const stats = user.stats as any;
+      const lastRestTime = typeof stats?.lastRestTime === 'number' 
+        ? stats.lastRestTime 
+        : (stats?.lastRestTime ? parseInt(String(stats.lastRestTime)) : 0);
+      
+      if (lastRestTime === 0) {
+        return 0; // No cooldown if never rested
+      }
+
+      const now = Date.now();
+      const timeSinceLastRest = Math.floor((now - lastRestTime) / 1000); // em segundos
+      
+      if (timeSinceLastRest >= cooldownDuration) {
+        return 0; // Cooldown expired
+      } else {
+        return Math.max(0, cooldownDuration - timeSinceLastRest);
+      }
+    };
+
+    // Calculate initial cooldown value
+    setRestCooldown(calculateRemainingCooldown());
+
+    // Update cooldown every second
+    const interval = setInterval(() => {
+      setRestCooldown(calculateRemainingCooldown());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [user, user?.stats?.level, user?.level]);
+
+  // Load guild name when user has a guildId
+  useEffect(() => {
+    const loadGuildName = async () => {
+      if (user?.guildId) {
+        try {
+          const result = await getGuild(user.guildId);
+          if (result.success && result.guild) {
+            setGuildName(result.guild.name);
+          } else {
+            setGuildName(null);
+          }
+        } catch (error) {
+          console.error('Error loading guild name:', error);
+          setGuildName(null);
+        }
+      } else {
+        setGuildName(null);
+      }
+    };
+    
+    loadGuildName();
+  }, [user?.guildId, getGuild]);
+
+  // Load PvP ranking to get user position
+  useEffect(() => {
+    const loadPvPRanking = async () => {
+      if (user?.pvpStats) {
+        try {
+          const result = await getPvPRanking(1000, 0); // Get top 1000 to find user
+          if (result.success && result.rankings) {
+            const userRanking = result.rankings.find(r => r.playerId === user.id);
+            if (userRanking) {
+              setPvpUserRank(userRanking.rank);
+            } else {
+              // User not in top 1000, need to calculate position
+              // For now, set to null if not found
+              setPvpUserRank(null);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading PvP ranking:', error);
+        }
+      }
+    };
+    
+    loadPvPRanking();
+  }, [user?.id, user?.pvpStats, getPvPRanking]);
+
+  // Handle ESC key to close modals
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (showSellModal) {
+          setShowSellModal(false);
+          setSelectedItemsToSell([]);
+        }
+        if (showSellAllModal) {
+          setShowSellAllModal(false);
+          setSelectedItemsToSell([]);
+        }
+        if (showDeathMessage) {
+          setShowDeathMessage(false);
+          setDeathInfo(null);
+        }
+        if (showLevelUpDistribution) {
+          setShowLevelUpDistribution(false);
+        }
+        if (showEditProfileImage) {
+          setShowEditProfileImage(false);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [showSellModal, showSellAllModal, showDeathMessage, showLevelUpDistribution, showEditProfileImage]);
+
+  // Reduce skill cooldowns by 1 turn after each action
+  const reduceSkillCooldowns = () => {
+    setSkillCooldowns(prev => {
+      const newCooldowns: Record<string, number> = {};
+      for (const skillId in prev) {
+        const currentCooldown = prev[skillId];
+        if (currentCooldown > 1) {
+          // Reduce cooldown by 1 turn
+          newCooldowns[skillId] = currentCooldown - 1;
+        }
+        // If cooldown is 1, it becomes 0 and is removed (skill available again)
+        // If cooldown is 0 or less, it's already available and removed
+      }
+      return newCooldowns;
+    });
+    
+    // Reduce buff durations by 1 turn
+    setActiveBuffs(prev => {
+      const newBuffs: Record<string, { duration: number; effect: any; skillName: string }> = {};
+      for (const skillId in prev) {
+        const buff = prev[skillId];
+        if (buff.duration > 1) {
+          newBuffs[skillId] = {
+            ...buff,
+            duration: buff.duration - 1
+          };
+        }
+        // If duration is 1, remove the buff (expires)
+      }
+      return newBuffs;
+    });
+    
+    // Reduce debuff durations and apply damage (burn, etc.)
+    setActiveDebuffs(prev => {
+      const newDebuffs: Record<string, { duration: number; effect: any; skillName: string; damage?: number }> = {};
+      for (const skillId in prev) {
+        const debuff = prev[skillId];
+        if (debuff.duration > 1) {
+          newDebuffs[skillId] = {
+            ...debuff,
+            duration: debuff.duration - 1
+          };
+        }
+        // If duration is 1, remove the debuff (expires)
+      }
+      return newDebuffs;
+    });
+  };
 
 
 
@@ -278,11 +480,21 @@ export default function GamePage() {
   };
 
   const handleRest = async () => {
+    if (restCooldown > 0) {
+      return; // Cooldown still active
+    }
+
     const result = await rest();
     
     if (result.success) {
       setBattleLog(prev => [
         result.message || 'Descansou e recuperou HP/MP!',
+        ...prev
+      ]);
+    } else {
+      // Handle error messages (like cooldown active from server-side check)
+      setBattleLog(prev => [
+        'Erro ao descansar. Tente novamente.',
         ...prev
       ]);
     }
@@ -342,10 +554,14 @@ export default function GamePage() {
     
     user.inventory.forEach(item => {
       const key = item.id;
+      // Buscar o item completo do array ITEMS para pegar imagePath e outras propriedades
+      const fullItem = ITEMS.find(i => i.id === item.id);
+      const itemData = fullItem ? { ...fullItem, ...item } : item;
+      
       if (stacked[key]) {
         stacked[key].amount = (stacked[key].amount || 1) + (item.amount || 1);
       } else {
-        stacked[key] = { ...item, amount: item.amount || 1 };
+        stacked[key] = { ...itemData, amount: item.amount || 1 };
       }
     });
     
@@ -357,6 +573,10 @@ export default function GamePage() {
     setSelectedMonster(monster);
     setCurrentMonsterHealth(monster.health);
     setBattleLog([`Iniciou batalha contra ${monster.name}!`]);
+    // Reset skill cooldowns and buffs when starting a new battle
+    setSkillCooldowns({});
+    setActiveBuffs({});
+    setActiveDebuffs({});
     console.log('✅ Battle started, selectedMonster should be set');
   };
 
@@ -375,15 +595,80 @@ export default function GamePage() {
     console.log('💚 Monster health before attack:', monsterHealth);
     console.log('❤️ Player health before attack:', user.stats?.health || user.health || 100);
 
-    // Player attack
+    // Player attack - Novo sistema
     const playerAttack = user.stats?.attack || 20;
-    const playerCriticalChance = user.stats?.criticalChance || 5;
-    const playerDodgeChance = user.stats?.dodgeChance || 4;
+    const playerDEX = user.attributes?.dexterity || 10;
+    const playerLUK = user.attributes?.luck || 5;
+    const monsterAGI = selectedMonster.stats?.dodgeChance ? 
+      (selectedMonster.attributes?.agility || 10) : 10;
+    const monsterLUK = selectedMonster.attributes?.luck || 5;
     
-    // Check for critical hit
-    const isPlayerCritical = Math.random() * 100 < playerCriticalChance;
-    const playerDamage = Math.max(1, playerAttack - selectedMonster.defense);
-    const finalPlayerDamage = isPlayerCritical ? Math.floor(playerDamage * 1.5) : playerDamage;
+    // Verificar precisão vs esquiva
+    const hitChance = GAME_FORMULAS.calculateHitChance(playerDEX, monsterAGI);
+    const hitRoll = Math.random() * 100;
+    
+    if (hitRoll > hitChance) {
+      battleLogEntries.push(`⚡ ${selectedMonster.name} esquivou seu ataque!`);
+      // Monster counter-attack (quando player erra)
+      const monsterAttackCounter = selectedMonster.attack;
+      const monsterDEXCounter = selectedMonster.attributes?.dexterity || 10;
+      const playerAGICounter = user.attributes?.agility || 10;
+      const playerLUKCounter = user.attributes?.luck || 5;
+      const monsterLUKCounter = selectedMonster.attributes?.luck || 5;
+      
+      const monsterHitChanceCounter = GAME_FORMULAS.calculateHitChance(monsterDEXCounter, playerAGICounter);
+      const monsterHitRollCounter = Math.random() * 100;
+      
+      if (monsterHitRollCounter <= monsterHitChanceCounter) {
+        // Monster hits
+        const monsterDamageCounter = GAME_FORMULAS.calculateDamage(monsterAttackCounter, user.stats?.defense || 15);
+        const monsterCritChanceCounter = GAME_FORMULAS.calculateFinalCritical(monsterLUKCounter, playerLUKCounter);
+        const isMonsterCriticalCounter = Math.random() * 100 < monsterCritChanceCounter;
+        const finalMonsterDamageCounter = isMonsterCriticalCounter ? Math.floor(monsterDamageCounter * 1.5) : Math.floor(monsterDamageCounter);
+        
+        currentPlayerHealth = Math.max(0, currentPlayerHealth - finalMonsterDamageCounter);
+        
+        if (isMonsterCriticalCounter) {
+          battleLogEntries.push(`🎯 CRÍTICO! ${selectedMonster.name} causou ${finalMonsterDamageCounter} de dano!`);
+        } else {
+          battleLogEntries.push(`${selectedMonster.name} causou ${finalMonsterDamageCounter} de dano!`);
+        }
+      } else {
+        battleLogEntries.push(`⚡ Você esquivou o ataque de ${selectedMonster.name}!`);
+      }
+      
+      // Update player health
+      await updateHealth(currentPlayerHealth);
+      
+      if (currentPlayerHealth <= 0) {
+        battleLogEntries.push(`💀 Você foi derrotado por ${selectedMonster.name}!`);
+        setBattleLog(prev => [...battleLogEntries, ...prev]);
+        setShowDeathMessage(true);
+        setDeathInfo({
+          monsterName: selectedMonster.name,
+          experienceLost: Math.floor((user.stats?.experience || 0) * 0.1)
+        });
+        return { playerDied: true, monsterDefeated: false };
+      }
+      
+      setBattleLog(prev => [...battleLogEntries, ...prev]);
+      return { playerDied: false, monsterDefeated: false };
+    }
+    
+    // Apply attack buffs
+    let modifiedPlayerAttack = playerAttack;
+    Object.values(activeBuffs).forEach(buff => {
+      if (buff.effect.type === 'buff') {
+        // Assume buff increases attack (warrior rage, archer buff)
+        modifiedPlayerAttack = Math.floor(modifiedPlayerAttack * (1 + buff.effect.value));
+      }
+    });
+    
+    // Player hits - calcular dano proporcional
+    const baseDamage = GAME_FORMULAS.calculateDamage(modifiedPlayerAttack, selectedMonster.defense);
+    const playerCritChance = GAME_FORMULAS.calculateFinalCritical(playerLUK, monsterLUK);
+    const isPlayerCritical = Math.random() * 100 < playerCritChance;
+    const finalPlayerDamage = isPlayerCritical ? Math.floor(baseDamage * 1.5) : Math.floor(baseDamage);
     
     console.log(`Player deals ${finalPlayerDamage} damage to monster`);
     monsterHealth = Math.max(0, monsterHealth - finalPlayerDamage);
@@ -402,6 +687,9 @@ export default function GamePage() {
      if (monsterHealth <= 0) {
        console.log('Monster defeated!');
        
+       // Reduce skill cooldowns by 1 turn after attack (turno completo)
+       reduceSkillCooldowns();
+       
        const playerLevel = user.stats?.level || user.level || 1;
        const monsterLevel = selectedMonster.level;
        
@@ -416,7 +704,7 @@ export default function GamePage() {
          .filter(Boolean) as Item[];
 
        const result = await updateExperience(experience, gold, items);
-      
+       
                       if (result.success) {
            const penaltyMessage = penaltyPercentage > 0 ? ` (Penalidade: -${penaltyPercentage}% por nível baixo)` : '';
            setBattleLog(prev => [
@@ -448,20 +736,86 @@ export default function GamePage() {
        return { playerDied: false, monsterDefeated: true };
     }
 
-    // Monster attacks back
+    // Apply burn damage before monster attacks
+    if (Object.keys(activeDebuffs).length > 0) {
+      Object.entries(activeDebuffs).forEach(([skillId, debuff]) => {
+        if (debuff.damage) {
+          const burnDamage = debuff.damage;
+          monsterHealth = Math.max(0, monsterHealth - burnDamage);
+          battleLogEntries.push(`🔥 ${selectedMonster.name} sofreu ${burnDamage} de dano de queimadura!`);
+          setCurrentMonsterHealth(monsterHealth);
+        }
+      });
+    }
+    
+    // Check if monster died from burn
+    if (monsterHealth <= 0) {
+      const playerLevel = user.stats?.level || user.level || 1;
+      const monsterLevel = selectedMonster.level;
+      const { experience, gold, penaltyPercentage } = applyLevelPenalty(selectedMonster.experience, selectedMonster.gold, monsterLevel, playerLevel);
+      const items = selectedMonster.drops
+        .filter(drop => Math.random() < drop.chance)
+        .map(drop => ITEMS.find(item => item.id === drop.itemId))
+        .filter(Boolean) as Item[];
+      const result = await updateExperience(experience, gold, items);
+      if (result.success) {
+        const penaltyMessage = penaltyPercentage > 0 ? ` (Penalidade: -${penaltyPercentage}% por nível baixo)` : '';
+        setBattleLog(prev => [...battleLogEntries, `Derrotou ${selectedMonster.name}!`, `Ganhou ${experience} experiência e ${gold} ouro!${penaltyMessage}`, ...(result.levelUp ? ['🎉 PARABÉNS! Você subiu de nível! 🎉'] : []), ...(items.length > 0 ? [`Encontrou: ${items.map(item => item.name).join(', ')}`] : []), ...prev]);
+      }
+      const newMonster = generateNewMonsterOfSameLevel(selectedMonster.level);
+      setSelectedMonster(newMonster);
+      setCurrentMonsterHealth(newMonster.health);
+      setBattleLog(prev => [`🔄 Novo monstro apareceu: ${newMonster.name} (Nível ${newMonster.level})!`, ...prev]);
+      return { playerDied: false, monsterDefeated: true };
+    }
+    
+    // Monster attacks back - Novo sistema
     const monsterAttack = selectedMonster.attack;
-    const monsterCriticalChance = selectedMonster.stats?.criticalChance || 5;
-    const monsterDodgeChance = selectedMonster.stats?.dodgeChance || 4;
     
-    const playerDodged = Math.random() * 100 < playerDodgeChance;
+    // Apply defense and dodge buffs
+    let modifiedPlayerDefense = user.stats?.defense || 15;
+    let modifiedPlayerAGI = user.attributes?.agility || 10;
     
-    if (playerDodged) {
+    Object.entries(activeBuffs).forEach(([buffSkillId, buff]) => {
+      if (buff.effect.type === 'buff') {
+        const skill = getSkillById(buffSkillId);
+        // Check if it's a defense buff (warrior defense skill)
+        if (buffSkillId.includes('defense')) {
+          modifiedPlayerDefense = Math.floor(modifiedPlayerDefense * (1 + buff.effect.value));
+        }
+        // Check if it's a dodge/agility buff (archer buff)
+        if (buffSkillId.includes('buff') || buffSkillId.includes('dodge')) {
+          modifiedPlayerAGI = Math.floor(modifiedPlayerAGI * (1 + buff.effect.value));
+        }
+      }
+    });
+    
+    // Novo sistema: precisão vs esquiva (contra-ataque normal)
+    const monsterDEXNormal = selectedMonster.attributes?.dexterity || 10;
+    const playerAGINormal = user.attributes?.agility || 10;
+    const playerLUKNormal = user.attributes?.luck || 5;
+    const monsterLUKNormal = selectedMonster.attributes?.luck || 5;
+    
+    const monsterHitChanceNormal = GAME_FORMULAS.calculateHitChance(monsterDEXNormal, modifiedPlayerAGI);
+    const monsterHitRollNormal = Math.random() * 100;
+    
+    if (monsterHitRollNormal > monsterHitChanceNormal) {
       battleLogEntries.push(`⚡ Você esquivou o ataque de ${selectedMonster.name}!`);
       console.log('Player dodged monster attack');
     } else {
-      const isMonsterCritical = Math.random() * 100 < monsterCriticalChance;
-      const monsterDamage = Math.max(1, monsterAttack - (user.stats?.defense || 15));
-      const finalMonsterDamage = isMonsterCritical ? Math.floor(monsterDamage * 1.5) : monsterDamage;
+      // Calcular dano proporcional com defesa modificada
+      let baseMonsterDamage = GAME_FORMULAS.calculateDamage(monsterAttack, modifiedPlayerDefense);
+      const monsterCritChanceNormal = GAME_FORMULAS.calculateFinalCritical(monsterLUKNormal, playerLUKNormal);
+      const isMonsterCritical = Math.random() * 100 < monsterCritChanceNormal;
+      let finalMonsterDamage = isMonsterCritical ? Math.floor(baseMonsterDamage * 1.5) : Math.floor(baseMonsterDamage);
+      
+      // Apply shield buffs (damage reduction)
+      Object.entries(activeBuffs).forEach(([buffSkillId, buff]) => {
+        if (buffSkillId.includes('shield')) {
+          // Reduce damage by buff value (e.g., 35% = 0.35 reduction)
+          finalMonsterDamage = Math.floor(finalMonsterDamage * (1 - buff.effect.value));
+        }
+      });
       
       currentPlayerHealth = Math.max(0, currentPlayerHealth - finalMonsterDamage);
       console.log(`Monster deals ${finalMonsterDamage} damage to player`);
@@ -508,6 +862,9 @@ export default function GamePage() {
     // Update player health via API
     await updateHealth(currentPlayerHealth);
     
+    // Reduce skill cooldowns by 1 turn after attack
+    reduceSkillCooldowns();
+    
     setBattleLog(prev => [
       ...battleLogEntries,
       ...prev
@@ -521,11 +878,284 @@ export default function GamePage() {
     return { playerDied: false, monsterDefeated: false };
   };
 
+  // Handle skill usage
+  const handleUseSkill = async (skillId: string) => {
+    if (!selectedMonster || !user.characterClass) return;
+
+    const skill = getSkillById(skillId);
+    if (!skill) {
+      setBattleLog(prev => ['❌ Habilidade não encontrada!', ...prev]);
+      return;
+    }
+
+    // Check if skill is for this character class
+    if (skill.characterClass !== user.characterClass) {
+      setBattleLog(prev => ['❌ Essa habilidade não é da sua classe!', ...prev]);
+      return;
+    }
+
+    // Check player level
+    const playerLevel = user.stats?.level || user.level || 1;
+    if (playerLevel < skill.level) {
+      setBattleLog(prev => [`❌ Você precisa ser nível ${skill.level} para usar ${skill.name}!`, ...prev]);
+      return;
+    }
+
+    // Check mana
+    const currentMana = user.stats?.mana || user.mana || 0;
+    if (currentMana < skill.manaCost) {
+      setBattleLog(prev => [`❌ Você não tem mana suficiente! (${currentMana}/${skill.manaCost})`, ...prev]);
+      return;
+    }
+
+    // Check cooldown (in turns)
+    const cooldownRemaining = getSkillCooldownRemaining(skillId);
+    if (cooldownRemaining > 0) {
+      setBattleLog(prev => [`⏳ ${skill.name} está em cooldown! (${cooldownRemaining} turno${cooldownRemaining > 1 ? 's' : ''} restante${cooldownRemaining > 1 ? 's' : ''})`, ...prev]);
+      return;
+    }
+
+    // Get player skill level (defaults to 1 if not found)
+    const playerSkills = user.skills || [];
+    const playerSkill = playerSkills.find(ps => ps.skillId === skillId);
+    const skillLevel = playerSkill?.level || 1;
+    
+    // Calculate scaled effect value based on skill level
+    const scaledEffectValue = SKILL_FORMULAS.calculateSkillEffectValue(skill.effect.value, skillLevel, skillId);
+
+    // Apply skill effect
+    const battleLogEntries: string[] = [];
+    battleLogEntries.push(`✨ Você usou ${skill.name} (Nv.${skillLevel})!`);
+
+    let newPlayerHealth = user.stats?.health || user.health || 100;
+    let newPlayerMana = currentMana - skill.manaCost;
+    let monsterHealth = currentMonsterHealth > 0 ? currentMonsterHealth : selectedMonster.health;
+
+    if (skill.effect.type === 'damage' && skill.effect.target === 'enemy') {
+      const playerAttack = user.stats?.attack || 20;
+      const baseDamage = GAME_FORMULAS.calculateDamage(playerAttack, selectedMonster.defense);
+      const skillDamage = Math.floor(baseDamage * scaledEffectValue);
+      
+      // Apply accuracy check
+      const playerDEX = user.attributes?.dexterity || 10;
+      const monsterAGI = selectedMonster.attributes?.agility || 10;
+      const hitChance = GAME_FORMULAS.calculateHitChance(playerDEX, monsterAGI);
+      const hitRoll = Math.random() * 100;
+      
+      if (hitRoll <= hitChance) {
+        const playerLUK = user.attributes?.luck || 5;
+        const monsterLUK = selectedMonster.attributes?.luck || 5;
+        const critChance = GAME_FORMULAS.calculateFinalCritical(playerLUK, monsterLUK);
+        const isCritical = Math.random() * 100 < critChance;
+        const finalDamage = isCritical ? Math.floor(skillDamage * 1.5) : skillDamage;
+        
+        monsterHealth = Math.max(0, monsterHealth - finalDamage);
+        setCurrentMonsterHealth(monsterHealth);
+        
+        if (isCritical) {
+          battleLogEntries.push(`🎯 CRÍTICO! Você causou ${finalDamage} de dano com ${skill.name}!`);
+        } else {
+          battleLogEntries.push(`⚔️ Você causou ${finalDamage} de dano com ${skill.name}!`);
+        }
+      } else {
+        battleLogEntries.push(`⚡ ${selectedMonster.name} esquivou ${skill.name}!`);
+      }
+    } else if (skill.effect.type === 'heal' && skill.effect.target === 'self') {
+      const maxHealth = user.stats?.maxHealth || user.maxHealth || 100;
+      const str = user.attributes?.strength || 10;
+      const healAmount = SKILL_FORMULAS.calculateSkillHeal(maxHealth, scaledEffectValue, str, skillLevel);
+      newPlayerHealth = Math.min(maxHealth, newPlayerHealth + healAmount);
+      battleLogEntries.push(`💚 Você recuperou ${healAmount} de vida!`);
+    } else if (skill.effect.type === 'buff' && skill.effect.target === 'self') {
+      // Apply buff - store in state
+      const buffDuration = skill.effect.duration || 3;
+      setActiveBuffs(prev => ({
+        ...prev,
+        [skillId]: {
+          duration: buffDuration,
+          effect: {
+            ...skill.effect,
+            value: scaledEffectValue
+          },
+          skillName: skill.name
+        }
+      }));
+      battleLogEntries.push(`🔥 ${skill.name} ativado! (Efeito por ${buffDuration} turnos)`);
+    } else if (skill.effect.type === 'debuff' && skill.effect.target === 'enemy') {
+      // Apply debuff (like burn) - store in state
+      const debuffDuration = skill.effect.duration || 3;
+      setActiveDebuffs(prev => ({
+        ...prev,
+        [skillId]: {
+          duration: debuffDuration,
+          effect: {
+            ...skill.effect,
+            value: scaledEffectValue
+          },
+          skillName: skill.name,
+          damage: Math.floor((user.stats?.attack || 20) * scaledEffectValue)
+        }
+      }));
+      battleLogEntries.push(`🔥 ${selectedMonster.name} foi queimado! (${debuffDuration} turnos)`);
+    }
+
+    // Update skill cooldown in local state (in turns)
+    setSkillCooldowns(prev => ({
+      ...prev,
+      [skillId]: skill.cooldown
+    }));
+
+    // Update health and mana
+    const needsHealthUpdate = newPlayerHealth !== (user.stats?.health || user.health);
+    const needsManaUpdate = newPlayerMana !== (user.stats?.mana || user.mana);
+    
+    if (needsHealthUpdate || needsManaUpdate) {
+      await updateHealth(
+        needsHealthUpdate ? newPlayerHealth : undefined,
+        needsManaUpdate ? newPlayerMana : undefined
+      );
+    }
+    
+    // Reduce skill cooldowns by 1 turn after using skill
+    reduceSkillCooldowns();
+    
+    setBattleLog(prev => [...battleLogEntries, ...prev]);
+
+    // Check if monster is defeated
+    if (monsterHealth <= 0) {
+      const playerLevel = user.stats?.level || user.level || 1;
+      const monsterLevel = selectedMonster.level;
+      const { experience, gold, penaltyPercentage } = applyLevelPenalty(
+        selectedMonster.experience, 
+        selectedMonster.gold, 
+        monsterLevel, 
+        playerLevel
+      );
+      
+      const items = selectedMonster.drops
+        .filter(drop => Math.random() < drop.chance)
+        .map(drop => ITEMS.find(item => item.id === drop.itemId))
+        .filter(Boolean) as Item[];
+
+      const result = await updateExperience(experience, gold, items);
+      
+      if (result.success) {
+        const penaltyMessage = penaltyPercentage > 0 ? ` (Penalidade: -${penaltyPercentage}% por nível baixo)` : '';
+        setBattleLog(prev => [
+          ...battleLogEntries,
+          `Derrotou ${selectedMonster.name}!`,
+          `Ganhou ${experience} experiência e ${gold} ouro!${penaltyMessage}`,
+          ...(result.levelUp ? ['🎉 PARABÉNS! Você subiu de nível! 🎉'] : []),
+          ...(items.length > 0 ? [`Encontrou: ${items.map(item => item.name).join(', ')}`] : []),
+          ...prev
+        ]);
+      }
+      
+      const newMonster = generateNewMonsterOfSameLevel(selectedMonster.level);
+      setSelectedMonster(newMonster);
+      setCurrentMonsterHealth(newMonster.health);
+      setBattleLog(prev => [
+        `🔄 Novo monstro apareceu: ${newMonster.name} (Nível ${newMonster.level})!`,
+        ...prev
+      ]);
+      return;
+    }
+
+    // Monster counter-attack after skill
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const monsterAttack = selectedMonster.attack;
+    const monsterDEX = selectedMonster.attributes?.dexterity || 10;
+    const playerAGI = user.attributes?.agility || 10;
+    const playerLUK = user.attributes?.luck || 5;
+    const monsterLUK = selectedMonster.attributes?.luck || 5;
+    
+    const monsterHitChance = GAME_FORMULAS.calculateHitChance(monsterDEX, playerAGI);
+    const monsterHitRoll = Math.random() * 100;
+    
+    if (monsterHitRoll > monsterHitChance) {
+      battleLogEntries.push(`⚡ Você esquivou o ataque de ${selectedMonster.name}!`);
+    } else {
+      const baseMonsterDamage = GAME_FORMULAS.calculateDamage(monsterAttack, user.stats?.defense || 15);
+      const monsterCritChance = GAME_FORMULAS.calculateFinalCritical(monsterLUK, playerLUK);
+      const isMonsterCritical = Math.random() * 100 < monsterCritChance;
+      const finalMonsterDamage = isMonsterCritical ? Math.floor(baseMonsterDamage * 1.5) : Math.floor(baseMonsterDamage);
+      
+      newPlayerHealth = Math.max(0, newPlayerHealth - finalMonsterDamage);
+      
+      if (isMonsterCritical) {
+        battleLogEntries.push(`💥 CRÍTICO! ${selectedMonster.name} causou ${finalMonsterDamage} de dano!`);
+      } else {
+        battleLogEntries.push(`${selectedMonster.name} causou ${finalMonsterDamage} de dano!`);
+      }
+      
+      if (newPlayerHealth <= 0) {
+        battleLogEntries.push(`💀 Você foi derrotado por ${selectedMonster.name}!`);
+        setBattleLog(prev => [...battleLogEntries, ...prev]);
+        setShowDeathMessage(true);
+        setDeathInfo({
+          monsterName: selectedMonster.name,
+          experienceLost: Math.floor((user.stats?.experience || 0) * 0.1)
+        });
+        const result = await updateExperience(-Math.floor((user.stats?.experience || 0) * 0.1), 0, []);
+        if (result.success) {
+          setSelectedMonster(null);
+        }
+        return;
+      }
+      
+      await updateHealth(newPlayerHealth);
+    }
+    
+    setBattleLog(prev => [...battleLogEntries, ...prev]);
+  };
+
+  // Get available skills for current character class
+  const getAvailableSkills = () => {
+    if (!user.characterClass) return [];
+    const playerLevel = user.stats?.level || user.level || 1;
+    return getSkillsByClass(user.characterClass).filter(skill => playerLevel >= skill.level);
+  };
+
+  // Calculate skill cooldown remaining (in turns)
+  const getSkillCooldownRemaining = (skillId: string): number => {
+    // Return cooldown from local state (turns remaining)
+    return skillCooldowns[skillId] || 0;
+  };
+
+  // Helper function to get background image style for each tab
+  const getTabBackgroundStyle = (tabId: string): React.CSSProperties => {
+    const backgroundMap: Record<string, string> = {
+      'character': 'BGperfil',
+      'profile': 'BGequipamento',
+      'inventory': 'BGinventario',
+      'battle': 'BGbatalha',
+      'skills': 'BGskills',
+      'pvp': 'BGpvp',
+      'collection': 'BGcoleta',
+      'rest': 'BGdescanso',
+      'guild': 'BGguild',
+      'market': 'BGmercado',
+      'world': 'BGmundo',
+    };
+
+    const bgName = backgroundMap[tabId];
+    if (!bgName) return {};
+
+    return {
+      backgroundImage: `url(/images/background/${bgName}.png), url(/images/background/${bgName}.gif)`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+    };
+  };
+
   const tabs = [
-    { id: 'character', label: 'Personagem', icon: Crown },
-    { id: 'profile', label: 'Perfil', icon: Users },
+    { id: 'character', label: 'Perfil', icon: Crown },
+    { id: 'profile', label: 'Equipamentos', icon: Users },
     { id: 'inventory', label: 'Inventário', icon: Package },
     { id: 'battle', label: 'Batalha', icon: Sword },
+    { id: 'skills', label: 'Skills', icon: Sparkles },
     { id: 'pvp', label: 'PvP', icon: Trophy },
     { id: 'collection', label: 'Coleta', icon: Target },
     { id: 'rest', label: 'Descanso', icon: Heart },
@@ -538,8 +1168,9 @@ export default function GamePage() {
     switch (activeTab) {
       case 'character':
         return (
-          <div className="space-y-6">
-            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+          <div className="space-y-6 min-h-screen relative">
+            <div className="relative z-10 space-y-6">
+            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
               <h3 className="text-3xl font-bold text-white mb-6">Informações do Personagem</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
@@ -547,7 +1178,28 @@ export default function GamePage() {
                   <p className="text-dark-text"><span className="text-dark-text font-semibold">Classe:</span> <span className="text-accent-cyan">{user.characterClass ? CHARACTER_CLASSES[user.characterClass].name : 'Não escolhida'}</span></p>
                   <p className="text-dark-text"><span className="text-dark-text font-semibold">Nível:</span> <span className="text-primary-yellow font-bold">{user.stats?.level || user.level || 1}</span></p>
                   <div>
-                    <p className="text-dark-text-secondary text-sm mb-1">Experiência: {user.stats?.experience || user.experience || 0}/{user.stats?.experienceToNext || 100}</p>
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-dark-text-secondary text-sm">Experiência: {user.stats?.experience || user.experience || 0}/{user.stats?.experienceToNext || 100}</p>
+                      {user.pvpStats && (
+                        <div className="flex items-center gap-3 text-xs">
+                          <div className="flex items-center gap-1">
+                            <span className="text-dark-text-secondary">PvP:</span>
+                            <span className="text-accent-purple font-semibold">{user.pvpStats.honorPoints || 0}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-dark-text-secondary">Rank:</span>
+                            <span className="text-sm">{getRankIcon(user.pvpStats.rank || getRankFromPoints(user.pvpStats.honorPoints || 0))}</span>
+                            <span className="text-accent-cyan font-semibold">{user.pvpStats.rank || getRankFromPoints(user.pvpStats.honorPoints || 0)}</span>
+                          </div>
+                          {pvpUserRank !== null && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-dark-text-secondary">#</span>
+                              <span className="text-primary-yellow font-semibold">{pvpUserRank}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                     <div className="w-full bg-dark-bg-tertiary rounded-full h-3">
                       <div 
                         className="bg-gradient-to-r from-primary-yellow to-orange-500 h-3 rounded-full transition-all duration-300" 
@@ -557,9 +1209,8 @@ export default function GamePage() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <p className="text-dark-text"><span className="text-dark-text font-semibold">Ouro:</span> <span className="text-primary-yellow font-bold">{user.gold}</span></p>
                   <p className="text-dark-text"><span className="text-dark-text font-semibold">Pontos Disponíveis:</span> <span className="text-accent-purple font-bold">{user.availablePoints}</span></p>
-                  <p className="text-dark-text"><span className="text-dark-text font-semibold">Guild:</span> <span className="text-accent-cyan">{user.guildId || 'Nenhuma'}</span></p>
+                  <p className="text-dark-text"><span className="text-dark-text font-semibold">Guild:</span> <span className="text-accent-cyan">{guildName || 'Nenhuma'}</span></p>
                   {user.availablePoints > 0 && (
                     <button
                       onClick={() => setShowLevelUpDistribution(true)}
@@ -573,53 +1224,40 @@ export default function GamePage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-red-500/20 rounded-lg">
-                    <Heart className="w-6 h-6 text-red-400" />
-                  </div>
-                  <h4 className="text-xl font-bold text-dark-text">Vida</h4>
-                </div>
-                <div className="text-3xl font-bold text-dark-text mb-2">{user.stats?.health || user.health || 100}/{user.stats?.maxHealth || user.maxHealth || 100}</div>
-                <div className="w-full bg-dark-bg-tertiary rounded-full h-3">
-                  <div 
-                    className="bg-gradient-to-r from-red-500 to-rose-600 h-3 rounded-full transition-all duration-300" 
-                    style={{ width: `${((user.stats?.health || user.health || 100) / (user.stats?.maxHealth || user.maxHealth || 100)) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-blue-500/20 rounded-lg">
-                    <Zap className="w-6 h-6 text-blue-400" />
-                  </div>
-                  <h4 className="text-xl font-bold text-dark-text">Mana</h4>
-                </div>
-                <div className="text-3xl font-bold text-dark-text mb-2">{user.stats?.mana || user.mana || 50}/{user.stats?.maxMana || user.maxMana || 50}</div>
-                <div className="w-full bg-dark-bg-tertiary rounded-full h-3">
-                  <div 
-                    className="bg-gradient-to-r from-blue-500 to-cyan-500 h-3 rounded-full transition-all duration-300" 
-                    style={{ width: `${((user.stats?.mana || user.mana || 50) / (user.stats?.maxMana || user.maxMana || 50)) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-yellow-500/20 rounded-lg">
-                    <Coins className="w-6 h-6 text-yellow-400" />
-                  </div>
-                  <h4 className="text-xl font-bold text-dark-text">Ouro</h4>
-                </div>
-                <div className="text-3xl font-bold text-primary-yellow mb-2">{user.gold}</div>
-                <p className="text-dark-text-secondary text-sm">Moeda</p>
-              </div>
-            </div>
-
-            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
               <h4 className="text-2xl font-bold text-dark-text mb-6">Atributos</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 pb-6 border-b border-dark-border">
+                <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Heart className="w-4 h-4 text-red-400" />
+                      <span className="text-dark-text-secondary text-sm">Vida</span>
+                    </div>
+                    <span className="text-dark-text font-semibold">{user.stats?.health || user.health || 100}/{user.stats?.maxHealth || user.maxHealth || 100}</span>
+                  </div>
+                  <div className="w-full bg-dark-bg-secondary rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-red-500 to-rose-600 h-2 rounded-full transition-all duration-300" 
+                      style={{ width: `${((user.stats?.health || user.health || 100) / (user.stats?.maxHealth || user.maxHealth || 100)) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-blue-400" />
+                      <span className="text-dark-text-secondary text-sm">Mana</span>
+                    </div>
+                    <span className="text-dark-text font-semibold">{user.stats?.mana || user.mana || 50}/{user.stats?.maxMana || user.maxMana || 50}</span>
+                  </div>
+                  <div className="w-full bg-dark-bg-secondary rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-300" 
+                      style={{ width: `${((user.stats?.mana || user.mana || 50) / (user.stats?.maxMana || user.maxMana || 50)) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border flex items-center justify-between">
                   <span className="text-dark-text-secondary">Força:</span>
@@ -638,45 +1276,47 @@ export default function GamePage() {
                   <span className="text-green-400 font-bold text-lg">{user.attributes?.agility || user.agility || 10}</span>
                 </div>
                 <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border flex items-center justify-between">
-                  <span className="text-dark-text-secondary">Vitalidade:</span>
-                  <span className="text-cyan-400 font-bold text-lg">{user.attributes?.vitality || 10}</span>
+                  <span className="text-dark-text-secondary">Sorte (LUK):</span>
+                  <span className="text-yellow-400 font-bold text-lg">{user.attributes?.luck || 5}</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-2xl border-2 border-custom">
-              <h4 className="text-xl font-bold text-white mb-4">Status de Combate</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center justify-between">
+            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+              <h4 className="text-2xl font-bold text-dark-text mb-6">Status de Combate</h4>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border flex items-center justify-between">
                   <span className="text-dark-text-secondary">Ataque:</span>
-                  <span className="text-white font-bold">{user.stats?.attack || 20}</span>
+                  <span className="text-red-400 font-bold text-lg">{user.stats?.attack || 20}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border flex items-center justify-between">
                   <span className="text-dark-text-secondary">Defesa:</span>
-                  <span className="text-white font-bold">{user.stats?.defense || 15}</span>
+                  <span className="text-blue-400 font-bold text-lg">{user.stats?.defense || 15}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border flex items-center justify-between">
                   <span className="text-dark-text-secondary">Crítico:</span>
-                  <span className="text-white font-bold">{(user.stats?.criticalChance || 5).toFixed(1)}%</span>
+                  <span className="text-yellow-400 font-bold text-lg">{(user.stats?.criticalChance || 5).toFixed(1)}%</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border flex items-center justify-between">
                   <span className="text-dark-text-secondary">Esquiva:</span>
-                  <span className="text-white font-bold">{(user.stats?.dodgeChance || 4).toFixed(1)}%</span>
+                  <span className="text-green-400 font-bold text-lg">{(user.stats?.dodgeChance || 4).toFixed(1)}%</span>
                 </div>
               </div>
+            </div>
             </div>
           </div>
                  );
 
        case 'profile':
          return (
-           <div className="space-y-6">
-             <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+           <div className="space-y-6 min-h-screen relative">
+             <div className="relative z-10 space-y-6">
+             <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
                <h3 className="text-3xl font-bold text-white mb-6">Perfil de Equipamentos</h3>
                
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                  {/* Character Model */}
-                 <div className="bg-dark-bg-card p-6 rounded-xl border border-dark-border">
+                 <div className="p-6 rounded-xl border border-dark-border" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
                    <h4 className="text-white font-bold mb-4 text-center">Personagem</h4>
                    <div className="flex flex-col items-center space-y-4">
                      {/* Head */}
@@ -759,7 +1399,7 @@ export default function GamePage() {
                  </div>
                  
                  {/* Equipment Stats */}
-                 <div className="bg-dark-bg-card p-6 rounded-xl border border-dark-border">
+                 <div className="p-6 rounded-xl border border-dark-border" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
                    <h4 className="text-white font-bold mb-4">Bônus de Equipamentos</h4>
                    <div className="space-y-2">
                      <div className="flex justify-between">
@@ -786,22 +1426,35 @@ export default function GamePage() {
                  </div>
                </div>
              </div>
+             </div>
            </div>
          );
 
        case 'inventory':
         return (
-          <div className="space-y-6">
-            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+          <div className="space-y-6 min-h-screen relative">
+            <div className="relative z-10 space-y-6">
+            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-3xl font-bold text-white">Inventário</h3>
-                <button
-                  onClick={() => setShowSellModal(true)}
-                  className="bg-purple-gradient hover:opacity-90 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center space-x-2 shadow-lg"
-                >
-                  <Coins className="w-5 h-5" />
-                  <span>Vender Itens</span>
-                </button>
+                {(user.inventory?.length || 0) > 0 && (
+                  <button
+                    onClick={() => {
+                      // Selecionar todos os itens do inventário
+                      const allItems = getStackedInventory();
+                      const allItemsToSell = allItems.map(item => ({
+                        itemId: item.id,
+                        amount: item.amount || 1
+                      }));
+                      setSelectedItemsToSell(allItemsToSell);
+                      setShowSellAllModal(true);
+                    }}
+                    className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center space-x-2 shadow-lg"
+                  >
+                    <Coins className="w-5 h-5" />
+                    <span>Vender TUDO</span>
+                  </button>
+                )}
               </div>
               
               {(user.inventory?.length || 0) === 0 ? (
@@ -811,7 +1464,7 @@ export default function GamePage() {
                   <p className="text-dark-text-muted text-sm mt-2">Derrote monstros para coletar itens!</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-fr">
                   {getStackedInventory().map((item, index) => {
                     const rarityColors: Record<string, string> = {
                       common: 'border-dark-border bg-dark-bg-tertiary',
@@ -826,15 +1479,34 @@ export default function GamePage() {
                     return (
                       <div 
                         key={index} 
-                        className={`${rarityColors[rarity] || rarityColors.common} p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg`}
+                        className={`${rarityColors[rarity] || rarityColors.common} p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg h-full flex flex-col min-h-[280px]`}
                       >
-                        <div className="flex flex-col space-y-3">
+                        <div className="flex flex-col space-y-3 flex-1">
                           <div className="flex items-start justify-between">
                             <div className="flex items-center space-x-3 flex-1">
-                              <span className="text-3xl">{item.icon}</span>
+                              {item.imagePath ? (
+                                <img
+                                  src={item.imagePath}
+                                  alt={item.name}
+                                  className="w-12 h-12 object-contain flex-shrink-0"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                      const fallback = document.createElement('span');
+                                      fallback.className = 'text-3xl flex-shrink-0';
+                                      fallback.textContent = item.icon;
+                                      parent.appendChild(fallback);
+                                    }
+                                  }}
+                                />
+                              ) : (
+                                <span className="text-3xl flex-shrink-0">{item.icon}</span>
+                              )}
                               <div className="flex-1 min-w-0">
                                 <h4 className="text-dark-text font-bold text-sm truncate">{item.name}</h4>
-                                <p className="text-dark-text-secondary text-xs mt-1 line-clamp-2">{item.description}</p>
+                                <p className="text-dark-text-secondary text-xs mt-1 line-clamp-2 min-h-[2.5rem]">{item.description}</p>
                               </div>
                             </div>
                           </div>
@@ -851,7 +1523,7 @@ export default function GamePage() {
                             )}
                           </div>
                           
-                          <div className="flex flex-col space-y-2 pt-2">
+                          <div className="flex flex-col space-y-2 pt-2 mt-auto">
                             {(item.type === 'weapon' || item.type === 'armor') && (
                               <button className="bg-accent-purple hover:bg-accent-purple-dark text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center justify-center space-x-2">
                                 <SwordIcon className="w-4 h-4" />
@@ -903,54 +1575,55 @@ export default function GamePage() {
                 </div>
               )}
             </div>
+            </div>
           </div>
         );
 
       case 'battle':
         return (
-          <div className="space-y-6">
-            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+          <div className="space-y-6 min-h-screen relative">
+            <div className="relative z-10 space-y-6">
+            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
               <h3 className="text-3xl font-bold text-white mb-6">Arena de Batalha</h3>
               
                              {selectedMonster ? (
                  <div className="space-y-4">
                                        {/* Player Health Bar */}
-                    <div className="bg-dark-bg-card p-6 rounded-2xl border border-dark-border card-glow">
+                    <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-4">
-                          {getCharacterImagePath(user.characterClass, characterGender === 'female') ? (
-                            <div className="relative cursor-pointer" onClick={toggleCharacterGender} title="Clique para alternar entre masculino/feminino">
-                              <img 
-                                src={getCharacterImagePath(user.characterClass, characterGender === 'female')!} 
-                                alt={user.characterClass ? CHARACTER_CLASSES[user.characterClass].name : 'Personagem'}
-                                className="w-20 h-20 object-contain rounded-lg hover:opacity-80 transition-opacity"
-                                onError={(e) => {
-                                  // Fallback para ícone se imagem não existir
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  const parent = target.parentElement;
-                                  if (parent) {
-                                    const fallback = document.createElement('span');
-                                    fallback.className = 'text-4xl cursor-pointer';
-                                    fallback.textContent = user.characterClass ? CHARACTER_CLASSES[user.characterClass].icon : '👤';
-                                    fallback.onclick = toggleCharacterGender;
-                                    parent.appendChild(fallback);
-                                  }
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <span 
-                              className="text-4xl cursor-pointer hover:opacity-80 transition-opacity" 
-                              onClick={toggleCharacterGender}
-                              title="Clique para alternar entre masculino/feminino"
-                            >
-                              {user.characterClass ? CHARACTER_CLASSES[user.characterClass].icon : '👤'}
-                            </span>
-                          )}
+                          <ProfileImage
+                            profileImage={user.profileImage}
+                            characterClass={user.characterClass}
+                            characterGender={characterGender}
+                            size="medium"
+                            showEditButton={false}
+                            purchasedItems={user.purchasedItems || []}
+                            onUpdateProfileImage={updateProfileImage}
+                          />
                           <div>
                             <h4 className="text-white font-bold text-xl">{user.nickname}</h4>
                             <p className="text-dark-text-secondary">Nível {user.stats?.level || user.level || 1}</p>
+                            {/* Active Buffs Icons */}
+                            {Object.keys(activeBuffs).length > 0 && (
+                              <div className="flex items-center space-x-2 mt-2">
+                                {Object.entries(activeBuffs).map(([skillId, buff]) => {
+                                  const skill = getSkillById(skillId);
+                                  return (
+                                    <div
+                                      key={skillId}
+                                      className="relative group"
+                                      title={`${buff.skillName} - ${buff.duration} turno${buff.duration > 1 ? 's' : ''} restante${buff.duration > 1 ? 's' : ''}`}
+                                    >
+                                      <span className="text-2xl">{skill?.icon || '✨'}</span>
+                                      <span className="absolute -top-1 -right-1 bg-accent-purple text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                        {buff.duration}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="text-right">
@@ -959,6 +1632,14 @@ export default function GamePage() {
                             <div 
                               className="bg-gradient-to-r from-green-500 to-emerald-500 h-2.5 rounded-full transition-all duration-300"
                               style={{ width: `${((user.stats?.health || user.health || 100) / (user.stats?.maxHealth || user.maxHealth || 100)) * 100}%` }}
+                            ></div>
+                          </div>
+                          {/* Mana Bar */}
+                          <div className="text-white font-bold mt-2">{user.stats?.mana || user.mana || 50}/{user.stats?.maxMana || user.maxMana || 50}</div>
+                          <div className="w-32 bg-dark-bg-tertiary rounded-full h-2.5 mt-1">
+                            <div 
+                              className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2.5 rounded-full transition-all duration-300"
+                              style={{ width: `${((user.stats?.mana || user.mana || 50) / (user.stats?.maxMana || user.maxMana || 50)) * 100}%` }}
                             ></div>
                           </div>
                         </div>
@@ -982,7 +1663,7 @@ export default function GamePage() {
                     </div>
 
                    {/* Monster Health Bar */}
-                   <div className="bg-dark-bg-card p-6 rounded-2xl border border-dark-border card-glow">
+                   <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
                      <div className="flex items-center justify-between mb-4">
                        <div className="flex items-center space-x-4">
                          {selectedMonster.imagePath ? (
@@ -1011,6 +1692,26 @@ export default function GamePage() {
                          <div>
                            <h4 className="text-dark-text font-bold text-xl">{selectedMonster.name}</h4>
                            <p className="text-dark-text-secondary">Nível {selectedMonster.level}</p>
+                           {/* Active Debuffs Icons */}
+                           {Object.keys(activeDebuffs).length > 0 && (
+                             <div className="flex items-center space-x-2 mt-2">
+                               {Object.entries(activeDebuffs).map(([skillId, debuff]) => {
+                                 const skill = getSkillById(skillId);
+                                 return (
+                                   <div
+                                     key={skillId}
+                                     className="relative group"
+                                     title={`${debuff.skillName} - ${debuff.duration} turno${debuff.duration > 1 ? 's' : ''} restante${debuff.duration > 1 ? 's' : ''}`}
+                                   >
+                                     <span className="text-2xl">{skill?.icon || '🔥'}</span>
+                                     <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                       {debuff.duration}
+                                     </span>
+                                   </div>
+                                 );
+                               })}
+                             </div>
+                           )}
                          </div>
                        </div>
                                                <div className="text-right">
@@ -1069,35 +1770,84 @@ export default function GamePage() {
                              <p className="text-gray-400">AGI</p>
                              <p className="text-white font-bold">{selectedMonster.attributes.agility}</p>
                            </div>
-                           <div className="text-center">
-                             <p className="text-gray-400">VIT</p>
-                             <p className="text-white font-bold">{selectedMonster.attributes.vitality}</p>
-                           </div>
+                          <div className="text-center">
+                            <p className="text-gray-400">LUK</p>
+                            <p className="text-white font-bold">{selectedMonster.attributes?.luck || 5}</p>
+                          </div>
                          </div>
                        </div>
                      )}
                    </div>
                   
-                                     <div className="flex space-x-4">
-                     <button
-                       onClick={() => {
-                         console.log('🔘 Attack button clicked');
-                         handleAttack();
-                       }}
-                       className="px-6 py-3 rounded-lg font-bold transition-colors flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white"
-                     >
-                       <SwordIcon className="w-5 h-5" />
-                       <span>Atacar</span>
-                     </button>
+                                     <div className="space-y-4">
+                     {/* Skills Section */}
+                     {getAvailableSkills().length > 0 && (
+                       <div className="p-4 rounded-xl border border-dark-border" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+                         <h4 className="text-white font-bold mb-3 text-sm">Habilidades:</h4>
+                         <div className="grid grid-cols-3 gap-2">
+                           {getAvailableSkills().map((skill) => {
+                             const cooldownRemaining = getSkillCooldownRemaining(skill.id);
+                             const currentMana = user.stats?.mana || user.mana || 0;
+                             const hasEnoughMana = currentMana >= skill.manaCost;
+                             const isOnCooldown = cooldownRemaining > 0;
+                             const canUse = hasEnoughMana && !isOnCooldown;
+                             
+                             return (
+                               <button
+                                 key={skill.id}
+                                 onClick={() => handleUseSkill(skill.id)}
+                                 disabled={!canUse}
+                                 className={`
+                                   px-3 py-2 rounded-lg font-semibold text-xs transition-all
+                                   flex flex-col items-center justify-center space-y-1
+                                   ${canUse 
+                                     ? 'bg-accent-purple hover:bg-purple-600 text-white cursor-pointer' 
+                                     : 'bg-dark-bg-tertiary text-gray-500 cursor-not-allowed opacity-50'
+                                   }
+                                 `}
+                                 title={skill.description}
+                               >
+                                 <span className="text-lg">{skill.icon}</span>
+                                 <span className="font-bold truncate w-full text-center">{skill.name}</span>
+                                 <div className="flex items-center space-x-1 text-xs">
+                                   <span>💙 {skill.manaCost}</span>
+                                   {isOnCooldown && (
+                                     <span className="text-yellow-400">⏱️ {cooldownRemaining} turno{cooldownRemaining > 1 ? 's' : ''}</span>
+                                   )}
+                                 </div>
+                               </button>
+                             );
+                           })}
+                         </div>
+                       </div>
+                     )}
                      
-                     <button
-                       onClick={() => {
-                         setSelectedMonster(null);
-                       }}
-                       className="px-6 py-3 rounded-lg font-bold transition-colors bg-gray-600 hover:bg-gray-700 text-white"
-                     >
-                       Fugir
-                     </button>
+                     {/* Action Buttons */}
+                     <div className="flex space-x-4">
+                       <button
+                         onClick={() => {
+                           console.log('🔘 Attack button clicked');
+                           handleAttack();
+                         }}
+                         className="px-6 py-3 rounded-lg font-bold transition-colors flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white"
+                       >
+                         <SwordIcon className="w-5 h-5" />
+                         <span>Atacar</span>
+                       </button>
+                       
+                       <button
+                         onClick={() => {
+                           setSelectedMonster(null);
+                           // Reset skill cooldowns and buffs when fleeing
+                           setSkillCooldowns({});
+                           setActiveBuffs({});
+                           setActiveDebuffs({});
+                         }}
+                         className="px-6 py-3 rounded-lg font-bold transition-colors bg-gray-600 hover:bg-gray-700 text-white"
+                       >
+                         Fugir
+                       </button>
+                     </div>
                    </div>
                 </div>
               ) : (
@@ -1138,7 +1888,8 @@ export default function GamePage() {
                        <div
                          key={monster.id}
                          onClick={() => handleStartBattle(monster)}
-                         className="bg-card-gradient p-4 rounded-xl border border-dark-border cursor-pointer hover:border-accent-purple hover:scale-105 transition-all duration-300 card-glow"
+                         className="p-4 rounded-xl border border-dark-border cursor-pointer hover:border-accent-purple hover:scale-105 transition-all duration-300 card-glow"
+                         style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}
                        >
                          <div className="text-center">
                            {monster.imagePath ? (
@@ -1195,11 +1946,123 @@ export default function GamePage() {
                  </div>
                </div>
              )}
+            </div>
           </div>
         );
 
-             case 'pvp':
+      case 'skills':
+        if (!user.characterClass) {
+          return (
+            <div className="min-h-screen relative">
+              <div className="relative z-10">
+                <div className="p-6 rounded-2xl border border-dark-border card-glow text-center" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+                  <p className="text-white text-lg">Você precisa escolher uma classe primeiro!</p>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        const availableSkills = getAvailableSkills();
+        const playerSkills = user.skills || [];
+
         return (
+          <div className="space-y-6 min-h-screen relative">
+            <div className="relative z-10 space-y-6">
+            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+              <h3 className="text-3xl font-bold text-white mb-6">✨ Sistema de Skills</h3>
+              <p className="text-dark-text-secondary mb-4">
+                Melhore suas skills usando ouro. Cada nível aumenta o poder da skill em 10%.
+              </p>
+              <div className="p-4 rounded-xl border border-dark-border mb-6" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-white font-semibold">Ouro Disponível:</span>
+                  <span className="text-primary-yellow font-bold text-xl">{user.gold.toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {availableSkills.map((skill) => {
+                  const playerSkill = playerSkills.find(ps => ps.skillId === skill.id);
+                  const currentLevel = playerSkill?.level || 1;
+                  const upgradeCost = SKILL_FORMULAS.calculateSkillUpgradeCost(currentLevel);
+                  const canAfford = user.gold >= upgradeCost;
+                  const scaledValue = SKILL_FORMULAS.calculateSkillEffectValue(skill.effect.value, currentLevel, skill.id);
+
+                  return (
+                    <div
+                      key={skill.id}
+                      className="p-6 rounded-xl border border-dark-border hover:border-accent-purple transition-all duration-300"
+                      style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-4xl">{skill.icon}</span>
+                          <div>
+                            <h4 className="text-white font-bold text-lg">{skill.name}</h4>
+                            <p className="text-dark-text-secondary text-xs">Nv. {currentLevel}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <p className="text-dark-text-secondary text-sm mb-4 min-h-[40px]">{skill.description}</p>
+
+                      <div className="space-y-2 mb-4">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-dark-text-secondary">Efeito:</span>
+                          <span className="text-white font-semibold">
+                            {skill.effect.type === 'damage' && `${(scaledValue * 100).toFixed(0)}% dano`}
+                            {skill.effect.type === 'heal' && `${(scaledValue * 100).toFixed(0)}% cura`}
+                            {skill.effect.type === 'buff' && `${(scaledValue * 100).toFixed(0)}% buff`}
+                            {skill.effect.type === 'debuff' && `${(scaledValue * 100).toFixed(0)}% debuff`}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-dark-text-secondary">Custo MP:</span>
+                          <span className="text-blue-400 font-semibold">{skill.manaCost}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-dark-text-secondary">Cooldown:</span>
+                          <span className="text-yellow-400 font-semibold">{skill.cooldown} turnos</span>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-dark-border pt-4">
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-dark-text-secondary text-sm">Próximo nível:</span>
+                          <span className="text-primary-yellow font-bold">{upgradeCost.toLocaleString()} 🪙</span>
+                        </div>
+                        <button
+                          onClick={async () => {
+                            const result = await upgradeSkill(skill.id);
+                            if (!result.success) {
+                              alert(result.error || 'Erro ao fazer upgrade da skill');
+                            }
+                          }}
+                          disabled={!canAfford}
+                          className={`w-full px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${
+                            canAfford
+                              ? 'bg-accent-purple hover:opacity-90 text-white'
+                              : 'bg-dark-bg-tertiary text-dark-text-muted cursor-not-allowed'
+                          }`}
+                        >
+                          <Sparkles className="w-4 h-4" />
+                          <span>Upgrade para Nv.{currentLevel + 1}</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            </div>
+          </div>
+        );
+
+      case 'pvp':
+        return (
+          <div className="min-h-screen relative">
+            <div className="relative z-10">
           <PvPSystem
            onSearchOpponents={searchPvPOpponents}
            onStartBattle={startPvPBattle}
@@ -1207,9 +2070,13 @@ export default function GamePage() {
            userPvPStats={user.pvpStats}
            userId={user.id}
           />
+            </div>
+          </div>
         );
       case 'guild':
         return (
+          <div className="min-h-screen relative">
+            <div className="relative z-10">
           <GuildSystem
             onCreateGuild={createGuild}
             onJoinGuild={joinGuild}
@@ -1223,12 +2090,14 @@ export default function GamePage() {
             userId={user.id}
             userGold={user.gold}
           />
+            </div>
+          </div>
         );
 
        case 'collection':
          return (
            <div className="space-y-6">
-             <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+             <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
                <h3 className="text-2xl font-bold text-white mb-4">Sistema de Coleta</h3>
                
                <div className="mb-6">
@@ -1254,14 +2123,36 @@ export default function GamePage() {
                    const experienceToNext = skillData?.experienceToNext || 50;
                    
                    return (
-                     <div key={skill.type} className="bg-dark-bg-card p-4 rounded-xl border border-dark-border">
-                       <div className="text-center mb-3">
-                         <div className="text-3xl mb-2">{skill.icon}</div>
-                         <h4 className="text-white font-bold">{skill.name}</h4>
-                         <p className="text-dark-text-secondary text-sm">{skill.description}</p>
+                     <div key={skill.type} className="p-4 rounded-xl border border-dark-border flex flex-col h-full min-h-[280px]" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+                       <div className="text-center mb-3 flex-grow flex flex-col">
+                         {skill.imagePath ? (
+                           <div className="flex justify-center mb-3">
+                             <img 
+                               src={skill.imagePath} 
+                               alt={skill.name}
+                               className="w-24 h-24 object-contain"
+                               onError={(e) => {
+                                 // Fallback para ícone se imagem não existir
+                                 const target = e.target as HTMLImageElement;
+                                 target.style.display = 'none';
+                                 const parent = target.parentElement;
+                                 if (parent) {
+                                   const fallback = document.createElement('div');
+                                   fallback.className = 'text-4xl';
+                                   fallback.textContent = skill.icon;
+                                   parent.appendChild(fallback);
+                                 }
+                               }}
+                             />
+                           </div>
+                         ) : (
+                           <div className="text-4xl mb-3">{skill.icon}</div>
+                         )}
+                         <h4 className="text-white font-bold mb-1">{skill.name}</h4>
+                         <p className="text-dark-text-secondary text-xs flex-grow">{skill.description}</p>
                        </div>
                        
-                       <div className="mb-3">
+                       <div className="mb-3 mt-auto">
                          <div className="flex justify-between text-sm mb-1">
                            <span className="text-dark-text-secondary">Nível {level}</span>
                            <span className="text-primary-yellow">{experience}/{experienceToNext} EXP</span>
@@ -1284,7 +2175,12 @@ export default function GamePage() {
                          }`}
                        >
                          <Target className="w-4 h-4" />
-                         <span>{collectionTimer <= 0 ? 'Coletar' : 'Aguardando...'}</span>
+                         <span>
+                           {collectionTimer <= 0 
+                             ? 'Coletar' 
+                             : `Coletar (${Math.floor(collectionTimer / 60)}:${(collectionTimer % 60).toString().padStart(2, '0')})`
+                           }
+                         </span>
                        </button>
                      </div>
                    );
@@ -1292,48 +2188,84 @@ export default function GamePage() {
                </div>
              </div>
            </div>
-                   );
+         );
 
        case 'rest':
          return (
-           <div className="space-y-6">
-             <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+           <div className="space-y-6 min-h-screen relative">
+             <div className="relative z-10 space-y-6">
+             <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
                <h3 className="text-2xl font-bold text-white mb-4">Sistema de Descanso</h3>
                
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                  {/* Descanso Gratuito */}
-                 <div className="bg-dark-bg-card p-6 rounded-xl border border-dark-border">
+                 <div className="p-6 rounded-xl border border-dark-border" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
                    <div className="text-center mb-4">
-                     <div className="text-4xl mb-2">😴</div>
+                     <div className="flex justify-center mb-3">
+                       <img 
+                         src="/images/ui/Descanso.png" 
+                         alt="Descanso"
+                         className="w-24 h-24 object-contain"
+                         onError={(e) => {
+                           // Fallback para emoji se imagem não existir
+                           const target = e.target as HTMLImageElement;
+                           target.style.display = 'none';
+                           const parent = target.parentElement;
+                           if (parent) {
+                             const fallback = document.createElement('div');
+                             fallback.className = 'text-4xl mb-2';
+                             fallback.textContent = '😴';
+                             parent.appendChild(fallback);
+                           }
+                         }}
+                       />
+                     </div>
                      <h4 className="text-white font-bold text-xl">Descanso Gratuito</h4>
                      <p className="text-dark-text-secondary text-sm mt-2">
                        Recupera HP e MP completos sem custo
                      </p>
                    </div>
                    
-                   <div className="mb-4">
-                     <div className="flex justify-between text-sm mb-2">
-                       <span className="text-dark-text-secondary">Tempo de Descanso:</span>
-                       <span className="text-primary-yellow font-bold">
-                         {Math.floor((user.stats?.level || user.level || 1) / 5) + 1} minuto(s)
-                       </span>
-                     </div>
-                     <div className="text-xs text-dark-text-muted">
-                       Base: 1 minuto + 1 minuto a cada 5 níveis
-                     </div>
-                   </div>
-                   
-                   <button
-                     onClick={handleRest}
-                     className="w-full bg-accent-purple hover:opacity-90 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center space-x-2"
-                   >
-                     <Heart className="w-5 h-5" />
-                     <span>Descansar</span>
-                   </button>
+                  <div className="mb-4">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-dark-text-secondary">Tempo de Cooldown:</span>
+                      <span className="text-primary-yellow font-bold">
+                        {(() => {
+                          const userLevel = user.stats?.level || user.level || 1;
+                          const cooldownMinutes = userLevel <= 4 ? 1 : 1 + Math.floor((userLevel - 1) / 5);
+                          return `${cooldownMinutes} minuto(s)`;
+                        })()}
+                      </span>
+                    </div>
+                    <div className="text-xs text-dark-text-muted mb-2">
+                      {(user.stats?.level || user.level || 1) <= 4 
+                        ? 'Level 1-4: 1 minuto de cooldown'
+                        : 'Base: 1 minuto + 1 minuto a cada 5 níveis'}
+                    </div>
+                    
+                  </div>
+                  
+                  <button
+                    onClick={handleRest}
+                    disabled={restCooldown > 0}
+                    className={`w-full px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center space-x-2 ${
+                      restCooldown <= 0
+                        ? 'bg-accent-purple hover:opacity-90 text-white'
+                        : 'bg-dark-bg-tertiary text-dark-text-muted cursor-not-allowed'
+                    }`}
+                  >
+                    <Heart className="w-5 h-5" />
+                    <span>
+                      {restCooldown <= 0 
+                        ? 'Descansar' 
+                        : `Descansar (${Math.floor(restCooldown / 60)}:${(restCooldown % 60).toString().padStart(2, '0')})`
+                      }
+                    </span>
+                  </button>
                  </div>
                  
                  {/* Status Atual */}
-                 <div className="bg-dark-bg-card p-6 rounded-xl border border-dark-border">
+                 <div className="p-6 rounded-xl border border-dark-border" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
                    <h4 className="text-white font-bold mb-4">Status Atual</h4>
                    
                    <div className="space-y-4">
@@ -1381,48 +2313,37 @@ export default function GamePage() {
                </div>
              </div>
            </div>
+           </div>
          );
-
-       case 'guild':
-        return (
-          <div className="space-y-6">
-            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
-              <h3 className="text-2xl font-bold text-white mb-4">Sistema de Guild</h3>
-              {user.guildId ? (
-                <p className="text-gray-300">Você é membro de uma guild.</p>
-              ) : (
-                <div>
-                  <p className="text-gray-300 mb-4">Junte-se ou crie uma guild para participar de atividades em grupo!</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button className="bg-primary-green text-white p-4 rounded-lg hover:bg-green-600 transition-colors">
-                      Entrar em Guild
-                    </button>
-                    <button className="bg-primary-purple text-white p-4 rounded-lg hover:bg-purple-600 transition-colors">
-                      Criar Guild
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        );
 
       case 'market':
         return (
-          <div className="space-y-6">
-            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
-              <h3 className="text-2xl font-bold text-white mb-4">Mercado de Trading</h3>
-              <p className="text-gray-300">O mercado está vazio. Itens aparecerão conforme os jogadores começarem a negociar!</p>
-            </div>
+          <div className="relative">
+            <MarketSystem
+              onListMarketItems={listMarketItems}
+              onAddMarketItem={addMarketItem}
+              onBuyMarketItem={buyMarketItem}
+              onRemoveMarketItem={removeMarketItem}
+              onBuyShopItem={buyShopItem}
+              onUpdateProfileImage={updateProfileImage}
+              userId={user.id}
+              userGold={user.gold}
+              userDiamonds={user.diamonds || 0}
+              userInventory={user.inventory || []}
+              purchasedItems={user.purchasedItems || []}
+              profileImage={user.profileImage}
+            />
           </div>
         );
 
       case 'world':
         return (
-          <div className="space-y-6">
-            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+          <div className="space-y-6 min-h-screen relative">
+            <div className="relative z-10 space-y-6">
+            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
               <h3 className="text-2xl font-bold text-white mb-4">Mapa do Mundo</h3>
               <p className="text-dark-text-secondary">Explore o vasto mundo do RPG Browser!</p>
+            </div>
             </div>
           </div>
         );
@@ -1432,7 +2353,7 @@ export default function GamePage() {
     }
   };
 
-  // Show class selection if user hasn't chosen a class
+  // Early returns for modals and special states
   if (showClassSelection) {
     return <ClassSelection onClassSelected={handleClassSelected} />;
   }
@@ -1459,7 +2380,7 @@ export default function GamePage() {
   // Show death message modal
   if (showDeathMessage && deathInfo) {
     return (
-      <div className="min-h-screen bg-black bg-opacity-75 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-black bg-opacity-75 flex items-center justify-center p-4 z-[9999] fixed inset-0">
         <div className="bg-gradient-to-br from-red-900 to-red-800 p-8 rounded-2xl border-2 border-red-600 max-w-md w-full text-center">
           <div className="text-6xl mb-4">💀</div>
           <h2 className="text-3xl font-bold text-white mb-4">Você Morreu!</h2>
@@ -1497,10 +2418,99 @@ export default function GamePage() {
     );
   }
 
+  // Show sell all modal
+  if (showSellAllModal) {
+    const allItems = getStackedInventory();
+    const totalGold = selectedItemsToSell.reduce((total, selectedItem) => {
+      const item = allItems.find(i => i.id === selectedItem.itemId);
+      return total + (item ? item.value * selectedItem.amount : 0);
+    }, 0);
+
+    return (
+      <div className="min-h-screen bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999] fixed inset-0">
+        <div className="p-6 rounded-2xl border border-dark-border card-glow max-w-2xl w-full" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-white">⚠️ Vender TUDO</h2>
+            <button
+              onClick={() => {
+                setShowSellAllModal(false);
+                setSelectedItemsToSell([]);
+              }}
+              className="text-dark-text-muted hover:text-white transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <div className="p-4 rounded-xl border border-dark-border mb-6" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+            <p className="text-white font-semibold mb-4">
+              Você está prestes a vender TODOS os itens do inventário!
+            </p>
+            <p className="text-dark-text-secondary text-sm mb-4">
+              Total de itens: <span className="text-white font-bold">{selectedItemsToSell.length}</span>
+            </p>
+            
+            <div className="max-h-64 overflow-y-auto space-y-2 mb-4">
+              {selectedItemsToSell.map((selectedItem, index) => {
+                const item = allItems.find(i => i.id === selectedItem.itemId);
+                if (!item) return null;
+                
+                return (
+                  <div key={index} className="flex justify-between text-sm bg-dark-bg-tertiary p-2 rounded">
+                    <span className="text-white">{item.name} x{selectedItem.amount}</span>
+                    <span className="text-primary-yellow font-bold">{item.value * selectedItem.amount} ouro</span>
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div className="flex justify-between items-center pt-4 border-t border-dark-border">
+              <span className="text-white font-bold text-lg">Total a receber:</span>
+              <span className="text-primary-yellow font-bold text-xl">{totalGold.toLocaleString()} ouro</span>
+            </div>
+          </div>
+
+          <div className="flex space-x-4">
+            <button
+              onClick={async () => {
+                if (selectedItemsToSell.length === 0) return;
+                
+                const result = await sellItems(selectedItemsToSell);
+                
+                if (result.success) {
+                  setBattleLog(prev => [
+                    result.message || `Todos os itens foram vendidos por ${totalGold.toLocaleString()} ouro!`,
+                    ...prev
+                  ]);
+                  setShowSellAllModal(false);
+                  setSelectedItemsToSell([]);
+                } else {
+                  alert('Erro ao vender itens. Tente novamente.');
+                }
+              }}
+              className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-6 py-3 rounded-lg font-bold transition-all duration-300"
+            >
+              Confirmar Venda de TUDO
+            </button>
+            <button
+              onClick={() => {
+                setShowSellAllModal(false);
+                setSelectedItemsToSell([]);
+              }}
+              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-bold transition-all duration-300"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Show sell modal
   if (showSellModal) {
     return (
-      <div className="min-h-screen bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999] fixed inset-0">
         <div className="bg-gray-900 p-6 rounded-2xl border-2 border-custom max-w-4xl w-full max-h-[80vh] overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-white">Vender Itens</h2>
@@ -1522,7 +2532,26 @@ export default function GamePage() {
                 {getStackedInventory().map((item, index) => (
                   <div key={index} className="bg-gray-800 p-4 rounded-lg border border-custom cursor-pointer hover:border-yellow-400 transition-colors">
                     <div className="flex items-center space-x-3">
-                      <span className="text-2xl">{item.icon}</span>
+                      {item.imagePath ? (
+                        <img
+                          src={item.imagePath}
+                          alt={item.name}
+                          className="w-10 h-10 object-contain flex-shrink-0"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              const fallback = document.createElement('span');
+                              fallback.className = 'text-2xl';
+                              fallback.textContent = item.icon;
+                              parent.appendChild(fallback);
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span className="text-2xl">{item.icon}</span>
+                      )}
                       <div className="flex-1">
                         <h4 className="text-white font-bold">{item.name}</h4>
                         <p className="text-gray-400 text-sm">{item.description}</p>
@@ -1553,7 +2582,26 @@ export default function GamePage() {
                   return (
                     <div key={index} className="flex items-center justify-between p-3 bg-gray-700 rounded-lg mb-2">
                       <div className="flex items-center space-x-3">
-                        <span className="text-xl">{item.icon}</span>
+                        {item.imagePath ? (
+                          <img
+                            src={item.imagePath}
+                            alt={item.name}
+                            className="w-8 h-8 object-contain flex-shrink-0"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const fallback = document.createElement('span');
+                                fallback.className = 'text-xl';
+                                fallback.textContent = item.icon;
+                                parent.appendChild(fallback);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span className="text-xl">{item.icon}</span>
+                        )}
                         <div>
                           <h4 className="text-white font-bold">{item.name}</h4>
                           <p className="text-primary-yellow text-sm">{item.value} ouro cada</p>
@@ -1633,9 +2681,19 @@ export default function GamePage() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-gradient content-layer">
+    <div className="min-h-screen content-layer relative">
+      {/* Background fixo atrás de tudo para todas as abas */}
+      <div 
+        className="fixed inset-0"
+        style={{
+          ...getTabBackgroundStyle(activeTab),
+          backgroundAttachment: 'fixed',
+          zIndex: -1,
+          pointerEvents: 'none'
+        }}
+      />
       {/* Top Navigation */}
-      <nav className="bg-dark-bg-secondary bg-opacity-80 backdrop-blur-md border-b border-dark-border">
+      <nav className="relative z-10 bg-dark-bg-secondary bg-opacity-80 backdrop-blur-md border-b border-dark-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
@@ -1646,7 +2704,11 @@ export default function GamePage() {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 bg-dark-bg-tertiary px-4 py-2 rounded-lg border border-dark-border">
                 <Coins className="w-5 h-5 text-primary-yellow" />
-                <span className="font-semibold text-dark-text">{user.gold}</span>
+                <span className="font-semibold text-dark-text">{user.gold.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-dark-bg-tertiary px-4 py-2 rounded-lg border border-dark-border">
+                <Gem className="w-5 h-5 text-cyan-400" />
+                <span className="font-semibold text-dark-text">{user.diamonds?.toLocaleString() || 0}</span>
               </div>
               <div className="flex items-center space-x-2 bg-dark-bg-tertiary px-4 py-2 rounded-lg border border-dark-border">
                 <Star className="w-5 h-5 text-accent-purple" />
@@ -1664,51 +2726,24 @@ export default function GamePage() {
         </div>
       </nav>
 
-      <div className="flex">
+      <div className="flex relative z-10">
         {/* Sidebar */}
-        <div className="w-64 bg-dark-bg-secondary border-r border-dark-border min-h-screen">
+        <div className="w-64 bg-dark-bg-secondary border-r border-dark-border min-h-screen relative z-10">
           <div className="p-4">
-            <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow mb-6">
+            <div className="p-6 rounded-2xl border border-dark-border card-glow mb-6" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
               <div className="text-center">
-                {getCharacterImagePath(user.characterClass, characterGender === 'female') ? (
-                  <div 
-                    className="w-32 h-32 mx-auto mb-4 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
-                    onClick={toggleCharacterGender}
-                    title="Clique para alternar entre masculino/feminino"
-                  >
-                    <img 
-                      src={getCharacterImagePath(user.characterClass, characterGender === 'female')!} 
-                      alt={user.characterClass ? CHARACTER_CLASSES[user.characterClass].name : 'Personagem'}
-                      className="w-32 h-32 object-contain rounded-full shadow-lg"
-                      onError={(e) => {
-                        // Fallback para ícone se imagem não existir
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const parent = target.parentElement;
-                        if (parent) {
-                          const fallback = document.createElement('div');
-                          fallback.className = 'w-24 h-24 bg-purple-gradient rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-105 transition-transform';
-                          fallback.onclick = toggleCharacterGender;
-                          const icon = document.createElement('span');
-                          icon.className = 'text-4xl';
-                          icon.textContent = user.characterClass ? CHARACTER_CLASSES[user.characterClass].icon : '👤';
-                          fallback.appendChild(icon);
-                          parent.appendChild(fallback);
-                        }
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <div 
-                    className="w-24 h-24 bg-purple-gradient rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg cursor-pointer hover:scale-105 transition-transform"
-                    onClick={toggleCharacterGender}
-                    title="Clique para alternar entre masculino/feminino"
-                  >
-                    <span className="text-4xl">
-                      {user.characterClass ? CHARACTER_CLASSES[user.characterClass].icon : '👤'}
-                    </span>
-                  </div>
-                )}
+                <div className="mx-auto mb-4 flex justify-center">
+                  <ProfileImage
+                    profileImage={user.profileImage}
+                    characterClass={user.characterClass}
+                    characterGender={characterGender}
+                    size="large"
+                    showEditButton={true}
+                    purchasedItems={user.purchasedItems || []}
+                    onUpdateProfileImage={updateProfileImage}
+                    onOpenEditModal={() => setShowEditProfileImage(true)}
+                  />
+                </div>
                 <h3 className="text-dark-text font-bold text-xl">{user.nickname}</h3>
                 <p className="text-dark-text-secondary text-sm mt-1">Nível {user.stats?.level || user.level || 1}</p>
                 {user.characterClass && (
@@ -1740,12 +2775,149 @@ export default function GamePage() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 relative z-10">
           <div className="max-w-6xl mx-auto">
             {renderTabContent()}
           </div>
         </div>
       </div>
+
+      {/* Edit Profile Image Section */}
+      {showEditProfileImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4" style={{ zIndex: 99999 }}>
+          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow max-w-2xl w-full max-h-[80vh] overflow-y-auto" style={{ position: 'relative', zIndex: 100000 }}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-2xl font-bold text-white">Selecionar Foto de Perfil</h3>
+              <button
+                onClick={() => setShowEditProfileImage(false)}
+                className="text-dark-text-muted hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Default Character Image */}
+              {user.characterClass && (
+                <div>
+                  <h4 className="text-white font-semibold mb-3">Imagem do Personagem</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    {(['male', 'female'] as const).map((gender) => {
+                      const charImage = gender === 'female' 
+                        ? `/images/characters/${user.characterClass === 'warrior' ? 'Guerreira' : user.characterClass === 'archer' ? 'Arqueira' : 'Maga'}.png`
+                        : `/images/characters/${user.characterClass === 'warrior' ? 'Guerreiro' : user.characterClass === 'archer' ? 'Arqueiro' : 'Mago'}.png`;
+                      const isSelected = !user.profileImage && characterGender === gender;
+                      
+                      return (
+                        <div
+                          key={gender}
+                          className={`relative p-3 rounded-xl border-2 transition-all duration-300 cursor-pointer ${
+                            isSelected ? 'border-accent-purple' : 'border-dark-border hover:border-accent-purple/50'
+                          }`}
+                          onClick={async () => {
+                            const result = await updateProfileImage(charImage);
+                            if (result.success) {
+                              setShowEditProfileImage(false);
+                            }
+                          }}
+                        >
+                          <img
+                            src={charImage}
+                            alt={gender === 'male' ? 'Masculino' : 'Feminino'}
+                            className="w-full aspect-square object-cover rounded-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const fallback = document.createElement('div');
+                                fallback.className = 'w-full aspect-square bg-dark-bg-tertiary rounded-lg flex items-center justify-center text-4xl';
+                                fallback.textContent = CHARACTER_CLASSES[user.characterClass as CharacterClass].icon;
+                                parent.appendChild(fallback);
+                              }
+                            }}
+                          />
+                          <div className="text-center mt-2 text-white text-sm">
+                            {gender === 'male' ? 'Masculino' : 'Feminino'}
+                          </div>
+                          {isSelected && (
+                            <div className="absolute top-2 right-2 bg-accent-purple rounded-full p-1">
+                              <User className="w-4 h-4 text-white" />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Purchased Profile Images */}
+              {(user.purchasedItems || []).length > 0 && (
+                <div>
+                  <h4 className="text-white font-semibold mb-3">Fotos Compradas</h4>
+                  <div className="grid grid-cols-4 gap-4">
+                    {SHOP_ITEMS.filter(item => item.type === 'profile_image' && (user.purchasedItems || []).includes(item.id)).map((shopItem) => {
+                      const isSelected = user.profileImage === shopItem.imagePath;
+                      
+                      return (
+                        <div
+                          key={shopItem.id}
+                          className={`relative p-2 rounded-xl border-2 transition-all duration-300 cursor-pointer ${
+                            isSelected ? 'border-accent-purple' : 'border-dark-border hover:border-accent-purple/50'
+                          }`}
+                          onClick={async () => {
+                            if (shopItem.imagePath) {
+                              const result = await updateProfileImage(shopItem.imagePath);
+                              if (result.success) {
+                                setShowEditProfileImage(false);
+                              }
+                            }
+                          }}
+                        >
+                          {shopItem.imagePath ? (
+                            <img
+                              src={shopItem.imagePath}
+                              alt={shopItem.name}
+                              className="w-full aspect-square object-cover rounded-lg"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  const fallback = document.createElement('div');
+                                  fallback.className = 'w-full aspect-square bg-dark-bg-tertiary rounded-lg flex items-center justify-center text-2xl';
+                                  fallback.textContent = shopItem.icon;
+                                  parent.appendChild(fallback);
+                                }
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full aspect-square bg-dark-bg-tertiary rounded-lg flex items-center justify-center text-2xl">
+                              {shopItem.icon}
+                            </div>
+                          )}
+                          {isSelected && (
+                            <div className="absolute top-2 right-2 bg-accent-purple rounded-full p-1">
+                              <User className="w-3 h-3 text-white" />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {(user.purchasedItems || []).length === 0 && (
+                <div className="text-center py-8 text-dark-text-secondary">
+                  Você ainda não possui fotos de perfil compradas. Compre algumas na loja NPC!
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
