@@ -32,7 +32,8 @@ export function AttributeDistribution({ characterClass, onAttributesConfirmed }:
 
   const handleAttributeChange = (attribute: keyof Attributes, change: number) => {
     if (change > 0 && availablePoints <= 0) return;
-    if (change < 0 && attributes[attribute] <= baseStats[attribute]) return;
+    const baseValue = baseStats[attribute];
+    if (change < 0 && attributes[attribute] <= baseValue) return;
 
     setAttributes(prev => ({
       ...prev,

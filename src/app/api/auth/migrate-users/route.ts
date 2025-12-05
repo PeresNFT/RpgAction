@@ -46,7 +46,6 @@ export async function POST(request: NextRequest) {
           magic: oldUser.intelligence || 10,
           dexterity: 10,
           agility: oldUser.agility || 10,
-          vitality: 10,
         },
         availablePoints: 0,
         stats: {

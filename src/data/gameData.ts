@@ -91,7 +91,7 @@ export const ITEMS: Item[] = [
     type: 'armor',
     rarity: 'common',
     level: 1,
-    stats: { vitality: 2, agility: 1 },
+    stats: { agility: 1 },
     value: 30,
     icon: '🛡️'
   },
@@ -665,7 +665,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     description: 'Foto de perfil exclusiva #1',
     type: 'profile_image',
     icon: '🖼️',
-    priceDiamonds: 10,
+    priceDiamonds: 1000,
     imagePath: '/images/profile/profile1.png'
   },
   {
@@ -674,7 +674,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     description: 'Foto de perfil exclusiva #2',
     type: 'profile_image',
     icon: '🖼️',
-    priceDiamonds: 10,
+    priceDiamonds: 1000,
     imagePath: '/images/profile/profile2.png'
   },
   {
@@ -683,7 +683,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     description: 'Foto de perfil exclusiva #3',
     type: 'profile_image',
     icon: '🖼️',
-    priceDiamonds: 10,
+    priceDiamonds: 1000,
     imagePath: '/images/profile/profile3.png'
   },
   {
@@ -692,7 +692,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     description: 'Foto de perfil exclusiva #4',
     type: 'profile_image',
     icon: '🖼️',
-    priceDiamonds: 10,
+    priceDiamonds: 1000,
     imagePath: '/images/profile/profile4.png'
   }
 ];
