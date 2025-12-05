@@ -59,7 +59,9 @@ export const ITEMS: Item[] = [
     level: 1,
     stats: { strength: 3 },
     value: 50,
-    icon: '⚔️'
+    icon: '⚔️',
+    requiredClass: 'warrior',
+    requiredLevel: 1
   },
   {
     id: 'bow_basic',
@@ -70,7 +72,9 @@ export const ITEMS: Item[] = [
     level: 1,
     stats: { dexterity: 3 },
     value: 50,
-    icon: '🏹'
+    icon: '🏹',
+    requiredClass: 'archer',
+    requiredLevel: 1
   },
   {
     id: 'staff_basic',
@@ -81,9 +85,11 @@ export const ITEMS: Item[] = [
     level: 1,
     stats: { magic: 3 },
     value: 50,
-    icon: '🔮'
+    icon: '🔮',
+    requiredClass: 'mage',
+    requiredLevel: 1
   },
-  // Armor
+  // Armor (legacy - mantido para compatibilidade, mas deve usar leather_armor_set)
   {
     id: 'leather_armor',
     name: 'Armadura de Couro',
@@ -93,7 +99,312 @@ export const ITEMS: Item[] = [
     level: 1,
     stats: { agility: 1 },
     value: 30,
-    icon: '🛡️'
+    icon: '🛡️',
+    requiredClass: 'archer',
+    requiredLevel: 1
+  },
+  
+  
+  // ========== SET DE BRONZE (GUERREIRO) ==========
+  {
+    id: 'copper_helmet',
+    name: 'Elmo de Bronze',
+    description: 'Elmo resistente de bronze para guerreiros.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { strength: 2, agility: 1 },
+    value: 40,
+    icon: '⛑️',
+    imagePath: '/images/equipamentos/copper_helmet.png',
+    requiredClass: 'warrior',
+    requiredLevel: 1
+  },
+  {
+    id: 'copper_armor',
+    name: 'Armadura de Bronze',
+    description: 'Armadura pesada de bronze que oferece grande proteção.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { strength: 3, agility: -1 },
+    value: 60,
+    icon: '🛡️',
+    imagePath: '/images/equipamentos/copper_armor.png',
+    requiredClass: 'warrior',
+    requiredLevel: 1
+  },
+  {
+    id: 'copper_sword',
+    name: 'Espada de Bronze',
+    description: 'Espada afiada de bronze, perfeita para combate corpo a corpo.',
+    type: 'weapon',
+    rarity: 'common',
+    level: 1,
+    stats: { strength: 4 },
+    value: 50,
+    icon: '⚔️',
+    imagePath: '/images/equipamentos/copper_sword.png',
+    requiredClass: 'warrior',
+    requiredLevel: 1
+  },
+  {
+    id: 'copper_boots',
+    name: 'Bota de Bronze',
+    description: 'Botas reforçadas de bronze para proteção dos pés.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { strength: 1, agility: 1 },
+    value: 35,
+    icon: '👢',
+    imagePath: '/images/equipamentos/copper_boots.png',
+    requiredClass: 'warrior',
+    requiredLevel: 1
+  },
+  {
+    id: 'copper_shield',
+    name: 'Escudo de Bronze',
+    description: 'Escudo robusto de bronze para defesa.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { strength: 2, agility: -1 },
+    value: 45,
+    icon: '🛡️',
+    imagePath: '/images/equipamentos/copper_shield.png',
+    requiredClass: 'warrior',
+    requiredLevel: 1
+  },
+  {
+    id: 'copper_ring',
+    name: 'Anel de Bronze',
+    description: 'Anel mágico de bronze que aumenta a força.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { strength: 1, luck: 1 },
+    value: 30,
+    icon: '💍',
+    imagePath: '/images/equipamentos/copper_ring.png',
+    requiredClass: 'warrior',
+    requiredLevel: 1
+  },
+  {
+    id: 'copper_amulet',
+    name: 'Amuleto de Bronze',
+    description: 'Amuleto de bronze que fortalece o portador.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { strength: 2, luck: 1 },
+    value: 40,
+    icon: '🔮',
+    imagePath: '/images/equipamentos/copper_amulet.png',
+    requiredClass: 'warrior',
+    requiredLevel: 1
+  },
+  
+  // ========== SET DE PANO (MAGO) ==========
+  {
+    id: 'cloth_helmet',
+    name: 'Elmo de Pano',
+    description: 'Elmo leve de pano para magos.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { magic: 2, agility: 1 },
+    value: 40,
+    icon: '🧙',
+    imagePath: '/images/equipamentos/cloth_helmet.png',
+    requiredClass: 'mage',
+    requiredLevel: 1
+  },
+  {
+    id: 'cloth_armor',
+    name: 'Armadura de Pano',
+    description: 'Armadura leve de pano que facilita o uso de magias.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { magic: 3, agility: 1 },
+    value: 60,
+    icon: '👕',
+    imagePath: '/images/equipamentos/cloth_armor.png',
+    requiredClass: 'mage',
+    requiredLevel: 1
+  },
+  {
+    id: 'cloth_staff',
+    name: 'Cajado de Pano',
+    description: 'Cajado simples de pano para canalizar magias.',
+    type: 'weapon',
+    rarity: 'common',
+    level: 1,
+    stats: { magic: 4 },
+    value: 50,
+    icon: '🔮',
+    imagePath: '/images/equipamentos/cloth_staff.png',
+    requiredClass: 'mage',
+    requiredLevel: 1
+  },
+  {
+    id: 'cloth_boots',
+    name: 'Bota de Pano',
+    description: 'Botas leves de pano para magos.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { magic: 1, agility: 2 },
+    value: 35,
+    icon: '👟',
+    imagePath: '/images/equipamentos/cloth_boots.png',
+    requiredClass: 'mage',
+    requiredLevel: 1
+  },
+  {
+    id: 'cloth_bible',
+    name: 'Bíblia de Pano',
+    description: 'Livro sagrado que amplifica o poder mágico.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { magic: 3, luck: 1 },
+    value: 45,
+    icon: '📖',
+    imagePath: '/images/equipamentos/cloth_bible.png',
+    requiredClass: 'mage',
+    requiredLevel: 1
+  },
+  {
+    id: 'cloth_ring',
+    name: 'Anel de Pano',
+    description: 'Anel mágico de pano que aumenta o poder mágico.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { magic: 1, luck: 1 },
+    value: 30,
+    icon: '💍',
+    imagePath: '/images/equipamentos/cloth_ring.png',
+    requiredClass: 'mage',
+    requiredLevel: 1
+  },
+  {
+    id: 'cloth_amulet',
+    name: 'Amuleto de Pano',
+    description: 'Amuleto de pano que fortalece as magias.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { magic: 2, luck: 1 },
+    value: 40,
+    icon: '🔮',
+    imagePath: '/images/equipamentos/cloth_amulet.png',
+    requiredClass: 'mage',
+    requiredLevel: 1
+  },
+  
+  // ========== SET DE COURO (ARQUEIRO) ==========
+  {
+    id: 'leather_helmet',
+    name: 'Elmo de Couro',
+    description: 'Elmo leve de couro para arqueiros.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { dexterity: 2, agility: 2 },
+    value: 40,
+    icon: '🎩',
+    imagePath: '/images/equipamentos/leather_helmet.png',
+    requiredClass: 'archer',
+    requiredLevel: 1
+  },
+  {
+    id: 'leather_armor_set',
+    name: 'Armadura de Couro',
+    description: 'Armadura flexível de couro perfeita para arqueiros.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { dexterity: 3, agility: 2 },
+    value: 60,
+    icon: '🦺',
+    imagePath: '/images/equipamentos/leather_armor_set.png',
+    requiredClass: 'archer',
+    requiredLevel: 1
+  },
+  {
+    id: 'leather_bow',
+    name: 'Arco de Couro',
+    description: 'Arco resistente de couro para caça e combate.',
+    type: 'weapon',
+    rarity: 'common',
+    level: 1,
+    stats: { dexterity: 4 },
+    value: 50,
+    icon: '🏹',
+    imagePath: '/images/equipamentos/leather_bow.png',
+    requiredClass: 'archer',
+    requiredLevel: 1
+  },
+  {
+    id: 'leather_boots',
+    name: 'Bota de Couro',
+    description: 'Botas ágeis de couro para movimentação rápida.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { dexterity: 1, agility: 3 },
+    value: 35,
+    icon: '👢',
+    imagePath: '/images/equipamentos/leather_boots.png',
+    requiredClass: 'archer',
+    requiredLevel: 1
+  },
+  {
+    id: 'leather_ring',
+    name: 'Anel de Couro',
+    description: 'Anel de couro que aumenta a precisão.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { dexterity: 1, luck: 1 },
+    value: 30,
+    icon: '💍',
+    imagePath: '/images/equipamentos/leather_ring.png',
+    requiredClass: 'archer',
+    requiredLevel: 1
+  },
+  {
+    id: 'leather_amulet',
+    name: 'Amuleto de Couro',
+    description: 'Amuleto de couro que fortalece a precisão.',
+    type: 'armor',
+    rarity: 'common',
+    level: 1,
+    stats: { dexterity: 2, luck: 1 },
+    value: 40,
+    icon: '🔮',
+    imagePath: '/images/equipamentos/leather_amulet.png',
+    requiredClass: 'archer',
+    requiredLevel: 1
+  },
+  
+  // ========== RELÍQUIA (TODAS AS CLASSES) ==========
+  {
+    id: 'relic_ancient',
+    name: 'Relíquia Antiga',
+    description: 'Uma relíquia poderosa que aumenta todos os atributos. Pode ser equipada por qualquer classe.',
+    type: 'armor',
+    rarity: 'rare',
+    level: 10,
+    stats: { strength: 5, magic: 5, dexterity: 5, agility: 5, luck: 5 },
+    value: 500,
+    icon: '💎',
+    imagePath: '/images/equipamentos/relic_ancient.png',
+    requiredLevel: 10
+    // Sem requiredClass - pode ser equipado por qualquer classe
   },
   // Consumables
   {
@@ -484,20 +795,53 @@ function generateMonsterDrops(level: number, monsterClass: 'warrior' | 'archer' 
   
   // Base drops for all monsters
   if (level >= 1) {
-    drops.push({ itemId: 'herb', chance: 0.3 });
     drops.push({ itemId: 'health_potion', chance: 0.2 });
   }
   
   if (level >= 5) {
-    drops.push({ itemId: 'iron_ore', chance: 0.4 });
     drops.push({ itemId: 'mana_potion', chance: 0.15 });
   }
   
   if (level >= 10) {
     drops.push({ itemId: 'leather_armor', chance: 0.1 });
+    // Relíquia - dropa apenas no nível 10, qualquer classe
+    drops.push({ itemId: 'relic_ancient', chance: 0.05 });
   }
   
-  // Class-specific drops
+  // Set drops for levels 1-10 (5% chance each)
+  if (level >= 1 && level <= 10) {
+    // Guerreiro - Set de Bronze
+    if (monsterClass === 'warrior') {
+      drops.push({ itemId: 'copper_helmet', chance: 0.05 });
+      drops.push({ itemId: 'copper_armor', chance: 0.05 });
+      drops.push({ itemId: 'copper_sword', chance: 0.05 });
+      drops.push({ itemId: 'copper_boots', chance: 0.05 });
+      drops.push({ itemId: 'copper_shield', chance: 0.05 });
+      drops.push({ itemId: 'copper_ring', chance: 0.05 });
+      drops.push({ itemId: 'copper_amulet', chance: 0.05 });
+    }
+    // Mago - Set de Pano
+    else if (monsterClass === 'mage') {
+      drops.push({ itemId: 'cloth_helmet', chance: 0.05 });
+      drops.push({ itemId: 'cloth_armor', chance: 0.05 });
+      drops.push({ itemId: 'cloth_staff', chance: 0.05 });
+      drops.push({ itemId: 'cloth_boots', chance: 0.05 });
+      drops.push({ itemId: 'cloth_bible', chance: 0.05 });
+      drops.push({ itemId: 'cloth_ring', chance: 0.05 });
+      drops.push({ itemId: 'cloth_amulet', chance: 0.05 });
+    }
+    // Arqueiro - Set de Couro
+    else if (monsterClass === 'archer') {
+      drops.push({ itemId: 'leather_helmet', chance: 0.05 });
+      drops.push({ itemId: 'leather_armor_set', chance: 0.05 });
+      drops.push({ itemId: 'leather_bow', chance: 0.05 });
+      drops.push({ itemId: 'leather_boots', chance: 0.05 });
+      drops.push({ itemId: 'leather_ring', chance: 0.05 });
+      drops.push({ itemId: 'leather_amulet', chance: 0.05 });
+    }
+  }
+  
+  // Class-specific drops (old system for higher levels)
   if (monsterClass === 'warrior') {
     if (level >= 15) drops.push({ itemId: 'sword_basic', chance: 0.05 });
   } else if (monsterClass === 'archer') {

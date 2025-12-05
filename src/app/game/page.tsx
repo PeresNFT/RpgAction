@@ -10,6 +10,7 @@ import { PvPSystem } from '@/components/PvPSystem';
 import { GuildSystem } from '@/components/GuildSystem';
 import { MarketSystem } from '@/components/MarketSystem';
 import { ProfileImage } from '@/components/ProfileImage';
+import { Card } from '@/components/Card';
 import { 
   Sword, 
   Shield, 
@@ -34,7 +35,8 @@ import {
   Shield as ShieldIcon,
   Zap as ZapIcon,
   Trophy,
-  Sparkles
+  Sparkles,
+  RefreshCw
 } from 'lucide-react';
 import { CharacterClass, Attributes, Monster, Item } from '@/types/game';
 import { CHARACTER_CLASSES, MONSTERS, ITEMS, GAME_FORMULAS, COLLECTION_SKILLS, COLLECTION_RESOURCES, generateNewMonsterOfSameLevel, applyLevelPenalty, SKILLS, getSkillsByClass, getSkillById, SKILL_FORMULAS, getRankFromPoints, getRankIcon, SHOP_ITEMS } from '@/data/gameData';
@@ -63,7 +65,7 @@ function getCharacterImagePath(characterClass: CharacterClass | null, isFemale: 
 }
 
 export default function GamePage() {
-  const { user, logout, updateCharacter, updateExperience, updateAttributes, updateHealth, useItem, rest, sellItems, updateCollection, searchPvPOpponents, startPvPBattle, getPvPRanking, createGuild, joinGuild, leaveGuild, getGuild, updateGuild, getGuildRanking, guildBank, contributeExperience, upgradeSkill, listMarketItems, addMarketItem, buyMarketItem, removeMarketItem, buyShopItem, updateProfileImage, isLoading } = useAuth();
+  const { user, logout, updateCharacter, updateExperience, updateAttributes, updateHealth, useItem, rest, sellItems, updateCollection, searchPvPOpponents, startPvPBattle, getPvPRanking, createGuild, joinGuild, leaveGuild, getGuild, updateGuild, getGuildRanking, guildBank, contributeExperience, upgradeSkill, listMarketItems, addMarketItem, buyMarketItem, removeMarketItem, buyShopItem, updateProfileImage, equipItem, unequipItem, refreshUser, isLoading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('character');
   const [showClassSelection, setShowClassSelection] = useState(false);
@@ -85,6 +87,7 @@ export default function GamePage() {
   const [currentMonsterHealth, setCurrentMonsterHealth] = useState<number>(0);
   const [pvpUserRank, setPvpUserRank] = useState<number | null>(null);
   const [showEditProfileImage, setShowEditProfileImage] = useState(false);
+  const [showDiscordModal, setShowDiscordModal] = useState(false);
   
   // Active buffs state - { skillId: { duration: number, effect: {...} } }
   const [activeBuffs, setActiveBuffs] = useState<Record<string, { duration: number; effect: any; skillName: string }>>({});
@@ -301,6 +304,9 @@ export default function GamePage() {
         if (showEditProfileImage) {
           setShowEditProfileImage(false);
         }
+        if (showDiscordModal) {
+          setShowDiscordModal(false);
+        }
       }
     };
 
@@ -308,7 +314,7 @@ export default function GamePage() {
     return () => {
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [showSellModal, showSellAllModal, showDeathMessage, showLevelUpDistribution, showEditProfileImage]);
+  }, [showSellModal, showSellAllModal, showDeathMessage, showLevelUpDistribution, showEditProfileImage, showDiscordModal]);
 
   // Reduce skill cooldowns by 1 turn after each action
   const reduceSkillCooldowns = () => {
@@ -547,16 +553,47 @@ export default function GamePage() {
 
 
   // Função para agrupar itens em stacks
+  // Helper function to migrate old item IDs to new ones
+  const migrateItemId = (itemId: string): string => {
+    const idMigration: Record<string, string> = {
+      'iron_helmet': 'copper_helmet',
+      'iron_armor': 'copper_armor',
+      'iron_sword': 'copper_sword',
+      'iron_boots': 'copper_boots',
+      'iron_shield': 'copper_shield',
+      'iron_ring': 'copper_ring',
+      'iron_amulet': 'copper_amulet'
+    };
+    return idMigration[itemId] || itemId;
+  };
+
+  // Helper function to get full item data with migration support
+  const getFullItemData = (item: any) => {
+    if (!item || !item.id) return item;
+    const migratedId = migrateItemId(item.id);
+    const fullItem = ITEMS.find(i => i.id === migratedId);
+    return fullItem ? { ...fullItem, ...item, id: migratedId } : { ...item, id: migratedId };
+  };
+
+  // Helper function to get equipped item with full data
+  const getEquippedItem = (slot: keyof typeof user.equippedItems) => {
+    const item = user.equippedItems?.[slot];
+    if (!item) return null;
+    return getFullItemData(item);
+  };
+
   const getStackedInventory = () => {
     if (!user?.inventory) return [];
     
     const stacked: { [key: string]: any } = {};
     
     user.inventory.forEach(item => {
-      const key = item.id;
+      // Migrar ID antigo para novo se necessário
+      const migratedId = migrateItemId(item.id);
+      const key = migratedId;
+      
       // Buscar o item completo do array ITEMS para pegar imagePath e outras propriedades
-      const fullItem = ITEMS.find(i => i.id === item.id);
-      const itemData = fullItem ? { ...fullItem, ...item } : item;
+      const itemData = getFullItemData(item);
       
       if (stacked[key]) {
         stacked[key].amount = (stacked[key].amount || 1) + (item.amount || 1);
@@ -1164,13 +1201,33 @@ export default function GamePage() {
     { id: 'world', label: 'Mundo', icon: Map },
   ];
 
+  // Helper function to format item description with bonuses
+  const formatItemDescription = (item: Item | { description?: string; stats?: { strength?: number; magic?: number; dexterity?: number; agility?: number; luck?: number } }): string => {
+    let description = item.description || '';
+    
+    if (item.stats) {
+      const bonuses: string[] = [];
+      if (item.stats.strength) bonuses.push(`STR +${item.stats.strength}`);
+      if (item.stats.magic) bonuses.push(`MAG +${item.stats.magic}`);
+      if (item.stats.dexterity) bonuses.push(`DEX +${item.stats.dexterity}`);
+      if (item.stats.agility) bonuses.push(`AGI +${item.stats.agility}`);
+      if (item.stats.luck) bonuses.push(`LUK +${item.stats.luck}`);
+      
+      if (bonuses.length > 0) {
+        description += ` | Bônus: ${bonuses.join(', ')}`;
+      }
+    }
+    
+    return description;
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'character':
         return (
           <div className="space-y-6 min-h-screen relative">
             <div className="relative z-10 space-y-6">
-            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+            <Card>
               <h3 className="text-3xl font-bold text-white mb-6">Informações do Personagem</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
@@ -1222,9 +1279,9 @@ export default function GamePage() {
                   )}
                 </div>
               </div>
-            </div>
+            </Card>
 
-            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+            <Card>
               <h4 className="text-2xl font-bold text-dark-text mb-6">Atributos</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 pb-6 border-b border-dark-border">
                 <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border">
@@ -1280,9 +1337,9 @@ export default function GamePage() {
                   <span className="text-yellow-400 font-bold text-lg">{user.attributes?.luck || 5}</span>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+            <Card>
               <h4 className="text-2xl font-bold text-dark-text mb-6">Status de Combate</h4>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border flex items-center justify-between">
@@ -1302,130 +1359,417 @@ export default function GamePage() {
                   <span className="text-green-400 font-bold text-lg">{(user.stats?.dodgeChance || 4).toFixed(1)}%</span>
                 </div>
               </div>
-            </div>
-            </div>
+            </Card>
           </div>
-                 );
+        </div>
+       );
 
        case 'profile':
          return (
            <div className="space-y-6 min-h-screen relative">
              <div className="relative z-10 space-y-6">
-             <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+             <Card>
                <h3 className="text-3xl font-bold text-white mb-6">Perfil de Equipamentos</h3>
                
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                  {/* Character Model */}
-                 <div className="p-6 rounded-xl border border-dark-border" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+                 <Card variant="small" className="p-6">
                    <h4 className="text-white font-bold mb-4 text-center">Personagem</h4>
                    <div className="flex flex-col items-center space-y-4">
                      {/* Head */}
-                     <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
-                       {user.equippedItems?.helmet ? (
-                         <span className="text-2xl">{user.equippedItems.helmet.icon}</span>
-                       ) : (
-                         <span className="text-dark-text-muted text-sm">Capacete</span>
-                       )}
+                     <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center relative">
+                       {(() => {
+                         const helmetItem = getEquippedItem('helmet');
+                         return helmetItem ? (
+                           <>
+                             {helmetItem.imagePath ? (
+                               <img
+                                 src={helmetItem.imagePath}
+                                 alt={helmetItem.name}
+                                 className="w-full h-full object-contain"
+                                 onError={(e) => {
+                                   const target = e.target as HTMLImageElement;
+                                   target.style.display = 'none';
+                                   if (target.nextSibling) {
+                                     (target.nextSibling as HTMLElement).style.display = 'inline';
+                                   }
+                                 }}
+                               />
+                             ) : null}
+                             <span className="text-2xl" style={{ display: helmetItem.imagePath ? 'none' : 'inline' }}>
+                               {helmetItem.icon}
+                             </span>
+                           </>
+                         ) : (
+                           <span className="text-dark-text-muted text-sm">Capacete</span>
+                         );
+                       })()}
                      </div>
                      
                      {/* Body */}
                      <div className="flex space-x-4">
-                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
-                         {user.equippedItems?.weapon ? (
-                           <span className="text-2xl">{user.equippedItems.weapon.icon}</span>
-                         ) : (
-                           <span className="text-dark-text-muted text-sm">Arma</span>
-                         )}
+                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center relative">
+                         {(() => {
+                           const weaponItem = getEquippedItem('weapon');
+                           return weaponItem ? (
+                             <>
+                               {weaponItem.imagePath ? (
+                                 <img
+                                   src={weaponItem.imagePath}
+                                   alt={weaponItem.name}
+                                   className="w-full h-full object-contain"
+                                   onError={(e) => {
+                                     const target = e.target as HTMLImageElement;
+                                     target.style.display = 'none';
+                                     if (target.nextSibling) {
+                                       (target.nextSibling as HTMLElement).style.display = 'inline';
+                                     }
+                                   }}
+                                 />
+                               ) : null}
+                               <span className="text-2xl" style={{ display: weaponItem.imagePath ? 'none' : 'inline' }}>
+                                 {weaponItem.icon}
+                               </span>
+                             </>
+                           ) : (
+                             <span className="text-dark-text-muted text-sm">Arma</span>
+                           );
+                         })()}
                        </div>
-                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
-                         {user.equippedItems?.armor ? (
-                           <span className="text-2xl">{user.equippedItems.armor.icon}</span>
-                         ) : (
-                           <span className="text-dark-text-muted text-sm">Armadura</span>
-                         )}
+                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center relative">
+                         {(() => {
+                           const armorItem = getEquippedItem('armor');
+                           return armorItem ? (
+                             <>
+                               {armorItem.imagePath ? (
+                                 <img
+                                   src={armorItem.imagePath}
+                                   alt={armorItem.name}
+                                   className="w-full h-full object-contain"
+                                   onError={(e) => {
+                                     const target = e.target as HTMLImageElement;
+                                     target.style.display = 'none';
+                                     if (target.nextSibling) {
+                                       (target.nextSibling as HTMLElement).style.display = 'inline';
+                                     }
+                                   }}
+                                 />
+                               ) : null}
+                               <span className="text-2xl" style={{ display: armorItem.imagePath ? 'none' : 'inline' }}>
+                                 {armorItem.icon}
+                               </span>
+                             </>
+                           ) : (
+                             <span className="text-dark-text-muted text-sm">Armadura</span>
+                           );
+                         })()}
                        </div>
-                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
-                         {user.equippedItems?.offhand ? (
-                           <span className="text-2xl">{user.equippedItems.offhand.icon}</span>
-                         ) : (
-                           <span className="text-dark-text-muted text-sm">2ª Mão</span>
-                         )}
+                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center relative">
+                         {(() => {
+                           const offhandItem = getEquippedItem('offhand');
+                           return offhandItem ? (
+                             <>
+                               {offhandItem.imagePath ? (
+                                 <img
+                                   src={offhandItem.imagePath}
+                                   alt={offhandItem.name}
+                                   className="w-full h-full object-contain"
+                                   onError={(e) => {
+                                     const target = e.target as HTMLImageElement;
+                                     target.style.display = 'none';
+                                     if (target.nextSibling) {
+                                       (target.nextSibling as HTMLElement).style.display = 'inline';
+                                     }
+                                   }}
+                                 />
+                               ) : null}
+                               <span className="text-2xl" style={{ display: offhandItem.imagePath ? 'none' : 'inline' }}>
+                                 {offhandItem.icon}
+                               </span>
+                             </>
+                           ) : (
+                             <span className="text-dark-text-muted text-sm">2ª Mão</span>
+                           );
+                         })()}
                        </div>
                      </div>
                      
-                     {/* Legs and Feet */}
-                     <div className="flex space-x-4">
-                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
-                         {user.equippedItems?.pants ? (
-                           <span className="text-2xl">{user.equippedItems.pants.icon}</span>
-                         ) : (
-                           <span className="text-dark-text-muted text-sm">Calça</span>
-                         )}
-                       </div>
-                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
-                         {user.equippedItems?.boots ? (
-                           <span className="text-2xl">{user.equippedItems.boots.icon}</span>
-                         ) : (
-                           <span className="text-dark-text-muted text-sm">Bota</span>
-                         )}
+                     {/* Feet */}
+                     <div className="flex justify-center">
+                       <div className="w-16 h-16 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center relative">
+                         {(() => {
+                           const bootsItem = getEquippedItem('boots');
+                           return bootsItem ? (
+                             <>
+                               {bootsItem.imagePath ? (
+                                 <img
+                                   src={bootsItem.imagePath}
+                                   alt={bootsItem.name}
+                                   className="w-full h-full object-contain"
+                                   onError={(e) => {
+                                     const target = e.target as HTMLImageElement;
+                                     target.style.display = 'none';
+                                     if (target.nextSibling) {
+                                       (target.nextSibling as HTMLElement).style.display = 'inline';
+                                     }
+                                   }}
+                                 />
+                               ) : null}
+                               <span className="text-2xl" style={{ display: bootsItem.imagePath ? 'none' : 'inline' }}>
+                                 {bootsItem.icon}
+                               </span>
+                             </>
+                           ) : (
+                             <span className="text-dark-text-muted text-sm">Bota</span>
+                           );
+                         })()}
                        </div>
                      </div>
                      
                      {/* Accessories */}
                      <div className="flex space-x-4">
-                       <div className="w-12 h-12 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
-                         {user.equippedItems?.ring ? (
-                           <span className="text-lg">{user.equippedItems.ring.icon}</span>
-                         ) : (
-                           <span className="text-dark-text-muted text-xs">Anel</span>
-                         )}
+                       <div className="w-12 h-12 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center relative">
+                         {(() => {
+                           const ringItem = getEquippedItem('ring');
+                           return ringItem ? (
+                             <>
+                               {ringItem.imagePath ? (
+                                 <img
+                                   src={ringItem.imagePath}
+                                   alt={ringItem.name}
+                                   className="w-full h-full object-contain"
+                                   onError={(e) => {
+                                     const target = e.target as HTMLImageElement;
+                                     target.style.display = 'none';
+                                     if (target.nextSibling) {
+                                       (target.nextSibling as HTMLElement).style.display = 'inline';
+                                     }
+                                   }}
+                                 />
+                               ) : null}
+                               <span className="text-lg" style={{ display: ringItem.imagePath ? 'none' : 'inline' }}>
+                                 {ringItem.icon}
+                               </span>
+                             </>
+                           ) : (
+                             <span className="text-dark-text-muted text-xs">Anel</span>
+                           );
+                         })()}
                        </div>
-                       <div className="w-12 h-12 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
-                         {user.equippedItems?.amulet ? (
-                           <span className="text-lg">{user.equippedItems.amulet.icon}</span>
-                         ) : (
-                           <span className="text-dark-text-muted text-xs">Amuleto</span>
-                         )}
+                       <div className="w-12 h-12 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center relative">
+                         {(() => {
+                           const amuletItem = getEquippedItem('amulet');
+                           return amuletItem ? (
+                             <>
+                               {amuletItem.imagePath ? (
+                                 <img
+                                   src={amuletItem.imagePath}
+                                   alt={amuletItem.name}
+                                   className="w-full h-full object-contain"
+                                   onError={(e) => {
+                                     const target = e.target as HTMLImageElement;
+                                     target.style.display = 'none';
+                                     if (target.nextSibling) {
+                                       (target.nextSibling as HTMLElement).style.display = 'inline';
+                                     }
+                                   }}
+                                 />
+                               ) : null}
+                               <span className="text-lg" style={{ display: amuletItem.imagePath ? 'none' : 'inline' }}>
+                                 {amuletItem.icon}
+                               </span>
+                             </>
+                           ) : (
+                             <span className="text-dark-text-muted text-xs">Amuleto</span>
+                           );
+                         })()}
                        </div>
-                       <div className="w-12 h-12 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center">
-                         {user.equippedItems?.relic ? (
-                           <span className="text-lg">{user.equippedItems.relic.icon}</span>
-                         ) : (
-                           <span className="text-dark-text-muted text-xs">Relíquia</span>
-                         )}
+                       <div className="w-12 h-12 bg-dark-bg-tertiary rounded-lg border-2 border-dashed border-dark-border-light flex items-center justify-center relative">
+                         {(() => {
+                           const relicItem = getEquippedItem('relic');
+                           return relicItem ? (
+                             <>
+                               {relicItem.imagePath ? (
+                                 <img
+                                   src={relicItem.imagePath}
+                                   alt={relicItem.name}
+                                   className="w-full h-full object-contain"
+                                   onError={(e) => {
+                                     const target = e.target as HTMLImageElement;
+                                     target.style.display = 'none';
+                                     if (target.nextSibling) {
+                                       (target.nextSibling as HTMLElement).style.display = 'inline';
+                                     }
+                                   }}
+                                 />
+                               ) : null}
+                               <span className="text-lg" style={{ display: relicItem.imagePath ? 'none' : 'inline' }}>
+                                 {relicItem.icon}
+                               </span>
+                             </>
+                           ) : (
+                             <span className="text-dark-text-muted text-xs">Relíquia</span>
+                           );
+                         })()}
                        </div>
                      </div>
                    </div>
-                 </div>
+                 </Card>
                  
                  {/* Equipment Stats */}
-                 <div className="p-6 rounded-xl border border-dark-border" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+                 <Card variant="small" className="p-6">
                    <h4 className="text-white font-bold mb-4">Bônus de Equipamentos</h4>
-                   <div className="space-y-2">
-                     <div className="flex justify-between">
-                       <span className="text-dark-text-secondary">Força:</span>
-                       <span className="text-white font-bold">+0</span>
-                     </div>
-                     <div className="flex justify-between">
-                       <span className="text-dark-text-secondary">Magia:</span>
-                       <span className="text-white font-bold">+0</span>
-                     </div>
-                     <div className="flex justify-between">
-                       <span className="text-dark-text-secondary">Destreza:</span>
-                       <span className="text-white font-bold">+0</span>
-                     </div>
-                     <div className="flex justify-between">
-                       <span className="text-dark-text-secondary">Agilidade:</span>
-                       <span className="text-white font-bold">+0</span>
-                     </div>
-                     <div className="flex justify-between">
-                       <span className="text-dark-text-secondary">Vitalidade:</span>
-                       <span className="text-white font-bold">+0</span>
-                     </div>
-                   </div>
-                 </div>
+                   {(() => {
+                     const equippedItems = user.equippedItems || {};
+                     const totalStats = {
+                       strength: 0,
+                       magic: 0,
+                       dexterity: 0,
+                       agility: 0,
+                       luck: 0
+                     };
+
+                     Object.values(equippedItems).forEach(item => {
+                       if (item) {
+                         const fullItem = getFullItemData(item);
+                         if (fullItem?.stats) {
+                           totalStats.strength += fullItem.stats.strength || 0;
+                           totalStats.magic += fullItem.stats.magic || 0;
+                           totalStats.dexterity += fullItem.stats.dexterity || 0;
+                           totalStats.agility += fullItem.stats.agility || 0;
+                           totalStats.luck += fullItem.stats.luck || 0;
+                         }
+                       }
+                     });
+
+                     return (
+                       <div className="space-y-2">
+                         <div className="flex justify-between">
+                           <span className="text-dark-text-secondary">Força:</span>
+                           <span className={`font-bold ${totalStats.strength > 0 ? 'text-green-400' : 'text-white'}`}>
+                             {totalStats.strength > 0 ? `+${totalStats.strength}` : '+0'}
+                           </span>
+                         </div>
+                         <div className="flex justify-between">
+                           <span className="text-dark-text-secondary">Magia:</span>
+                           <span className={`font-bold ${totalStats.magic > 0 ? 'text-green-400' : 'text-white'}`}>
+                             {totalStats.magic > 0 ? `+${totalStats.magic}` : '+0'}
+                           </span>
+                         </div>
+                         <div className="flex justify-between">
+                           <span className="text-dark-text-secondary">Destreza:</span>
+                           <span className={`font-bold ${totalStats.dexterity > 0 ? 'text-green-400' : 'text-white'}`}>
+                             {totalStats.dexterity > 0 ? `+${totalStats.dexterity}` : '+0'}
+                           </span>
+                         </div>
+                         <div className="flex justify-between">
+                           <span className="text-dark-text-secondary">Agilidade:</span>
+                           <span className={`font-bold ${totalStats.agility > 0 ? 'text-green-400' : 'text-white'}`}>
+                             {totalStats.agility > 0 ? `+${totalStats.agility}` : '+0'}
+                           </span>
+                         </div>
+                         <div className="flex justify-between">
+                           <span className="text-dark-text-secondary">Sorte:</span>
+                           <span className={`font-bold ${totalStats.luck > 0 ? 'text-green-400' : 'text-white'}`}>
+                             {totalStats.luck > 0 ? `+${totalStats.luck}` : '+0'}
+                           </span>
+                         </div>
+                       </div>
+                     );
+                   })()}
+                 </Card>
                </div>
-             </div>
+
+               {/* Equipped Items List */}
+               <Card variant="small" className="p-6">
+                 <h4 className="text-white font-bold mb-4">Itens Equipados</h4>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                   {[
+                     { slot: 'helmet' as const, label: 'Capacete' },
+                     { slot: 'weapon' as const, label: 'Arma' },
+                     { slot: 'armor' as const, label: 'Armadura' },
+                     { slot: 'offhand' as const, label: '2ª Mão' },
+                     { slot: 'boots' as const, label: 'Bota' },
+                     { slot: 'ring' as const, label: 'Anel' },
+                     { slot: 'amulet' as const, label: 'Amuleto' },
+                     { slot: 'relic' as const, label: 'Relíquia' },
+                   ].map(({ slot, label }) => {
+                     const item = getEquippedItem(slot);
+                     return (
+                       <div
+                       key={slot}
+                       className="p-4 rounded-lg border border-dark-border bg-dark-bg-tertiary"
+                     >
+                       <div className="flex items-center justify-between mb-2">
+                         <span className="text-dark-text-secondary text-sm font-semibold">{label}</span>
+                         {item && (
+                           <button
+                             onClick={async () => {
+                               const result = await unequipItem(slot);
+                               if (result.success) {
+                                 alert(result.message || 'Item desequipado com sucesso!');
+                               } else {
+                                 alert('Erro ao desequipar: ' + (result.error || 'Erro desconhecido'));
+                               }
+                             }}
+                             className="text-red-400 hover:text-red-300 text-xs font-semibold transition-colors"
+                             title="Desequipar"
+                           >
+                             Remover
+                           </button>
+                         )}
+                       </div>
+                       {item ? (
+                         <div className="space-y-1">
+                           <div className="flex items-center space-x-2">
+                             {item.imagePath ? (
+                               <img
+                                 src={item.imagePath}
+                                 alt={item.name}
+                                 className="w-8 h-8 object-contain"
+                                 onError={(e) => {
+                                   const target = e.target as HTMLImageElement;
+                                   target.style.display = 'none';
+                                   if (target.nextSibling) {
+                                     (target.nextSibling as HTMLElement).style.display = 'inline';
+                                   }
+                                 }}
+                               />
+                             ) : null}
+                             <span className="text-2xl" style={{ display: item.imagePath ? 'none' : 'inline' }}>
+                               {item.icon}
+                             </span>
+                             <span className="text-white font-semibold text-sm">{item.name}</span>
+                           </div>
+                           {item.stats && (
+                             <div className="text-xs text-dark-text-secondary space-y-0.5">
+                               {item.stats.strength && (
+                                 <div>STR: <span className="text-green-400">+{item.stats.strength}</span></div>
+                               )}
+                               {item.stats.magic && (
+                                 <div>MAG: <span className="text-green-400">+{item.stats.magic}</span></div>
+                               )}
+                               {item.stats.dexterity && (
+                                 <div>DEX: <span className="text-green-400">+{item.stats.dexterity}</span></div>
+                               )}
+                               {item.stats.agility && (
+                                 <div>AGI: <span className="text-green-400">+{item.stats.agility}</span></div>
+                               )}
+                               {item.stats.luck && (
+                                 <div>LUK: <span className="text-green-400">+{item.stats.luck}</span></div>
+                               )}
+                             </div>
+                           )}
+                         </div>
+                       ) : (
+                         <span className="text-dark-text-muted text-sm">Vazio</span>
+                       )}
+                       </div>
+                     );
+                   })}
+                 </div>
+               </Card>
+             </Card>
              </div>
            </div>
          );
@@ -1434,7 +1778,7 @@ export default function GamePage() {
         return (
           <div className="space-y-6 min-h-screen relative">
             <div className="relative z-10 space-y-6">
-            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+            <Card>
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-3xl font-bold text-white">Inventário</h3>
                 {(user.inventory?.length || 0) > 0 && (
@@ -1482,8 +1826,8 @@ export default function GamePage() {
                         className={`${rarityColors[rarity] || rarityColors.common} p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg h-full flex flex-col min-h-[280px]`}
                       >
                         <div className="flex flex-col space-y-3 flex-1">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center space-x-3 flex-1">
+                          <div className="flex items-start">
+                            <div className="flex items-center space-x-3 flex-1 min-w-0">
                               {item.imagePath ? (
                                 <img
                                   src={item.imagePath}
@@ -1506,7 +1850,7 @@ export default function GamePage() {
                               )}
                               <div className="flex-1 min-w-0">
                                 <h4 className="text-dark-text font-bold text-sm truncate">{item.name}</h4>
-                                <p className="text-dark-text-secondary text-xs mt-1 line-clamp-2 min-h-[2.5rem]">{item.description}</p>
+                                <p className="text-dark-text-secondary text-xs mt-1 line-clamp-3 min-h-[3.5rem]">{formatItemDescription(item)}</p>
                               </div>
                             </div>
                           </div>
@@ -1524,12 +1868,47 @@ export default function GamePage() {
                           </div>
                           
                           <div className="flex flex-col space-y-2 pt-2 mt-auto">
-                            {(item.type === 'weapon' || item.type === 'armor') && (
-                              <button className="bg-accent-purple hover:bg-accent-purple-dark text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center justify-center space-x-2">
-                                <SwordIcon className="w-4 h-4" />
-                                <span>Equipar</span>
-                              </button>
-                            )}
+                            {(item.type === 'weapon' || item.type === 'armor') && (() => {
+                              const fullItem = ITEMS.find(i => i.id === item.id);
+                              const playerLevel = user.stats?.level || user.level || 1;
+                              const requiredLevel = fullItem?.requiredLevel || 1;
+                              const canEquip = !fullItem?.requiredClass || fullItem.requiredClass === user.characterClass;
+                              const hasLevel = playerLevel >= requiredLevel;
+                              const classNames: Record<string, string> = {
+                                warrior: 'Guerreiro',
+                                mage: 'Mago',
+                                archer: 'Arqueiro'
+                              };
+                              
+                              return (
+                                <button 
+                                  onClick={async () => {
+                                    const result = await equipItem(item.id);
+                                    if (result.success) {
+                                      alert(result.message || 'Item equipado com sucesso!');
+                                    } else {
+                                      alert('Erro ao equipar: ' + (result.error || 'Erro desconhecido'));
+                                    }
+                                  }}
+                                  disabled={!canEquip || !hasLevel}
+                                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${
+                                    !canEquip || !hasLevel
+                                      ? 'bg-dark-bg-tertiary text-dark-text-muted cursor-not-allowed'
+                                      : 'bg-accent-purple hover:bg-accent-purple-dark text-white'
+                                  }`}
+                                  title={
+                                    !canEquip
+                                      ? `Requer classe: ${classNames[fullItem?.requiredClass || ''] || fullItem?.requiredClass}`
+                                      : !hasLevel
+                                      ? `Requer nível ${requiredLevel}`
+                                      : 'Equipar item'
+                                  }
+                                >
+                                  <SwordIcon className="w-4 h-4" />
+                                  <span>Equipar</span>
+                                </button>
+                              );
+                            })()}
                             {item.type === 'consumable' && (
                               <button 
                                 onClick={() => handleUseItem(item.id)}
@@ -1574,7 +1953,7 @@ export default function GamePage() {
                   })}
                 </div>
               )}
-            </div>
+            </Card>
             </div>
           </div>
         );
@@ -1583,13 +1962,13 @@ export default function GamePage() {
         return (
           <div className="space-y-6 min-h-screen relative">
             <div className="relative z-10 space-y-6">
-            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+            <Card>
               <h3 className="text-3xl font-bold text-white mb-6">Arena de Batalha</h3>
               
-                             {selectedMonster ? (
-                 <div className="space-y-4">
-                                       {/* Player Health Bar */}
-                    <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+              {selectedMonster ? (
+                <div className="space-y-4">
+                  {/* Player Health Bar */}
+                  <Card variant="small" className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-4">
                           <ProfileImage
@@ -1626,19 +2005,19 @@ export default function GamePage() {
                             )}
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="text-white font-bold">{user.stats?.health || user.health || 100}/{user.stats?.maxHealth || user.maxHealth || 100}</div>
-                          <div className="w-32 bg-dark-bg-tertiary rounded-full h-2.5 mt-1">
+                        <div className="text-right flex-1 ml-4">
+                          <div className="text-white font-bold mb-1">{user.stats?.health || user.health || 100}/{user.stats?.maxHealth || user.maxHealth || 100}</div>
+                          <div className="w-full bg-dark-bg-tertiary rounded-full h-4 mt-1">
                             <div 
-                              className="bg-gradient-to-r from-green-500 to-emerald-500 h-2.5 rounded-full transition-all duration-300"
+                              className="bg-gradient-to-r from-green-500 to-emerald-500 h-4 rounded-full transition-all duration-300"
                               style={{ width: `${((user.stats?.health || user.health || 100) / (user.stats?.maxHealth || user.maxHealth || 100)) * 100}%` }}
                             ></div>
                           </div>
                           {/* Mana Bar */}
-                          <div className="text-white font-bold mt-2">{user.stats?.mana || user.mana || 50}/{user.stats?.maxMana || user.maxMana || 50}</div>
-                          <div className="w-32 bg-dark-bg-tertiary rounded-full h-2.5 mt-1">
+                          <div className="text-white font-bold mt-3 mb-1">{user.stats?.mana || user.mana || 50}/{user.stats?.maxMana || user.maxMana || 50}</div>
+                          <div className="w-full bg-dark-bg-tertiary rounded-full h-4 mt-1">
                             <div 
-                              className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2.5 rounded-full transition-all duration-300"
+                              className="bg-gradient-to-r from-blue-500 to-cyan-500 h-4 rounded-full transition-all duration-300"
                               style={{ width: `${((user.stats?.mana || user.mana || 50) / (user.stats?.maxMana || user.maxMana || 50)) * 100}%` }}
                             ></div>
                           </div>
@@ -1660,10 +2039,10 @@ export default function GamePage() {
                           ></div>
                         </div>
                       </div>
-                    </div>
+                    </Card>
 
                    {/* Monster Health Bar */}
-                   <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+                   <Card variant="small" className="p-6">
                      <div className="flex items-center justify-between mb-4">
                        <div className="flex items-center space-x-4">
                          {selectedMonster.imagePath ? (
@@ -1714,13 +2093,13 @@ export default function GamePage() {
                            )}
                          </div>
                        </div>
-                                               <div className="text-right">
-                          <div className="text-white font-bold">
+                       <div className="text-right flex-1 ml-4">
+                          <div className="text-white font-bold mb-1">
                             {currentMonsterHealth > 0 ? currentMonsterHealth : selectedMonster.health}/{selectedMonster.maxHealth}
                           </div>
-                          <div className="w-32 bg-dark-bg-tertiary rounded-full h-2.5 mt-1">
+                          <div className="w-full bg-dark-bg-tertiary rounded-full h-4 mt-1">
                             <div 
-                              className="bg-gradient-to-r from-red-500 to-rose-600 h-2.5 rounded-full transition-all duration-300"
+                              className="bg-gradient-to-r from-red-500 to-rose-600 h-4 rounded-full transition-all duration-300"
                               style={{ 
                                 width: `${((currentMonsterHealth > 0 ? currentMonsterHealth : selectedMonster.health) / selectedMonster.maxHealth) * 100}%` 
                               }}
@@ -1748,41 +2127,12 @@ export default function GamePage() {
                          <p className="text-cyan-400 font-bold">{selectedMonster.stats?.dodgeChance?.toFixed(1) || '0.0'}%</p>
                        </div>
                      </div>
-                     
-                     {/* Monster Attributes */}
-                     {selectedMonster.attributes && (
-                       <div className="mt-4 p-3 bg-gray-700 rounded-lg">
-                         <h5 className="text-white font-semibold mb-2">Atributos:</h5>
-                         <div className="grid grid-cols-5 gap-2 text-xs">
-                           <div className="text-center">
-                             <p className="text-gray-400">FOR</p>
-                             <p className="text-white font-bold">{selectedMonster.attributes.strength}</p>
-                           </div>
-                           <div className="text-center">
-                             <p className="text-gray-400">MAG</p>
-                             <p className="text-white font-bold">{selectedMonster.attributes.magic}</p>
-                           </div>
-                           <div className="text-center">
-                             <p className="text-gray-400">DES</p>
-                             <p className="text-white font-bold">{selectedMonster.attributes.dexterity}</p>
-                           </div>
-                           <div className="text-center">
-                             <p className="text-gray-400">AGI</p>
-                             <p className="text-white font-bold">{selectedMonster.attributes.agility}</p>
-                           </div>
-                          <div className="text-center">
-                            <p className="text-gray-400">LUK</p>
-                            <p className="text-white font-bold">{selectedMonster.attributes?.luck || 5}</p>
-                          </div>
-                         </div>
-                       </div>
-                     )}
-                   </div>
+                   </Card>
                   
                                      <div className="space-y-4">
                      {/* Skills Section */}
                      {getAvailableSkills().length > 0 && (
-                       <div className="p-4 rounded-xl border border-dark-border" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+                       <Card variant="small">
                          <h4 className="text-white font-bold mb-3 text-sm">Habilidades:</h4>
                          <div className="grid grid-cols-3 gap-2">
                            {getAvailableSkills().map((skill) => {
@@ -1819,7 +2169,7 @@ export default function GamePage() {
                              );
                            })}
                          </div>
-                       </div>
+                       </Card>
                      )}
                      
                      {/* Action Buttons */}
@@ -1885,11 +2235,11 @@ export default function GamePage() {
                          return true;
                        })
                        .map((monster) => (
-                       <div
+                       <Card
                          key={monster.id}
                          onClick={() => handleStartBattle(monster)}
-                         className="p-4 rounded-xl border border-dark-border cursor-pointer hover:border-accent-purple hover:scale-105 transition-all duration-300 card-glow"
-                         style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}
+                         className="cursor-pointer hover:border-accent-purple hover:scale-105 transition-all duration-300"
+                         variant="small"
                        >
                          <div className="text-center">
                            {monster.imagePath ? (
@@ -1922,27 +2272,70 @@ export default function GamePage() {
                              <p className="text-primary-green text-xs font-semibold">{monster.gold} Ouro</p>
                            </div>
                          </div>
-                       </div>
+                       </Card>
                      ))}
                    </div>
                 </div>
               )}
-            </div>
+            </Card>
 
                          {battleLog.length > 0 && (
                <div className="bg-gray-800 p-4 rounded-lg border border-custom">
                  <h4 className="text-white font-bold mb-2">Log de Batalha</h4>
                  <div className="space-y-1 max-h-60 overflow-y-auto">
-                   {battleLog.map((log, index) => (
-                     <div 
-                       key={index} 
-                       className={`p-2 rounded ${
-                         index < 2 ? 'bg-gray-700 border-l-4 border-yellow-400' : 'bg-gray-800'
-                       }`}
-                     >
-                       <p className="text-gray-300 text-sm">{log}</p>
-                     </div>
-                   ))}
+                   {battleLog.map((log, index) => {
+                     // Helper function to determine log color
+                     const getLogColor = (message: string): string => {
+                       // Drops encontrados, experiência e ouro - verde e negrito
+                       if (message.includes('Encontrou:') || 
+                           message.includes('Encontrou') ||
+                           message.includes('Ganhou') && (message.includes('experiência') || message.includes('ouro'))) {
+                         return 'text-green-400 font-bold';
+                       }
+                       
+                       // Dano causado pelo jogador - roxo (verificar primeiro para evitar conflito)
+                       if (message.includes('Você causou') || 
+                           (message.includes('CRÍTICO') && message.includes('Você') && message.includes('causou')) ||
+                           (message.includes('causou') && message.includes('dano com'))) {
+                         return 'text-purple-400';
+                       }
+                       
+                       // Dano recebido do monstro - vermelho
+                       // Verifica se contém "causou" e "dano" mas não é do jogador
+                       if (message.includes('causou') && message.includes('dano')) {
+                         // Se não é do jogador, é do monstro
+                         if (!message.includes('Você causou') && 
+                             !message.includes('Você recuperou') &&
+                             !message.includes('Você esquivou')) {
+                           return 'text-red-400';
+                         }
+                       }
+                       
+                       // Dano de queimadura recebido - vermelho
+                       if (message.includes('sofreu') && message.includes('dano')) {
+                         return 'text-red-400';
+                       }
+                       
+                       // CRÍTICO do monstro - vermelho
+                       if (message.includes('CRÍTICO') && !message.includes('Você')) {
+                         return 'text-red-400';
+                       }
+                       
+                       // Default
+                       return 'text-gray-300';
+                     };
+
+                     return (
+                       <div 
+                         key={index} 
+                         className={`p-2 rounded ${
+                           index < 2 ? 'bg-gray-700 border-l-4 border-yellow-400' : 'bg-gray-800'
+                         }`}
+                       >
+                         <p className={`text-sm ${getLogColor(log)}`}>{log}</p>
+                       </div>
+                     );
+                   })}
                  </div>
                </div>
              )}
@@ -1955,9 +2348,9 @@ export default function GamePage() {
           return (
             <div className="min-h-screen relative">
               <div className="relative z-10">
-                <div className="p-6 rounded-2xl border border-dark-border card-glow text-center" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+                <Card className="text-center">
                   <p className="text-white text-lg">Você precisa escolher uma classe primeiro!</p>
-                </div>
+                </Card>
               </div>
             </div>
           );
@@ -1969,17 +2362,17 @@ export default function GamePage() {
         return (
           <div className="space-y-6 min-h-screen relative">
             <div className="relative z-10 space-y-6">
-            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+            <Card>
               <h3 className="text-3xl font-bold text-white mb-6">✨ Sistema de Skills</h3>
               <p className="text-dark-text-secondary mb-4">
                 Melhore suas skills usando ouro. Cada nível aumenta o poder da skill em 10%.
               </p>
-              <div className="p-4 rounded-xl border border-dark-border mb-6" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+              <Card variant="small" className="mb-6">
                 <div className="flex items-center justify-between">
                   <span className="text-white font-semibold">Ouro Disponível:</span>
                   <span className="text-primary-yellow font-bold text-xl">{user.gold.toLocaleString()}</span>
                 </div>
-              </div>
+              </Card>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {availableSkills.map((skill) => {
@@ -1990,10 +2383,10 @@ export default function GamePage() {
                   const scaledValue = SKILL_FORMULAS.calculateSkillEffectValue(skill.effect.value, currentLevel, skill.id);
 
                   return (
-                    <div
+                    <Card
                       key={skill.id}
-                      className="p-6 rounded-xl border border-dark-border hover:border-accent-purple transition-all duration-300"
-                      style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}
+                      variant="small"
+                      className="p-6 hover:border-accent-purple transition-all duration-300"
                     >
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center space-x-3">
@@ -2050,11 +2443,11 @@ export default function GamePage() {
                           <span>Upgrade para Nv.{currentLevel + 1}</span>
                         </button>
                       </div>
-                    </div>
+                    </Card>
                   );
                 })}
               </div>
-            </div>
+            </Card>
             </div>
           </div>
         );
@@ -2097,7 +2490,7 @@ export default function GamePage() {
        case 'collection':
          return (
            <div className="space-y-6">
-             <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+             <Card>
                <h3 className="text-2xl font-bold text-white mb-4">Sistema de Coleta</h3>
                
                <div className="mb-6">
@@ -2123,7 +2516,7 @@ export default function GamePage() {
                    const experienceToNext = skillData?.experienceToNext || 50;
                    
                    return (
-                     <div key={skill.type} className="p-4 rounded-xl border border-dark-border flex flex-col h-full min-h-[280px]" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+                     <Card key={skill.type} variant="small" className="flex flex-col h-full min-h-[280px]">
                        <div className="text-center mb-3 flex-grow flex flex-col">
                          {skill.imagePath ? (
                            <div className="flex justify-center mb-3">
@@ -2182,11 +2575,11 @@ export default function GamePage() {
                            }
                          </span>
                        </button>
-                     </div>
+                     </Card>
                    );
                  })}
                </div>
-             </div>
+             </Card>
            </div>
          );
 
@@ -2194,12 +2587,12 @@ export default function GamePage() {
          return (
            <div className="space-y-6 min-h-screen relative">
              <div className="relative z-10 space-y-6">
-             <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+             <Card>
                <h3 className="text-2xl font-bold text-white mb-4">Sistema de Descanso</h3>
                
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                  {/* Descanso Gratuito */}
-                 <div className="p-6 rounded-xl border border-dark-border" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+                 <Card variant="small" className="p-6">
                    <div className="text-center mb-4">
                      <div className="flex justify-center mb-3">
                        <img 
@@ -2262,10 +2655,10 @@ export default function GamePage() {
                       }
                     </span>
                   </button>
-                 </div>
+                 </Card>
                  
                  {/* Status Atual */}
-                 <div className="p-6 rounded-xl border border-dark-border" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+                 <Card variant="small" className="p-6">
                    <h4 className="text-white font-bold mb-4">Status Atual</h4>
                    
                    <div className="space-y-4">
@@ -2309,9 +2702,9 @@ export default function GamePage() {
                        <li>• Ideal para jogadores sem ouro</li>
                      </ul>
                    </div>
-                 </div>
+                 </Card>
                </div>
-             </div>
+             </Card>
            </div>
            </div>
          );
@@ -2340,10 +2733,10 @@ export default function GamePage() {
         return (
           <div className="space-y-6 min-h-screen relative">
             <div className="relative z-10 space-y-6">
-            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+            <Card>
               <h3 className="text-2xl font-bold text-white mb-4">Mapa do Mundo</h3>
               <p className="text-dark-text-secondary">Explore o vasto mundo do RPG Browser!</p>
-            </div>
+            </Card>
             </div>
           </div>
         );
@@ -2428,7 +2821,7 @@ export default function GamePage() {
 
     return (
       <div className="min-h-screen bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999] fixed inset-0">
-        <div className="p-6 rounded-2xl border border-dark-border card-glow max-w-2xl w-full" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+        <Card className="max-w-2xl w-full">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-white">⚠️ Vender TUDO</h2>
             <button
@@ -2442,7 +2835,7 @@ export default function GamePage() {
             </button>
           </div>
           
-          <div className="p-4 rounded-xl border border-dark-border mb-6" style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}>
+          <Card variant="small" className="mb-6">
             <p className="text-white font-semibold mb-4">
               Você está prestes a vender TODOS os itens do inventário!
             </p>
@@ -2468,7 +2861,7 @@ export default function GamePage() {
               <span className="text-white font-bold text-lg">Total a receber:</span>
               <span className="text-primary-yellow font-bold text-xl">{totalGold.toLocaleString()} ouro</span>
             </div>
-          </div>
+          </Card>
 
           <div className="flex space-x-4">
             <button
@@ -2502,7 +2895,7 @@ export default function GamePage() {
               Cancelar
             </button>
           </div>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -2554,7 +2947,7 @@ export default function GamePage() {
                       )}
                       <div className="flex-1">
                         <h4 className="text-white font-bold">{item.name}</h4>
-                        <p className="text-gray-400 text-sm">{item.description}</p>
+                        <p className="text-gray-400 text-sm">{formatItemDescription(item)}</p>
                         <p className="text-primary-yellow text-sm">Valor: {item.value} ouro</p>
                         {item.amount > 1 && (
                           <p className="text-blue-400 text-sm font-bold">x{item.amount}</p>
@@ -2709,6 +3102,27 @@ export default function GamePage() {
               <div className="flex items-center space-x-2 bg-dark-bg-tertiary px-4 py-2 rounded-lg border border-dark-border">
                 <Gem className="w-5 h-5 text-cyan-400" />
                 <span className="font-semibold text-dark-text">{user.diamonds?.toLocaleString() || 0}</span>
+                <button
+                  onClick={() => setShowDiscordModal(true)}
+                  className="ml-2 w-5 h-5 flex items-center justify-center text-cyan-400 hover:text-cyan-300 transition-colors rounded-full hover:bg-cyan-400/20"
+                  title="Comprar diamantes"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={async () => {
+                    const result = await refreshUser();
+                    if (result.success) {
+                      alert('Dados atualizados do servidor!');
+                    } else {
+                      alert('Erro ao atualizar: ' + (result.error || 'Erro desconhecido'));
+                    }
+                  }}
+                  className="ml-1 w-5 h-5 flex items-center justify-center text-dark-text-muted hover:text-white transition-colors rounded-full hover:bg-dark-bg-tertiary"
+                  title="Atualizar dados do servidor"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                </button>
               </div>
               <div className="flex items-center space-x-2 bg-dark-bg-tertiary px-4 py-2 rounded-lg border border-dark-border">
                 <Star className="w-5 h-5 text-accent-purple" />
@@ -2730,7 +3144,7 @@ export default function GamePage() {
         {/* Sidebar */}
         <div className="w-64 bg-dark-bg-secondary border-r border-dark-border min-h-screen relative z-10">
           <div className="p-4">
-            <div className="p-6 rounded-2xl border border-dark-border card-glow mb-6" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+            <Card className="mb-6">
               <div className="text-center">
                 <div className="mx-auto mb-4 flex justify-center">
                   <ProfileImage
@@ -2750,7 +3164,7 @@ export default function GamePage() {
                   <p className="text-accent-purple text-sm font-semibold mt-1">{CHARACTER_CLASSES[user.characterClass].name}</p>
                 )}
               </div>
-            </div>
+            </Card>
 
             <nav className="space-y-2">
               {tabs.map((tab) => {
@@ -2781,6 +3195,47 @@ export default function GamePage() {
           </div>
         </div>
       </div>
+
+      {/* Discord Contact Modal */}
+      {showDiscordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4" style={{ zIndex: 99999 }}>
+          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow max-w-md w-full" style={{ position: 'relative', zIndex: 100000 }}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-white">Comprar Diamantes</h3>
+              <button
+                onClick={() => setShowDiscordModal(false)}
+                className="text-dark-text-muted hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <p className="text-white text-center">
+                Entre em contato com o Desenvolvedor <span className="font-bold text-accent-purple">Delita</span> no Discord:
+              </p>
+              
+              <div className="bg-dark-bg-tertiary p-4 rounded-lg border border-dark-border">
+                <a
+                  href="https://discord.gg/SSufkA7EJV"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-center text-cyan-400 hover:text-cyan-300 font-semibold transition-colors break-all"
+                >
+                  discord.gg/SSufkA7EJV
+                </a>
+              </div>
+              
+              <button
+                onClick={() => setShowDiscordModal(false)}
+                className="w-full bg-accent-purple hover:bg-accent-purple/80 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Profile Image Section */}
       {showEditProfileImage && (

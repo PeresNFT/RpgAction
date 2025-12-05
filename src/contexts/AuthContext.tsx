@@ -969,6 +969,113 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const equipItem = async (itemId: string): Promise<{ success: boolean; error?: string; message?: string }> => {
+    try {
+      if (!user) {
+        return { success: false, error: 'User not logged in' };
+      }
+
+      const response = await fetch('/api/auth/equip-item', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          itemId,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: result.error || 'Failed to equip item' };
+      }
+
+      // Update user data with returned user
+      if (result.user) {
+        setUser(result.user);
+        localStorage.setItem('rpg_user', JSON.stringify(result.user));
+      }
+
+      return { success: true, message: result.message };
+    } catch (error: any) {
+      console.error('Equip item error:', error);
+      return { success: false, error: 'Internal server error' };
+    }
+  };
+
+  const unequipItem = async (slot: keyof User['equippedItems']): Promise<{ success: boolean; error?: string; message?: string }> => {
+    try {
+      if (!user) {
+        return { success: false, error: 'User not logged in' };
+      }
+
+      const response = await fetch('/api/auth/unequip-item', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          slot,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: result.error || 'Failed to unequip item' };
+      }
+
+      // Update user data with returned user
+      if (result.user) {
+        setUser(result.user);
+        localStorage.setItem('rpg_user', JSON.stringify(result.user));
+      }
+
+      return { success: true, message: result.message };
+    } catch (error: any) {
+      console.error('Unequip item error:', error);
+      return { success: false, error: 'Internal server error' };
+    }
+  };
+
+  const refreshUser = async (): Promise<{ success: boolean; error?: string }> => {
+    try {
+      if (!user) {
+        return { success: false, error: 'User not logged in' };
+      }
+
+      const response = await fetch('/api/auth/get-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: result.error || 'Failed to refresh user data' };
+      }
+
+      // Update user data with returned user from database
+      if (result.user) {
+        setUser(result.user);
+        localStorage.setItem('rpg_user', JSON.stringify(result.user));
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Refresh user error:', error);
+      return { success: false, error: 'Internal server error' };
+    }
+  };
+
   const value: AuthContextType = {
     user,
     login,
@@ -999,6 +1106,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     removeMarketItem,
     buyShopItem,
     updateProfileImage,
+    equipItem,
+    unequipItem,
+    refreshUser,
     logout,
     isLoading,
   };

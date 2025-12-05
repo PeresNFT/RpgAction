@@ -91,6 +91,9 @@ export interface AuthContextType {
   // Shop functions
   buyShopItem: (shopItemId: string) => Promise<{ success: boolean; error?: string; message?: string }>;
   updateProfileImage: (imagePath: string) => Promise<{ success: boolean; error?: string }>;
+  equipItem: (itemId: string) => Promise<{ success: boolean; error?: string; message?: string }>;
+  unequipItem: (slot: keyof User['equippedItems']) => Promise<{ success: boolean; error?: string; message?: string }>;
+  refreshUser: () => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isLoading: boolean;
 }

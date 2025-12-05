@@ -1,11 +1,13 @@
 # Backgrounds das Abas
 
-Esta pasta contém os backgrounds para cada aba do jogo.
+Esta pasta contém os backgrounds para cada aba do jogo e da página inicial.
 
 ## Arquivos Necessários
 
-Cada aba deve ter seu próprio arquivo de background (PNG ou GIF):
+### Página Inicial
+- `BGinicial.png` ou `BGinicial.gif` - Background da página inicial (antes do login)
 
+### Abas do Jogo
 - `BGperfil.png` ou `BGperfil.gif` - Background da aba Perfil
 - `BGequipamento.png` ou `BGequipamento.gif` - Background da aba Equipamentos
 - `BGinventario.png` ou `BGinventario.gif` - Background da aba Inventário

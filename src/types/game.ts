@@ -39,6 +39,8 @@ export interface Item {
   healAmount?: number;  // Para poções de vida
   manaAmount?: number;  // Para poções de mana
   imagePath?: string;  // Caminho da imagem do item
+  requiredClass?: CharacterClass;  // Classe necessária para equipar
+  requiredLevel?: number;  // Nível mínimo necessário para equipar (padrão: 1)
 }
 
 export interface Monster {
