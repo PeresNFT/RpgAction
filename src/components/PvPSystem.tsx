@@ -533,7 +533,7 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-2xl font-bold text-white">🏆 Ranking PvP</h4>
               <button
-                onClick={loadRanking}
+                onClick={() => void loadRanking()}
                 disabled={isLoadingRanking || rankingRefreshCooldown > 0}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-bold transition-all duration-300 ${
                   isLoadingRanking || rankingRefreshCooldown > 0
