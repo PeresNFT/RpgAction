@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { MarketItem, Item } from '@/types/game';
 import { SHOP_ITEMS, ShopItem, ITEMS } from '@/data/gameData';
+import { Card } from '@/components/Card';
 
 interface MarketSystemProps {
   onListMarketItems: (currencyType?: 'gold' | 'diamonds', limit?: number, offset?: number) => Promise<{ success: boolean; items?: MarketItem[]; total?: number }>;
@@ -231,7 +232,7 @@ export function MarketSystem({
   return (
     <div className="space-y-6">
       {/* Header with currency display */}
-      <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+      <Card>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-3xl font-bold text-white">💎 Mercado</h3>
           <div className="flex items-center space-x-4">
@@ -326,14 +327,14 @@ export function MarketSystem({
             {error}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Browse Tab */}
       {activeTab === 'browse' && (
         <div className="space-y-6">
           {/* My Items on Market */}
           {myMarketItems.length > 0 && (
-            <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+            <Card>
               <h4 className="text-xl font-bold text-white mb-4">Meus Itens à Venda</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {myMarketItems.map((item) => (
@@ -388,11 +389,11 @@ export function MarketSystem({
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
 
           {/* Market Items List */}
-          <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+          <Card>
             <h4 className="text-xl font-bold text-white mb-4">Itens Disponíveis</h4>
             {isLoading ? (
               <div className="text-center py-12">
@@ -483,13 +484,13 @@ export function MarketSystem({
                   })}
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Sell Tab */}
       {activeTab === 'sell' && (
-        <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+        <Card>
           <h4 className="text-xl font-bold text-white mb-4">Vender Item</h4>
           <p className="text-dark-text-secondary text-sm mb-4">
             Selecione um item do seu inventário para vender. Você pode vender múltiplos itens do mesmo tipo em uma única venda.
@@ -532,13 +533,13 @@ export function MarketSystem({
               </div>
             </>
           )}
-        </div>
+        </Card>
       )}
 
       {/* Shop Tab */}
       {activeTab === 'shop' && (
         <div className="space-y-6">
-          <div className="p-6 rounded-2xl border border-dark-border card-glow" style={{ background: 'linear-gradient(135deg, rgba(22, 33, 62, 0.4) 0%, rgba(26, 26, 46, 0.4) 100%)' }}>
+          <Card>
             <h4 className="text-xl font-bold text-white mb-4">Loja NPC</h4>
             <p className="text-dark-text-secondary text-sm mb-6">
               Compre itens exclusivos diretamente da loja NPC. Poções podem ser compradas com ouro, 
@@ -559,10 +560,11 @@ export function MarketSystem({
                   const itemImagePath = gameItem?.imagePath;
                   
                   return (
-                    <div
+                    <Card
                       key={shopItem.id}
-                      className="p-4 rounded-xl border border-dark-border hover:scale-105 transition-all duration-300 flex flex-col"
-                      style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)', minHeight: '160px' }}
+                      variant="small"
+                      className="hover:scale-105 transition-all duration-300 flex flex-col"
+                      style={{ minHeight: '160px' }}
                     >
                       <div className="flex items-start space-x-3 mb-3 flex-shrink-0">
                         {itemImagePath ? (
@@ -623,7 +625,7 @@ export function MarketSystem({
                           {canAfford ? 'Comprar' : 'Sem ouro'}
                         </button>
                       </div>
-                    </div>
+                    </Card>
                   );
                 })}
               </div>
@@ -642,12 +644,12 @@ export function MarketSystem({
                   const canAfford = shopItem.priceDiamonds ? (userDiamonds || 0) >= shopItem.priceDiamonds : false;
                   
                   return (
-                    <div
+                    <Card
                       key={shopItem.id}
-                      className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                      variant="small"
+                      className={`border-2 transition-all duration-300 ${
                         isSelected ? 'border-accent-purple' : 'border-dark-border'
                       } ${isOwned ? 'hover:scale-105' : ''}`}
-                      style={{ backgroundColor: 'rgba(22, 33, 62, 0.7)' }}
                     >
                       <div className="flex flex-col items-center mb-3">
                         {shopItem.imagePath ? (
@@ -748,19 +750,19 @@ export function MarketSystem({
                           </>
                         )}
                       </div>
-                    </div>
+                    </Card>
                   );
                 })}
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Profile Image Modal */}
       {showProfileImageModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[9999]">
-          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow max-w-md w-full">
+          <Card className="max-w-md w-full">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-2xl font-bold text-white">Suas Fotos de Perfil</h3>
               <button
@@ -837,14 +839,14 @@ export function MarketSystem({
                 Você ainda não possui fotos de perfil. Compre algumas na loja!
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Add Item Modal */}
       {showAddModal && selectedItemToSell && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[9999]">
-          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow max-w-md w-full">
+          <Card className="max-w-md w-full">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-2xl font-bold text-white">Vender Item</h3>
               <button
@@ -861,7 +863,7 @@ export function MarketSystem({
               </button>
             </div>
 
-            <div className="p-4 rounded-xl border border-dark-border mb-4" style={{ backgroundColor: 'rgba(22, 33, 62, 0.4)' }}>
+            <Card variant="small" className="mb-4">
               <div className="flex items-center space-x-3 mb-2">
                 <span className="text-3xl">{selectedItemToSell.icon}</span>
                 <div className="flex-1">
@@ -872,7 +874,7 @@ export function MarketSystem({
                   </p>
                 </div>
               </div>
-            </div>
+            </Card>
 
             <div className="space-y-4">
               <div>
@@ -976,7 +978,7 @@ export function MarketSystem({
                 </button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </div>

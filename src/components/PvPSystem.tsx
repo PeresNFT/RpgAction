@@ -17,6 +17,7 @@ import {
 import { CHARACTER_CLASSES, getRankIcon } from '@/data/gameData';
 import { PvPSearchResult, PvPRanking, CharacterClass } from '@/types/game';
 import { ProfileImage } from '@/components/ProfileImage';
+import { Card } from '@/components/Card';
 
 // Helper function to get character image path based on class
 function getCharacterImagePath(characterClass: CharacterClass | null, isFemale: boolean = false): string | null {
@@ -257,7 +258,7 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
   return (
     <div className="space-y-6">
       {/* PvP Stats Header */}
-      <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+      <Card>
         <h3 className="text-3xl font-bold text-white mb-6">⚔️ Arena PvP</h3>
         
         {/* PvP Cooldown Timer */}
@@ -341,12 +342,12 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
             </div>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Battle Result Modal */}
       {battleResult && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+          <Card className="max-w-2xl w-full max-h-[80vh] overflow-y-auto">
             <div className="text-center mb-6">
               <div className="text-4xl mb-4">
                 {battleResult.winner?.id === userId ? '🏆' : '💀'}
@@ -402,7 +403,7 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
             >
               Continuar
             </button>
-          </div>
+          </Card>
         </div>
       )}
 
@@ -436,7 +437,7 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
       {/* Search Opponents Tab */}
       {activeTab === 'search' && (
         <div className="space-y-6">
-          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+          <Card>
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-2xl font-bold text-white">Buscar Oponentes</h4>
               <button
@@ -522,14 +523,14 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Ranking Tab */}
       {activeTab === 'ranking' && (
         <div className="space-y-6">
-          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+          <Card>
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-2xl font-bold text-white">🏆 Ranking PvP</h4>
               <button
@@ -601,7 +602,7 @@ export function PvPSystem({ onSearchOpponents, onStartBattle, onGetRanking, user
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
     </div>

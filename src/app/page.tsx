@@ -25,14 +25,6 @@ export default function HomePage() {
     }
   }, [user, isLoading, router]);
 
-  const handlePlayNow = () => {
-    if (user) {
-      // Redirect to game page
-      router.push('/game');
-    } else {
-      setShowAuthModal(true);
-    }
-  };
 
   const features = [
     {
@@ -134,7 +126,7 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative z-10">
+      <section className="pt-24 pb-8 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-7xl mx-auto text-center">
           <div className="mb-8">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
@@ -149,14 +141,6 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="mb-12">
-            <button
-              onClick={handlePlayNow}
-              className="bg-gradient-to-r from-primary-green to-primary-blue text-white text-xl px-8 py-4 rounded-2xl font-bold hover:from-primary-blue hover:to-primary-green transition-all duration-300 transform hover:scale-110 shadow-2xl"
-            >
-              {user ? 'Enter the Game' : 'Play Now'}
-            </button>
-          </div>
         </div>
       </section>
 
@@ -193,19 +177,13 @@ export default function HomePage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <div className="bg-gradient-to-br from-primary-brown to-primary-deep-orange p-12 rounded-2xl border-2 border-custom">
-            <h2 className="text-4xl font-bold text-white mb-6">
+            <h2 className="text-4xl font-bold text-white">
               Ready to Begin Your Adventure?
             </h2>
-            <p className="text-xl text-gray-200 mb-8">
+            <p className="text-xl text-gray-200">
               Join thousands of players in this epic RPG world. Create your character, 
               choose your path, and become a legend!
             </p>
-            <button
-              onClick={handlePlayNow}
-              className="bg-gradient-to-r from-primary-green to-primary-blue text-white text-xl px-8 py-4 rounded-2xl font-bold hover:from-primary-blue hover:to-primary-green transition-all duration-300 transform hover:scale-110 shadow-2xl"
-            >
-              {user ? 'Continue Your Journey' : 'Start Your Adventure'}
-            </button>
           </div>
         </div>
       </section>

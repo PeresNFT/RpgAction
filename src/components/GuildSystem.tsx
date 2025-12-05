@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Guild, GuildMember, GuildRanking } from '@/types/game';
 import { CHARACTER_CLASSES, getGuildIconImagePath, GUILD_ICONS } from '@/data/gameData';
+import { Card } from '@/components/Card';
 
 interface GuildSystemProps {
   onCreateGuild: (name: string, description?: string, icon?: string) => Promise<{ success: boolean; guild?: Guild }>;
@@ -313,7 +314,7 @@ export function GuildSystem({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+      <Card>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Shield className="w-8 h-8 text-white" />
@@ -323,7 +324,7 @@ export function GuildSystem({
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Error Message */}
       {error && (
@@ -379,7 +380,7 @@ export function GuildSystem({
       {activeTab === 'myGuild' && (
         <div className="space-y-6">
           {!guild ? (
-            <div className="bg-card-gradient p-8 rounded-2xl border border-dark-border card-glow text-center">
+            <Card className="text-center">
               <Shield className="w-16 h-16 text-dark-text-muted mx-auto mb-4" />
               <h3 className="text-2xl font-bold text-white mb-2">No Guild</h3>
               <p className="text-dark-text-secondary mb-6">Join an existing guild or create your own!</p>
@@ -399,11 +400,11 @@ export function GuildSystem({
                   <span>Search Guilds</span>
                 </button>
               </div>
-            </div>
+            </Card>
           ) : (
             <div className="space-y-6">
               {/* Guild Info Card */}
-              <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+              <Card>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-4">
                     <GuildIcon icon={guild.icon} size="large" />
@@ -543,10 +544,10 @@ export function GuildSystem({
                     <span>Leave Guild</span>
                   </button>
                 </div>
-              </div>
+              </Card>
 
               {/* Members List */}
-              <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+              <Card>
                 <h4 className="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
                   <Users className="w-5 h-5" />
                   <span>Members ({members.length})</span>
@@ -574,7 +575,7 @@ export function GuildSystem({
                     </div>
                   ))}
                 </div>
-              </div>
+              </Card>
             </div>
           )}
         </div>
@@ -583,7 +584,7 @@ export function GuildSystem({
       {/* Search Tab */}
       {activeTab === 'search' && (
         <div className="space-y-6">
-          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+          <Card>
             <h3 className="text-2xl font-bold text-white mb-4">Available Guilds</h3>
             {isLoading ? (
               <div className="text-center py-8 text-dark-text-secondary">Loading...</div>
@@ -624,14 +625,14 @@ export function GuildSystem({
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Ranking Tab */}
       {activeTab === 'ranking' && (
         <div className="space-y-6">
-          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow">
+          <Card>
             <h3 className="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
               <Trophy className="w-5 h-5" />
               <span>Guild Rankings</span>
@@ -666,14 +667,14 @@ export function GuildSystem({
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Create Guild Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow max-w-md w-full">
+          <Card className="max-w-md w-full">
             <h3 className="text-2xl font-bold text-white mb-4">Create Guild</h3>
             <div className="space-y-4">
               <div>
@@ -754,14 +755,14 @@ export function GuildSystem({
                 Cancel
               </button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Guild Bank Modal */}
       {showBankModal && guild && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-card-gradient p-6 rounded-2xl border border-dark-border card-glow max-w-md w-full">
+          <Card className="max-w-md w-full">
             <h3 className="text-2xl font-bold text-white mb-4">Guild Bank</h3>
             <div className="space-y-4">
               <div className="bg-dark-bg-card p-4 rounded-xl border border-dark-border">
@@ -828,7 +829,7 @@ export function GuildSystem({
                 Cancel
               </button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 

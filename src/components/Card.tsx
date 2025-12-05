@@ -17,9 +17,9 @@ export function Card({
   variant = 'main',
   onClick 
 }: CardProps) {
-  // Cor padrão: #9f72ed com 70% de transparência
+  // Cor padrão: 0, 0, 128 com 70% de transparência
   const baseStyle: React.CSSProperties = {
-    backgroundColor: 'rgba(0, 0, 128, 0.1)',
+    backgroundColor: 'rgba(1, 1, 35, 0.3)',
     ...style
   };
 

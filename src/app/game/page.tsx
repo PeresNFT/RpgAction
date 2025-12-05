@@ -1821,9 +1821,10 @@ export default function GamePage() {
                     const rarity = item.rarity || 'common';
                     
                     return (
-                      <div 
-                        key={index} 
-                        className={`${rarityColors[rarity] || rarityColors.common} p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg h-full flex flex-col min-h-[280px]`}
+                      <Card
+                        key={index}
+                        variant="small"
+                        className={`${rarityColors[rarity] || rarityColors.common} border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg h-full flex flex-col min-h-[280px]`}
                       >
                         <div className="flex flex-col space-y-3 flex-1">
                           <div className="flex items-start">
@@ -1948,7 +1949,7 @@ export default function GamePage() {
                             </button>
                           </div>
                         </div>
-                      </div>
+                      </Card>
                     );
                   })}
                 </div>
@@ -2774,7 +2775,7 @@ export default function GamePage() {
   if (showDeathMessage && deathInfo) {
     return (
       <div className="min-h-screen bg-black bg-opacity-75 flex items-center justify-center p-4 z-[9999] fixed inset-0">
-        <div className="bg-gradient-to-br from-red-900 to-red-800 p-8 rounded-2xl border-2 border-red-600 max-w-md w-full text-center">
+        <Card className="max-w-md w-full text-center" style={{ backgroundColor: 'rgba(139, 0, 0, 0.9)', borderColor: '#dc2626' }}>
           <div className="text-6xl mb-4">💀</div>
           <h2 className="text-3xl font-bold text-white mb-4">Você Morreu!</h2>
           
@@ -2806,7 +2807,7 @@ export default function GamePage() {
           >
             Entendi
           </button>
-        </div>
+        </Card>
       </div>
     );
   }
